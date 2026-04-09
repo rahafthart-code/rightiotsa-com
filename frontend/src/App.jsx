@@ -65,8 +65,8 @@ function AppShell({ children }) {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-20">
+    <div className="min-h-screen text-slate-100" style={{ background: 'var(--color-bg-primary)' }}>
+      <header className="backdrop-blur sticky top-0 z-20" style={{ background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid var(--color-border)' }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div
             className="flex items-center gap-2 cursor-pointer"
@@ -92,7 +92,7 @@ function AppShell({ children }) {
               <>
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="text-xs text-slate-300 hover:text-emerald-400 transition-colors"
+                  className="text-xs text-slate-300 hover:text-[#34d399] transition-colors"
                 >
                   {t('dashboard')}
                 </button>
@@ -108,7 +108,8 @@ function AppShell({ children }) {
             )}
             <button
               onClick={toggleLanguage}
-              className="px-2 py-1 text-xs font-medium rounded border border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-emerald-300 transition-colors"
+              className="px-2 py-1 text-xs font-medium rounded border text-slate-300 transition-colors"
+              style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-card)' }}
             >
               {i18n.language === 'ar' ? 'EN' : 'ع'}
             </button>
@@ -172,8 +173,8 @@ export default function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-            <div className="h-screen flex flex-col bg-slate-950">
-              <header className="border-b border-slate-800 bg-slate-950/70 backdrop-blur z-20">
+            <div className="h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
+               <header className="backdrop-blur z-20" style={{ background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid var(--color-border)' }}>
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
                   <div
                     className="flex items-center gap-2 cursor-pointer"
