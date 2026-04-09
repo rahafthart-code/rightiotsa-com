@@ -1,21 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
-  --color-sand-50: #fdf8f0;
-  --color-sand-100: #f5e6cc;
-  --color-sand-200: #e8d0a8;
   --color-sand-300: #d4b37a;
-  --color-sand-400: #c49a5c;
   --color-sand-500: #b08040;
-  --color-sand-600: #8c6633;
-  --color-sand-700: #6b4d27;
-
   --color-heritage-500: #006c35;
   --color-heritage-600: #005a2c;
-  --color-heritage-700: #004d25;
-
   --color-bg-primary: #0a1628;
   --color-bg-secondary: #0f1f35;
   --color-bg-card: #132743;
