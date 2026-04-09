@@ -1,7 +1,35 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-950 text-slate-100;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+:root {
+  /* Saudi Heritage Color Palette */
+  --color-sand-50: #fdf8f0;
+  --color-sand-100: #f5e6cc;
+  --color-sand-200: #e8d0a8;
+  --color-sand-300: #d4b37a;
+  --color-sand-400: #c49a5c;
+  --color-sand-500: #b08040;
+  --color-sand-600: #8c6633;
+  --color-sand-700: #6b4d27;
+
+  --color-heritage-50: #ecfdf5;
+  --color-heritage-100: #d1fae5;
+  --color-heritage-200: #a7f3d0;
+  --color-heritage-300: #6ee7b7;
+  --color-heritage-400: #34d399;
+  --color-heritage-500: #006c35;
+  --color-heritage-600: #005a2c;
+  --color-heritage-700: #004d25;
+  --color-heritage-800: #003d1e;
+  --color-heritage-900: #002d16;
+
+  --color-bg-primary: #0a1628;
+  --color-bg-secondary: #0f1f35;
+  --color-bg-card: #132743;
+  --color-border: #1e3a5f;
 }
 
+body {
+  background: var(--color-bg-primary);
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
