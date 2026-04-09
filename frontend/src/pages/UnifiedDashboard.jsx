@@ -26,9 +26,9 @@ export default function UnifiedDashboard() {
   const [healthData, setHealthData] = useState(null);
 
   const species = [
-    { value: "Camel", label: t("camels"), emoji: "🐪" },
-    { value: "Horse", label: t("horses"), emoji: "🐴" },
-    { value: "Falcon", label: t("falcons"), emoji: "🦅" }
+    { value: "Camel", label: t("camels"), emoji: "🐪", color: "from-[#006c35] to-[#34d399]" },
+    { value: "Horse", label: t("horses"), emoji: "🐴", color: "from-[#b08040] to-[#d4b37a]" },
+    { value: "Falcon", label: t("falcons"), emoji: "🦅", color: "from-[#6b4d27] to-[#c49a5c]" }
   ];
 
   // Fetch all animals
@@ -39,11 +39,6 @@ export default function UnifiedDashboard() {
         const data = await api.listMyAnimals();
         setAllAnimals(data);
         setError(null);
-        
-        // DISABLED: Notification permission request disabled for demo
-        // if (Notification.permission === "default") {
-        //   Notification.requestPermission();
-        // }
       } catch (err) {
         console.error("Error fetching animals:", err);
         if (err.response?.status === 401) {
@@ -58,8 +53,6 @@ export default function UnifiedDashboard() {
     };
     
     fetchAnimals();
-    
-    // Auto-refresh every 10 seconds for simulation mode
     const interval = setInterval(fetchAnimals, 10000);
     return () => clearInterval(interval);
   }, [navigate, t]);
@@ -68,8 +61,6 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     const filtered = allAnimals.filter(animal => animal.species === selectedSpecies);
     setFilteredAnimals(filtered);
-    
-    // Auto-select first animal of the species
     if (filtered.length > 0) {
       setSelectedAnimal(filtered[0]);
     } else {
@@ -104,20 +95,6 @@ export default function UnifiedDashboard() {
       try {
         const data = await api.getLatestHealth(selectedAnimal.device_imei);
         setHealthData(data);
-        
-        // MUTED: High stress alerts disabled for demo
-        // if (data.status === "high_stress" && Notification.permission === "granted") {
-        //   new Audio('/alert.mp3').play().catch(() => {});
-        //   new Notification(
-        //     i18n.language === 'ar' ? 'تنبيه صحي' : 'Health Alert',
-        //     {
-        //       body: i18n.language === 'ar' 
-        //         ? `${selectedAnimal.name}: إجهاد عالٍ - نبض القلب ${data.heart_rate} bpm`
-        //         : `${selectedAnimal.name}: High Stress - Heart rate ${data.heart_rate} bpm`,
-        //       icon: '/favicon.ico'
-        //     }
-        //   );
-        // }
       } catch (err) {
         console.error("Error fetching health:", err);
       }
@@ -140,21 +117,14 @@ export default function UnifiedDashboard() {
       try {
         mapboxgl.accessToken = MAPBOX_TOKEN;
         
-        // CRITICAL: Enable RTL text rendering for Arabic BEFORE creating map
         if (typeof mapboxgl.setRTLTextPlugin === 'function') {
           try {
             const status = mapboxgl.getRTLTextPluginStatus();
             if (status === 'unavailable') {
               mapboxgl.setRTLTextPlugin(
                 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
-                (error) => {
-                  if (error) {
-                    console.error('RTL plugin error:', error);
-                  } else {
-                    console.log('RTL plugin loaded successfully');
-                  }
-                },
-                true // lazy load
+                (error) => { if (error) console.error('RTL plugin error:', error); },
+                true
               );
             }
           } catch (e) {
@@ -162,11 +132,8 @@ export default function UnifiedDashboard() {
           }
         }
         
-        // Detect user's browser language
         const userLang = i18n.language || navigator.language?.split('-')[0] || 'ar';
         const isArabic = userLang === 'ar';
-        
-        console.log('Map language detected:', userLang, 'isArabic:', isArabic);
         
         const map = new mapboxgl.Map({
           container: "map",
@@ -175,58 +142,23 @@ export default function UnifiedDashboard() {
           zoom: 12
         });
 
-        // Set map language dynamically based on browser/user preference
         map.on('load', () => {
           const layers = map.getStyle().layers;
-          
-          // Determine which language field to use
           const nameField = isArabic ? 'name_ar' : 'name_en';
           const fallbackField = isArabic ? 'name' : 'name_en';
           
-          // Set specific label layers
-          const labelLayers = [
-            'country-label',
-            'state-label', 
-            'settlement-label',
-            'settlement-subdivision-label',
-            'settlement-minor-label'
-          ];
-          
-          labelLayers.forEach(layerId => {
-            try {
-              if (map.getLayer(layerId)) {
-                map.setLayoutProperty(
-                  layerId, 
-                  'text-field', 
-                  ['coalesce', ['get', nameField], ['get', fallbackField], ['get', 'name']]
-                );
-              }
-            } catch (e) {
-              // Layer doesn't exist or doesn't support text-field
-            }
-          });
-          
-          // Auto-detect and set all other label layers
           layers.forEach(layer => {
             if (layer.id.includes('label') && layer.layout && layer.layout['text-field']) {
               try {
-                map.setLayoutProperty(
-                  layer.id, 
-                  'text-field', 
-                  ['coalesce', ['get', nameField], ['get', fallbackField], ['get', 'name']]
-                );
-              } catch (e) {
-                // Ignore errors for layers that don't support this
-              }
+                map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', nameField], ['get', fallbackField], ['get', 'name']]);
+              } catch (e) {}
             }
           });
-          
-          console.log(`Map labels set to: ${isArabic ? 'Arabic' : 'English'}`);
         });
 
         map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-        const marker = new mapboxgl.Marker({ color: "#10b981" })
+        const marker = new mapboxgl.Marker({ color: "#006c35" })
           .setLngLat([latestTelemetry.lng, latestTelemetry.lat])
           .addTo(map);
 
@@ -244,9 +176,8 @@ export default function UnifiedDashboard() {
 
     const cleanup = initMap();
     return cleanup;
-  }, [latestTelemetry, i18n.language, satelliteView]); // Re-render when language or view changes
+  }, [latestTelemetry, i18n.language, satelliteView]);
 
-  // Update marker position when telemetry changes
   useEffect(() => {
     if (markerInstance && latestTelemetry && mapInstance) {
       const newPos = [latestTelemetry.lng, latestTelemetry.lat];
@@ -260,105 +191,78 @@ export default function UnifiedDashboard() {
     navigate('/');
   };
 
-  const handleGoHome = () => {
-    navigate('/');
-  };
+  const handleGoHome = () => navigate('/');
+  const handleProfile = () => navigate('/profile');
 
-  const handleProfile = () => {
-    // Navigate to profile page
-    navigate('/profile');
-  };
+  const currentSpecies = species.find(s => s.value === selectedSpecies);
 
   return (
-    <div className="flex h-full bg-slate-950">
-      {/* Unified Sidebar */}
-      <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col">
-        {/* Navigation Header with Profile & Logout */}
-        <div className="p-4 bg-gradient-to-r from-emerald-600/10 to-emerald-700/10 border-b border-emerald-500/20">
+    <div className="flex h-full" style={{ background: 'var(--color-bg-primary)' }}>
+      {/* Sidebar */}
+      <aside className="w-72 flex flex-col border-r" style={{ background: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
+        {/* Header with Saudi green accent */}
+        <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)', background: 'linear-gradient(135deg, rgba(0,108,53,0.15), rgba(176,128,64,0.1))' }}>
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-emerald-400 text-sm">
+            <div className="flex items-center gap-2 text-sm" style={{ color: '#34d399' }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="font-medium">{i18n.language === 'ar' ? 'اشتراك نشط' : 'Active Subscription'}</span>
             </div>
             <div className="flex items-center gap-2">
-              {/* Profile Button */}
-              <button
-                onClick={handleProfile}
-                className="p-1.5 hover:bg-slate-800 rounded-lg transition-colors"
-                title={i18n.language === 'ar' ? 'الملف الشخصي' : 'Profile'}
-              >
-                <svg className="w-4 h-4 text-slate-400 hover:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button onClick={handleProfile} className="p-1.5 hover:bg-white/5 rounded-lg transition-colors" title={i18n.language === 'ar' ? 'الملف الشخصي' : 'Profile'}>
+                <svg className="w-4 h-4 text-slate-400 hover:text-[#34d399]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </button>
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="p-1.5 hover:bg-red-500/10 rounded-lg transition-colors"
-                title={i18n.language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
-              >
+              <button onClick={handleLogout} className="p-1.5 hover:bg-red-500/10 rounded-lg transition-colors" title={i18n.language === 'ar' ? 'تسجيل الخروج' : 'Logout'}>
                 <svg className="w-4 h-4 text-slate-400 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </button>
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-100">
-            365 {i18n.language === 'ar' ? 'يوم' : 'days'}
-          </div>
-          <div className="text-xs text-slate-400 mt-1">
-            {i18n.language === 'ar' ? 'متبقي في اشتراكك' : 'remaining in your subscription'}
-          </div>
+          <div className="text-2xl font-bold text-slate-100">365 {i18n.language === 'ar' ? 'يوم' : 'days'}</div>
+          <div className="text-xs text-slate-400 mt-1">{i18n.language === 'ar' ? 'متبقي في اشتراكك' : 'remaining in your subscription'}</div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="px-4 py-3 border-b border-slate-800">
+        {/* Navigation */}
+        <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
           <div className="space-y-2">
-            {/* Home Button */}
-            <button
-              onClick={handleGoHome}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 rounded-lg transition-all group"
-            >
+            <button onClick={handleGoHome} className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:bg-[#006c35]/10 hover:text-[#34d399] rounded-lg transition-all group">
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span className="text-sm font-medium">
-                {i18n.language === 'ar' ? 'الرئيسية' : 'Home'}
-              </span>
+              <span className="text-sm font-medium">{i18n.language === 'ar' ? 'الرئيسية' : 'Home'}</span>
             </button>
-            
-            {/* My Assets Button */}
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:bg-blue-500/10 hover:text-blue-400 rounded-lg transition-all group"
-            >
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-300 hover:bg-[#b08040]/10 hover:text-[#d4b37a] rounded-lg transition-all group">
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
-              <span className="text-sm font-medium">
-                {i18n.language === 'ar' ? 'أصولي' : 'My Assets'}
-              </span>
+              <span className="text-sm font-medium">{i18n.language === 'ar' ? 'أصولي' : 'My Assets'}</span>
             </button>
           </div>
         </div>
 
-        {/* Species Tabs */}
-        <div className="p-4 border-b border-slate-800">
+        {/* Species Tabs - Saudi Heritage themed */}
+        <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-semibold">
+            {i18n.language === 'ar' ? 'نوع الأصول' : 'Asset Type'}
+          </div>
           <div className="flex gap-2">
             {species.map((sp) => (
               <button
                 key={sp.value}
                 onClick={() => setSelectedSpecies(sp.value)}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   selectedSpecies === sp.value
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                    ? `bg-gradient-to-br ${sp.color} text-white shadow-lg`
+                    : "text-slate-300 hover:bg-white/5"
                 }`}
+                style={selectedSpecies !== sp.value ? { background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' } : {}}
               >
                 <span className="block text-lg">{sp.emoji}</span>
-                <span className="block text-xs mt-1">{sp.label}</span>
+                <span className="block text-[10px] mt-1">{sp.label}</span>
               </button>
             ))}
           </div>
@@ -366,43 +270,30 @@ export default function UnifiedDashboard() {
 
         {/* Animals List */}
         <div className="flex-1 overflow-y-auto">
-          {loading && (
-            <div className="p-4 text-center text-slate-400">{t("loading")}</div>
-          )}
-          
-          {error && (
-            <div className="p-4 text-sm text-red-400">{error}</div>
-          )}
+          {loading && <div className="p-4 text-center text-slate-400">{t("loading")}</div>}
+          {error && <div className="p-4 text-sm text-red-400">{error}</div>}
           
           {!loading && !error && filteredAnimals.length === 0 && (
             <div className="p-4 space-y-3">
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <div className="rounded-xl p-4" style={{ background: 'rgba(0,108,53,0.08)', border: '1px solid rgba(0,108,53,0.2)' }}>
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#34d399' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-sm">
-                    <p className="text-blue-200 font-medium mb-1">
+                    <p className="font-medium mb-1" style={{ color: '#a7f3d0' }}>
                       {i18n.language === 'ar' ? 'لا توجد أجهزة مسجلة لهذا النوع' : 'No devices registered for this species'}
                     </p>
-                    <p className="text-blue-300 text-xs">
-                      {i18n.language === 'ar' 
-                        ? 'جرّب النوع الآخر أو تواصل مع المدير لتسجيل أجهزة جديدة'
-                        : 'Try another species or contact admin to register new devices'
-                      }
+                    <p className="text-xs" style={{ color: '#6ee7b7' }}>
+                      {i18n.language === 'ar' ? 'جرّب النوع الآخر أو تواصل مع المدير' : 'Try another species or contact admin'}
                     </p>
                   </div>
                 </div>
               </div>
-              
-              {/* Interactive Demo Preview */}
               {allAnimals.length > 0 && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4">
-                  <p className="text-emerald-300 text-sm text-center">
-                    {i18n.language === 'ar' 
-                      ? '💡 لديك أجهزة مسجلة من أنواع أخرى - اختر النوع من الأعلى'
-                      : '💡 You have devices registered for other species - select type above'
-                    }
+                <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(176,128,64,0.08)', border: '1px solid rgba(176,128,64,0.2)' }}>
+                  <p className="text-sm" style={{ color: '#d4b37a' }}>
+                    {i18n.language === 'ar' ? '💡 لديك أجهزة مسجلة من أنواع أخرى' : '💡 You have devices for other species'}
                   </p>
                 </div>
               )}
@@ -417,22 +308,19 @@ export default function UnifiedDashboard() {
               <div
                 key={animal.id}
                 onClick={() => setSelectedAnimal(animal)}
-                className={`p-4 border-b border-slate-800 cursor-pointer transition-colors ${
-                  selectedAnimal?.id === animal.id
-                    ? "bg-slate-800"
-                    : "hover:bg-slate-800/50"
-                }`}
+                className={`p-4 cursor-pointer transition-all border-b`}
+                style={{
+                  borderColor: 'var(--color-border)',
+                  background: selectedAnimal?.id === animal.id ? 'rgba(0,108,53,0.1)' : 'transparent',
+                  borderLeft: selectedAnimal?.id === animal.id ? '3px solid #006c35' : '3px solid transparent',
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-slate-100">
-                      {t(animal.name) || animal.name}
-                    </h3>
+                    <h3 className="font-medium text-slate-100">{t(animal.name) || animal.name}</h3>
                     <p className="text-xs text-slate-500 mt-1">{animal.device_imei}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded ${colors}`}>
-                    {t(status)}
-                  </span>
+                  <span className={`px-2 py-1 text-xs rounded-full ${colors}`}>{t(status)}</span>
                 </div>
               </div>
             );
@@ -444,9 +332,9 @@ export default function UnifiedDashboard() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {!selectedAnimal && allAnimals.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-8">
-            <div className="max-w-2xl w-full bg-slate-800/50 border border-slate-700 rounded-2xl p-8 text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="max-w-2xl w-full rounded-2xl p-8 text-center" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.2), rgba(176,128,64,0.2))' }}>
+                <svg className="w-10 h-10" style={{ color: '#34d399' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
@@ -455,108 +343,83 @@ export default function UnifiedDashboard() {
               </h2>
               <p className="text-slate-300 mb-6 leading-relaxed">
                 {i18n.language === 'ar' 
-                  ? 'لا توجد أجهزة مسجلة حالياً. شاهد عرضاً توضيحياً تفاعلياً لإمكانيات النظام مع بيانات محاكاة لـ "خزامة" (ناقة) مع مؤشرات صحية وتتبع حركة فوري.'
-                  : 'No devices registered yet. Watch an interactive demo of the system capabilities with simulated data for "Khozama" (Camel) including health metrics and real-time movement tracking.'
-                }
+                  ? 'لا توجد أجهزة مسجلة حالياً. شاهد عرضاً توضيحياً تفاعلياً لإمكانيات النظام.'
+                  : 'No devices registered yet. Watch an interactive demo of the system capabilities.'}
               </p>
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                  <div className="text-2xl mb-2">📍</div>
-                  <div className="text-sm text-slate-400">{i18n.language === 'ar' ? 'تتبع GPS' : 'GPS Tracking'}</div>
-                </div>
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                  <div className="text-2xl mb-2">❤️</div>
-                  <div className="text-sm text-slate-400">{i18n.language === 'ar' ? 'المؤشرات الحيوية' : 'Vital Signs'}</div>
-                </div>
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                  <div className="text-2xl mb-2">🔔</div>
-                  <div className="text-sm text-slate-400">{i18n.language === 'ar' ? 'تنبيهات فورية' : 'Instant Alerts'}</div>
-                </div>
+                {[
+                  { icon: "📍", label: i18n.language === 'ar' ? 'تتبع GPS' : 'GPS Tracking' },
+                  { icon: "❤️", label: i18n.language === 'ar' ? 'المؤشرات الحيوية' : 'Vital Signs' },
+                  { icon: "🔔", label: i18n.language === 'ar' ? 'تنبيهات فورية' : 'Instant Alerts' },
+                ].map((item, i) => (
+                  <div key={i} className="rounded-xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+                    <div className="text-2xl mb-2">{item.icon}</div>
+                    <div className="text-sm text-slate-400">{item.label}</div>
+                  </div>
+                ))}
               </div>
-              <p className="text-slate-500 text-sm">
-                {i18n.language === 'ar' 
-                  ? 'تواصل مع فريق الدعم لطلب الأجهزة وتفعيل حسابك'
-                  : 'Contact support team to order devices and activate your account'
-                }
-              </p>
             </div>
           </div>
         ) : !selectedAnimal ? (
-          <div className="flex-1 flex items-center justify-center text-slate-500">
-            {t("selectAnimal")}
-          </div>
+          <div className="flex-1 flex items-center justify-center text-slate-500">{t("selectAnimal")}</div>
         ) : (
           <>
-            {/* Header */}
-            <header className="p-6 bg-slate-900 border-b border-slate-800">
+            {/* Animal Header */}
+            <header className="p-6 border-b" style={{ background: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold text-slate-100">
-                    {t(selectedAnimal.name) || selectedAnimal.name}
-                  </h1>
-                {healthData && healthData.status === "excellent" && (
-                  <span className="px-3 py-1 bg-green-500/20 border border-green-500/40 text-green-300 text-sm font-medium rounded-full">
-                    ✓ {t('excellent')}
-                  </span>
-                )}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.2), rgba(176,128,64,0.15))' }}>
+                    {currentSpecies?.emoji}
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-100">
+                      {t(selectedAnimal.name) || selectedAnimal.name}
+                    </h1>
+                    <p className="text-sm text-slate-400 mt-0.5">
+                      {currentSpecies?.label} • {selectedAnimal.device_imei}
+                      {healthData?.heart_rate && <span className="ml-2">• ❤️ {healthData.heart_rate} bpm</span>}
+                    </p>
+                  </div>
+                  {healthData?.status === "excellent" && (
+                    <span className="px-3 py-1 text-sm font-medium rounded-full" style={{ background: 'rgba(0,108,53,0.15)', border: '1px solid rgba(0,108,53,0.3)', color: '#34d399' }}>
+                      ✓ {t('excellent')}
+                    </span>
+                  )}
                 </div>
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-4 py-3">
-                  <div className="text-xs text-blue-300 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span>🔋</span>
-                      <span>{t('battery')}: 5 {i18n.language === 'ar' ? 'سنوات' : 'Years'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>📡</span>
-                      <span>{t('network')}: Sigfox 0G</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>✅</span>
-                      <span>{t('status')}: {i18n.language === 'ar' ? 'نشط' : 'Active'}</span>
-                    </div>
+                <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(176,128,64,0.08)', border: '1px solid rgba(176,128,64,0.2)' }}>
+                  <div className="text-xs space-y-1" style={{ color: '#d4b37a' }}>
+                    <div className="flex items-center gap-2"><span>🔋</span><span>{t('battery')}: 5 {i18n.language === 'ar' ? 'سنوات' : 'Years'}</span></div>
+                    <div className="flex items-center gap-2"><span>📡</span><span>{t('network')}: Sigfox 0G</span></div>
+                    <div className="flex items-center gap-2"><span>✅</span><span>{t('status')}: {i18n.language === 'ar' ? 'نشط' : 'Active'}</span></div>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-slate-400 mt-1">
-                {species.find(s => s.value === selectedAnimal.species)?.label} • {selectedAnimal.device_imei}
-                {healthData && healthData.heart_rate && (
-                  <span className="ml-2">
-                    • ❤️ {healthData.heart_rate} bpm
-                  </span>
-                )}
-              </p>
             </header>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ background: 'var(--color-bg-primary)' }}>
               {/* Map */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-200">
-                    {t("location")}
-                  </h2>
+                  <h2 className="text-lg font-semibold text-slate-200">{t("location")}</h2>
                   {latestTelemetry && MAPBOX_TOKEN && !MAPBOX_TOKEN.includes("placeholder") && (
                     <button
                       onClick={() => setSatelliteView(!satelliteView)}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg transition-all flex items-center gap-2"
+                      className="px-4 py-2 text-sm rounded-lg transition-all flex items-center gap-2"
+                      style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: '#e2e8f0' }}
                     >
                       {satelliteView ? '🗺️' : '🛰️'}
                       <span>{i18n.language === 'ar' ? (satelliteView ? 'خريطة عادية' : 'الأقمار الصناعية') : (satelliteView ? 'Map View' : 'Satellite View')}</span>
                     </button>
                   )}
                 </div>
-                <div className="bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                <div className="rounded-xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
                   {!MAPBOX_TOKEN || MAPBOX_TOKEN.includes("placeholder") ? (
-                    <div className="h-96 flex items-center justify-center bg-slate-950 text-slate-500">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">🗺️</div>
-                        <p>Mapbox token not configured</p>
-                      </div>
+                    <div className="h-96 flex items-center justify-center text-slate-500" style={{ background: 'var(--color-bg-primary)' }}>
+                      <div className="text-center"><div className="text-4xl mb-2">🗺️</div><p>Mapbox token not configured</p></div>
                     </div>
                   ) : !latestTelemetry ? (
-                    <div className="h-96 flex items-center justify-center bg-slate-950 text-slate-500">
-                      No location data available
-                    </div>
+                    <div className="h-96 flex items-center justify-center text-slate-500" style={{ background: 'var(--color-bg-primary)' }}>No location data available</div>
                   ) : (
                     <div id="map" className="h-96 w-full" />
                   )}
@@ -572,72 +435,38 @@ export default function UnifiedDashboard() {
 
               {/* Status Cards */}
               <section className="grid grid-cols-3 gap-4">
-                {/* Battery */}
-                <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
-                    {t("battery")}
-                  </div>
-                  <div className="text-2xl font-bold text-green-400">
+                <div className="p-4 rounded-xl" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t("battery")}</div>
+                  <div className="text-2xl font-bold" style={{ color: '#34d399' }}>
                     {latestTelemetry?.battery != null ? `${latestTelemetry.battery}%` : "—"}
                   </div>
-                  <div className="mt-1 text-[11px] text-slate-500">
-                    {t("batteryInfo")}
-                  </div>
+                  <div className="mt-1 text-[11px] text-slate-500">{t("batteryInfo")}</div>
                 </div>
-
-                {/* Activity */}
-                <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
-                    {t("activity")}
-                  </div>
-                  <div className="text-sm text-slate-100">
-                    {latestTelemetry?.status ? (t(latestTelemetry.status) || latestTelemetry.status) : t("noRecentActivity")}
-                  </div>
-                  <div className="mt-1 text-[11px] text-slate-500">
-                    {t("statusInfo")}
-                  </div>
+                <div className="p-4 rounded-xl" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t("activity")}</div>
+                  <div className="text-sm text-slate-100">{latestTelemetry?.status ? (t(latestTelemetry.status) || latestTelemetry.status) : t("noRecentActivity")}</div>
+                  <div className="mt-1 text-[11px] text-slate-500">{t("statusInfo")}</div>
                 </div>
-
-                {/* Connectivity */}
-                <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">
-                    {t("connectivityStatus")}
-                  </div>
+                <div className="p-4 rounded-xl" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                  <div className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t("connectivityStatus")}</div>
                   {(() => {
                     const status = getConnectivityStatus(selectedAnimal.last_seen_at);
                     const colors = getConnectivityColors(status);
-                    return (
-                      <div className={`inline-block px-2 py-1 text-sm rounded ${colors}`}>
-                        {t(status)}
-                      </div>
-                    );
+                    return <div className={`inline-block px-2 py-1 text-sm rounded-full ${colors}`}>{t(status)}</div>;
                   })()}
-                  <div className="mt-1 text-[11px] text-slate-500">
-                    Last seen status
-                  </div>
                 </div>
               </section>
 
               {/* Movements Table */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-200">
-                    {t("lastMovements")}
-                  </h2>
+                  <h2 className="text-lg font-semibold text-slate-200">{t("lastMovements")}</h2>
                   <button
                     onClick={() => {
-                      // Export telemetry data as CSV
                       const csvContent = [
                         ['Timestamp', 'Latitude', 'Longitude', 'Battery', 'Status'],
-                        ...telemetryRecords.map(t => [
-                          new Date(t.timestamp).toISOString(),
-                          t.lat,
-                          t.lng,
-                          t.battery,
-                          t.status
-                        ])
+                        ...telemetryRecords.map(t => [new Date(t.timestamp).toISOString(), t.lat, t.lng, t.battery, t.status])
                       ].map(row => row.join(',')).join('\n');
-                      
                       const blob = new Blob([csvContent], { type: 'text/csv' });
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
@@ -645,51 +474,32 @@ export default function UnifiedDashboard() {
                       a.download = `${selectedAnimal.name}_telemetry_${new Date().toISOString()}.csv`;
                       a.click();
                     }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all"
+                    className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-all"
+                    style={{ background: 'linear-gradient(135deg, #006c35, #005a2c)' }}
                   >
                     {i18n.language === 'ar' ? '📥 تصدير التقرير' : '📥 Export Report'}
                   </button>
                 </div>
-                <div className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
+                <div className="rounded-xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
                   <table className="w-full">
-                    <thead className="bg-slate-800">
+                    <thead style={{ background: 'var(--color-bg-secondary)' }}>
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs uppercase text-slate-400">
-                          {t("time")}
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs uppercase text-slate-400">
-                          {t("location")}
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs uppercase text-slate-400">
-                          {t("battery")}
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs uppercase text-slate-400">
-                          {t("status")}
-                        </th>
+                        <th className="px-4 py-3 text-left text-xs uppercase text-slate-400">{t("time")}</th>
+                        <th className="px-4 py-3 text-left text-xs uppercase text-slate-400">{t("location")}</th>
+                        <th className="px-4 py-3 text-left text-xs uppercase text-slate-400">{t("battery")}</th>
+                        <th className="px-4 py-3 text-left text-xs uppercase text-slate-400">{t("status")}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {telemetryRecords.length === 0 ? (
-                        <tr>
-                          <td colSpan="4" className="px-4 py-8 text-center text-slate-500">
-                            {t("noTelemetryFrames")}
-                          </td>
-                        </tr>
+                        <tr><td colSpan="4" className="px-4 py-8 text-center text-slate-500">{t("noTelemetryFrames")}</td></tr>
                       ) : (
                         telemetryRecords.slice(0, 10).map((item, idx) => (
-                          <tr key={idx} className="border-t border-slate-800">
-                            <td className="px-4 py-2 text-slate-300 text-sm">
-                              {new Date(item.timestamp).toLocaleString()}
-                            </td>
-                            <td className="px-4 py-2 text-slate-400 text-sm font-mono">
-                              {item.lat.toFixed(5)}, {item.lng.toFixed(5)}
-                            </td>
-                            <td className="px-4 py-2 text-slate-100">
-                              {item.battery != null ? `${item.battery}%` : "—"}
-                            </td>
-                            <td className="px-4 py-2 text-slate-200">
-                              {item.status ? (t(item.status) || item.status) : "—"}
-                            </td>
+                          <tr key={idx} className="border-t" style={{ borderColor: 'var(--color-border)' }}>
+                            <td className="px-4 py-2 text-slate-300 text-sm">{new Date(item.timestamp).toLocaleString()}</td>
+                            <td className="px-4 py-2 text-slate-400 text-sm font-mono">{item.lat.toFixed(5)}, {item.lng.toFixed(5)}</td>
+                            <td className="px-4 py-2 text-slate-100">{item.battery != null ? `${item.battery}%` : "—"}</td>
+                            <td className="px-4 py-2 text-slate-200">{item.status ? (t(item.status) || item.status) : "—"}</td>
                           </tr>
                         ))
                       )}

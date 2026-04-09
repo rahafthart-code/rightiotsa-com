@@ -1,7 +1,18 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-950 text-slate-100;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+:root {
+  --color-sand-300: #d4b37a;
+  --color-sand-500: #b08040;
+  --color-heritage-500: #006c35;
+  --color-heritage-600: #005a2c;
+  --color-bg-primary: #0a1628;
+  --color-bg-secondary: #0f1f35;
+  --color-bg-card: #132743;
+  --color-border: #1e3a5f;
 }
 
+body {
+  background: var(--color-bg-primary);
+  color: #e2e8f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
