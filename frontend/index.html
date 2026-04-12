@@ -1,16 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <title>Right - Smart Herd Management & Tracking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Right - Premium livestock tracking platform with real-time GPS monitoring for Camels, Horses, and Falcons" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      html, body { direction: rtl !important; text-align: right !important; font-family: 'Cairo', sans-serif; }
+    </style>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#10b981" />
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet" />
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js"></script>
   </head>
-  <body>
+  <body class="bg-slate-950">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+window.smartAssetHandler = {
+    checkGeofence: function(lat, lng) {
+        const safeZone = { lat: 24.7136, lng: 46.6753, radius: 500 };
+        const distance = Math.sqrt(Math.pow(lat - safeZone.lat, 2) + Math.pow(lng - safeZone.lng, 2));
+        return distance > safeZone.radius ? "OUTSIDE_ALERT" : "SAFE";
+    },
+    processVitals: function(heartRate) {
+        if (heartRate > 120) console.warn("High Heart Rate Detected!");
+    }
+};
+console.log("Right InsurTech: IoT Logic Active");
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").catch(function () {});
+        });
+      }
+    </script>
   </body>
 </html>
