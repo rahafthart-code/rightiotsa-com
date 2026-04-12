@@ -1,18 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  --color-sand-300: #d4b37a;
-  --color-sand-500: #b08040;
-  --color-heritage-500: #006c35;
-  --color-heritage-600: #005a2c;
-  --color-bg-primary: #0a1628;
-  --color-bg-secondary: #0f1f35;
-  --color-bg-card: #132743;
-  --color-border: #1e3a5f;
+  /* Saudi Heritage Color Palette */
+  --color-royal-green: #006c35;
+  --color-royal-green-light: #008c45;
+  --color-royal-green-dark: #005a2c;
+  --color-desert-gold: #c5a55a;
+  --color-desert-gold-light: #d4b37a;
+  --color-desert-gold-dark: #a88932;
+  --color-cream: #faf6ef;
+  --color-cream-dark: #f0e8d8;
+  --color-cream-darker: #e6dcc8;
+  
+  /* Functional tokens */
+  --color-bg-primary: #faf6ef;
+  --color-bg-secondary: #f0e8d8;
+  --color-bg-card: #ffffff;
+  --color-border: #e6dcc8;
+  --color-text-primary: #1a2e1a;
+  --color-text-secondary: #4a5d4a;
+  --color-text-muted: #7a8d7a;
+  
+  /* Alert colors */
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-success: #006c35;
+  --color-success-bg: #f0fdf4;
+}
+
+* {
+  font-family: 'Cairo', system-ui, -apple-system, sans-serif;
 }
 
 body {
   background: var(--color-bg-primary);
-  color: #e2e8f0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--color-text-primary);
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-desert-gold);
+  border-radius: 3px;
 }
