@@ -29,21 +29,15 @@ function useAuth() {
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location }} />;
   return children;
 }
 
 function AdminRoute({ children }) {
   const { isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-  if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -65,53 +59,31 @@ function AppShell({ children }) {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen text-slate-100" style={{ background: 'var(--color-bg-primary)' }}>
-      <header className="backdrop-blur sticky top-0 z-20" style={{ background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid var(--color-border)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}>
+      <header className="sticky top-0 z-20 shadow-sm" style={{ background: 'var(--color-royal-green)', borderBottom: '3px solid var(--color-desert-gold)' }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <div
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate(isAuthenticated ? "/dashboard" : "/login")}
-          >
-            <img 
-              src={logoImage} 
-              alt="Right Logo" 
-              className="h-8 w-auto"
-              style={{ objectFit: 'contain', background: 'transparent' }}
-            />
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/login")}>
+            <img src={logoImage} alt="Right Logo" className="h-8 w-auto" style={{ objectFit: 'contain' }} />
             <div>
-              <div className="text-sm font-semibold tracking-wide text-slate-100">
-                {t('appName')}
-              </div>
-              <div className="text-[11px] text-slate-400">
-                {t('tagline')}
-              </div>
+              <div className="text-sm font-bold tracking-wide text-white">{t('appName')}</div>
+              <div className="text-[11px]" style={{ color: 'var(--color-desert-gold-light)' }}>{t('tagline')}</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated && (
               <>
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="text-xs text-slate-300 hover:text-[#34d399] transition-colors"
-                >
+                <button onClick={() => navigate('/dashboard')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
                   {t('dashboard')}
                 </button>
                 {useAuth().isAdmin && (
-                  <button
-                    onClick={() => navigate('/admin-portal')}
-                    className="text-xs text-slate-300 hover:text-emerald-400 transition-colors"
-                  >
+                  <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
                     {t('adminPortal')}
                   </button>
                 )}
               </>
             )}
-            <button
-              onClick={toggleLanguage}
-              className="px-2 py-1 text-xs font-medium rounded border text-slate-300 transition-colors"
-              style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-card)' }}
-            >
-              {i18n.language === 'ar' ? 'EN' : 'ع'}
+            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
+              {i18n.language === 'ar' ? 'EN' : 'عربي'}
             </button>
           </div>
         </div>
@@ -121,128 +93,66 @@ function AppShell({ children }) {
   );
 }
 
+function DashboardShell() {
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
+    i18n.changeLanguage(newLang);
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
+  };
+
+  return (
+    <div className="h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
+      <header className="z-20 shadow-sm" style={{ background: 'var(--color-royal-green)', borderBottom: '3px solid var(--color-desert-gold)' }}>
+        <div className="max-w-full mx-auto flex items-center justify-between px-4 py-2">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
+            <img src={logoImage} alt="Right Logo" className="h-10 w-auto" style={{ objectFit: 'contain' }} />
+            <div>
+              <span className="text-sm font-bold text-white">{t('appName')}</span>
+              <span className="text-[10px] block" style={{ color: 'var(--color-desert-gold-light)' }}>
+                {i18n.language === 'ar' ? 'إدارة وتتبع الأصول الذكية' : 'Smart Herd Management & Tracking'}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
+                {t('adminPortal')}
+              </button>
+            )}
+            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
+              {i18n.language === 'ar' ? 'EN' : 'عربي'}
+            </button>
+          </div>
+        </div>
+      </header>
+      <div className="flex-1 overflow-hidden">
+        <UnifiedDashboard />
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <>
       <Routes>
-        <Route
-          path="/"
-          element={<LandingPage />}
-        />
-        <Route
-          path="/login"
-          element={
-            <AppShell>
-              <LoginPage />
-            </AppShell>
-          }
-        />
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={<CheckoutPage />}
-        />
-        <Route
-          path="/privacy"
-          element={<PrivacyPolicyPage />}
-        />
-        <Route
-          path="/terms"
-          element={<TermsConditionsPage />}
-        />
-        <Route
-          path="/faq"
-          element={<FAQPage />}
-        />
-        <Route
-          path="/contact"
-          element={<ContactPage />}
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-            <div className="h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
-               <header className="backdrop-blur z-20" style={{ background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid var(--color-border)' }}>
-                <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => window.location.href = "/dashboard"}
-                  >
-                    <img 
-                      src={logoImage} 
-                      alt="Right Logo" 
-                      className="h-10 w-auto"
-                      style={{ objectFit: 'contain', background: 'transparent' }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {(() => {
-                      const navigate = useNavigate();
-                      const { isAdmin } = useAuth();
-                      const { t, i18n } = useTranslation();
-                      
-                      const toggleLanguage = () => {
-                        const newLang = i18n.language === 'ar' ? 'en' : 'ar';
-                        i18n.changeLanguage(newLang);
-                        document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-                        document.documentElement.lang = newLang;
-                      };
-                      
-                      return (
-                        <>
-                          {isAdmin && (
-                            <button
-                              onClick={() => navigate('/admin-portal')}
-                              className="text-xs text-slate-300 hover:text-emerald-400 transition-colors"
-                            >
-                              {t('adminPortal')}
-                            </button>
-                          )}
-                          <button
-                            onClick={toggleLanguage}
-                            className="px-2 py-1 text-xs font-medium rounded border border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-emerald-300 transition-colors"
-                          >
-                            {i18n.language === 'ar' ? 'EN' : 'ع'}
-                          </button>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </header>
-              <div className="flex-1 overflow-hidden">
-                <UnifiedDashboard />
-              </div>
-            </div>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin-portal"
-          element={
-            <AdminRoute>
-              <AppShell>
-                <AdminPortal />
-              </AppShell>
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<AppShell><LoginPage /></AppShell>} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsConditionsPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
+        <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <WhatsAppWidget />
     </>
