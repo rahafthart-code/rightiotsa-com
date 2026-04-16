@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "cd frontend && npx vite --host",
     "build": "cd frontend && npx vite build",
+    "build:dev": "cd frontend && npx vite build",
     "preview": "cd frontend && npx vite preview"
   }
 }
