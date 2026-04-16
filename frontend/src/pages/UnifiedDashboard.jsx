@@ -24,6 +24,7 @@ export default function UnifiedDashboard() {
   const [error, setError] = useState(null);
   const [healthData, setHealthData] = useState(null);
   const [satelliteView, setSatelliteView] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -35,7 +36,6 @@ export default function UnifiedDashboard() {
     { value: "Falcon", label: t("falcons"), emoji: "🦅" },
   ];
 
-  // Demo geofence (would come from API in production)
   const demoGeofence = selectedAnimal && latestTelemetry ? {
     center_lat: latestTelemetry.lat,
     center_lng: latestTelemetry.lng,
@@ -138,7 +138,6 @@ export default function UnifiedDashboard() {
           }
         });
 
-        // Draw geofence circle
         if (demoGeofence) {
           const center = [demoGeofence.center_lng, demoGeofence.center_lat];
           const points = 64;
@@ -159,15 +158,11 @@ export default function UnifiedDashboard() {
               data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
             });
             map.addLayer({
-              id: 'geofence-fill',
-              type: 'fill',
-              source: 'geofence',
+              id: 'geofence-fill', type: 'fill', source: 'geofence',
               paint: { 'fill-color': '#006c35', 'fill-opacity': 0.08 }
             });
             map.addLayer({
-              id: 'geofence-line',
-              type: 'line',
-              source: 'geofence',
+              id: 'geofence-line', type: 'line', source: 'geofence',
               paint: { 'line-color': '#006c35', 'line-width': 2, 'line-dasharray': [3, 2] }
             });
           }
@@ -175,7 +170,6 @@ export default function UnifiedDashboard() {
       });
 
       map.addControl(new mapboxgl.NavigationControl(), "top-right");
-
       const marker = new mapboxgl.Marker({ color: "#006c35" })
         .setLngLat([latestTelemetry.lng, latestTelemetry.lat])
         .addTo(map);
@@ -199,14 +193,32 @@ export default function UnifiedDashboard() {
   const handleProfile = () => navigate('/profile');
   const currentSpecies = species.find(s => s.value === selectedSpecies);
 
-  // Filter 24h history
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recentHistory = telemetryRecords.filter(r => new Date(r.timestamp) >= twentyFourHoursAgo);
 
   return (
-    <div className="flex h-full" style={{ background: 'var(--color-bg-primary)' }}>
+    <div className="flex h-full relative" style={{ background: 'var(--color-bg-primary)' }}>
+      {/* Mobile sidebar toggle */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="md:hidden fixed bottom-4 right-4 z-30 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white"
+        style={{ background: 'var(--color-royal-green)' }}
+      >
+        {sidebarOpen ? '✕' : '☰'}
+      </button>
+
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/40 z-20" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-72 flex flex-col border-r" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+      <aside className={`
+        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+        fixed md:static inset-y-0 right-0 md:right-auto z-20
+        w-72 flex flex-col border-l md:border-l-0 md:border-r
+        transition-transform duration-300 ease-in-out
+      `} style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
         {/* Sidebar Header */}
         <div className="p-4 border-b" style={{ borderColor: 'var(--color-border)', background: 'linear-gradient(135deg, rgba(0,108,53,0.06), rgba(197,165,90,0.06))' }}>
           <div className="flex items-center justify-between mb-2">
@@ -237,7 +249,7 @@ export default function UnifiedDashboard() {
             {species.map((sp) => (
               <button
                 key={sp.value}
-                onClick={() => setSelectedSpecies(sp.value)}
+                onClick={() => { setSelectedSpecies(sp.value); setSidebarOpen(false); }}
                 className="flex-1 px-2 py-2 rounded-xl text-center transition-all"
                 style={selectedSpecies === sp.value
                   ? { background: 'var(--color-royal-green)', color: 'white', boxShadow: '0 2px 8px rgba(0,108,53,0.3)' }
@@ -276,12 +288,12 @@ export default function UnifiedDashboard() {
             return (
               <div
                 key={animal.id}
-                onClick={() => setSelectedAnimal(animal)}
+                onClick={() => { setSelectedAnimal(animal); setSidebarOpen(false); }}
                 className="p-4 cursor-pointer transition-all border-b"
                 style={{
                   borderColor: 'var(--color-border)',
                   background: isSelected ? 'rgba(0,108,53,0.06)' : 'transparent',
-                  borderLeft: isSelected ? '3px solid var(--color-royal-green)' : '3px solid transparent',
+                  borderRight: isSelected ? '3px solid var(--color-royal-green)' : '3px solid transparent',
                 }}
               >
                 <div className="flex items-start justify-between">
@@ -307,12 +319,12 @@ export default function UnifiedDashboard() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {!selectedAnimal && allAnimals.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="max-w-lg w-full rounded-2xl p-8 text-center" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
-                <span className="text-4xl">🐪</span>
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+            <div className="max-w-lg w-full rounded-2xl p-6 sm:p-8 text-center" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
+                <span className="text-3xl sm:text-4xl">🐪</span>
               </div>
-              <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
+              <h2 className="text-lg sm:text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
                 {isAr ? 'نظام التتبع الذكي' : 'Smart Tracking System'}
               </h2>
               <p className="text-sm mb-6" style={{ color: 'var(--color-text-secondary)' }}>
@@ -337,28 +349,28 @@ export default function UnifiedDashboard() {
         ) : (
           <>
             {/* Animal Header */}
-            <header className="p-5 border-b" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
+            <header className="p-4 sm:p-5 border-b" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-xl sm:text-2xl" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
                     {currentSpecies?.emoji}
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                    <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                       {t(selectedAnimal.name) || selectedAnimal.name}
                     </h1>
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                    <p className="text-[11px] sm:text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
                       {currentSpecies?.label} • {selectedAnimal.device_imei}
                     </p>
                   </div>
                   {healthData?.status === "excellent" && (
-                    <span className="px-3 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(0,108,53,0.1)', color: 'var(--color-royal-green)', border: '1px solid rgba(0,108,53,0.25)' }}>
+                    <span className="hidden sm:inline-flex px-3 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(0,108,53,0.1)', color: 'var(--color-royal-green)', border: '1px solid rgba(0,108,53,0.25)' }}>
                       ✓ {t('excellent')}
                     </span>
                   )}
                 </div>
-                <div className="rounded-xl px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
-                  <div className="text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
+                <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+                  <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
                     <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
                     <div>📡 {t('network')}: Sigfox 0G</div>
                   </div>
@@ -367,12 +379,11 @@ export default function UnifiedDashboard() {
             </header>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
-              {/* Geofence Alert */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
               <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
 
               {/* Sensor Cards Row */}
-              <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <SensorCard
                   icon="🌡️"
                   label={isAr ? 'درجة الحرارة' : 'Temperature'}
@@ -408,7 +419,7 @@ export default function UnifiedDashboard() {
               {/* Map Section */}
               <section>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                  <h2 className="text-sm sm:text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
                     📍 {isAr ? 'التتبع المباشر' : 'Live Tracking'}
                   </h2>
                   {latestTelemetry && MAPBOX_TOKEN && (
@@ -423,19 +434,19 @@ export default function UnifiedDashboard() {
                 </div>
                 <div className="rounded-xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                   {!MAPBOX_TOKEN ? (
-                    <div className="h-80 flex items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
+                    <div className="h-60 sm:h-80 flex items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
                       <div className="text-center"><div className="text-4xl mb-2">🗺️</div><p className="text-sm">Mapbox token not configured</p></div>
                     </div>
                   ) : !latestTelemetry ? (
-                    <div className="h-80 flex items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
+                    <div className="h-60 sm:h-80 flex items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
                       <p className="text-sm">{isAr ? 'لا توجد بيانات موقع' : 'No location data'}</p>
                     </div>
                   ) : (
-                    <div ref={mapContainerRef} className="h-80 w-full" />
+                    <div ref={mapContainerRef} className="h-60 sm:h-80 w-full" />
                   )}
                 </div>
                 {latestTelemetry && (
-                  <div className="mt-2 flex items-center gap-4 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
                     <span>📍 {latestTelemetry.lat.toFixed(5)}, {latestTelemetry.lng.toFixed(5)}</span>
                     <span>🕐 {new Date(latestTelemetry.timestamp).toLocaleString()}</span>
                     <span className="flex items-center gap-1">
@@ -446,10 +457,10 @@ export default function UnifiedDashboard() {
                 )}
               </section>
 
-              {/* Movement History - Last 24 Hours */}
+              {/* Movement History */}
               <section>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                  <h2 className="text-sm sm:text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
                     📋 {isAr ? 'سجل الحركة (24 ساعة)' : 'Movement History (24h)'}
                   </h2>
                   <button
@@ -471,14 +482,14 @@ export default function UnifiedDashboard() {
                     📥 {isAr ? 'تصدير' : 'Export'}
                   </button>
                 </div>
-                <div className="rounded-xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-                  <table className="w-full">
+                <div className="rounded-xl overflow-x-auto" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                  <table className="w-full min-w-[500px]">
                     <thead>
                       <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                        <th className="px-4 py-3 text-left text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("time")}</th>
-                        <th className="px-4 py-3 text-left text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("location")}</th>
-                        <th className="px-4 py-3 text-left text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("battery")}</th>
-                        <th className="px-4 py-3 text-left text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("status")}</th>
+                        <th className="px-3 sm:px-4 py-3 text-right text-[10px] sm:text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("time")}</th>
+                        <th className="px-3 sm:px-4 py-3 text-right text-[10px] sm:text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("location")}</th>
+                        <th className="px-3 sm:px-4 py-3 text-right text-[10px] sm:text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("battery")}</th>
+                        <th className="px-3 sm:px-4 py-3 text-right text-[10px] sm:text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>{t("status")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -487,10 +498,10 @@ export default function UnifiedDashboard() {
                       ) : (
                         recentHistory.slice(0, 20).map((item, idx) => (
                           <tr key={idx} className="border-t" style={{ borderColor: 'var(--color-border)' }}>
-                            <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--color-text-secondary)' }}>{new Date(item.timestamp).toLocaleString()}</td>
-                            <td className="px-4 py-2.5 text-xs font-mono" style={{ color: 'var(--color-text-muted)' }}>{item.lat.toFixed(5)}, {item.lng.toFixed(5)}</td>
-                            <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--color-text-primary)' }}>{item.battery != null ? `${item.battery}%` : "—"}</td>
-                            <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                            <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs" style={{ color: 'var(--color-text-secondary)' }}>{new Date(item.timestamp).toLocaleString()}</td>
+                            <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs font-mono" style={{ color: 'var(--color-text-muted)' }}>{item.lat.toFixed(5)}, {item.lng.toFixed(5)}</td>
+                            <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs" style={{ color: 'var(--color-text-primary)' }}>{item.battery != null ? `${item.battery}%` : "—"}</td>
+                            <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                               {item.alert_status === 'out_of_range'
                                 ? <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'var(--color-danger-bg)', color: 'var(--color-danger)' }}>⚠️ {isAr ? 'خارج النطاق' : 'Out of Range'}</span>
                                 : (item.status ? (t(item.status) || item.status) : "—")
