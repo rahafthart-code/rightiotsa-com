@@ -617,6 +617,18 @@ export default function UnifiedDashboard() {
                     </button>
                   )}
                 </div>
+
+                {latestTelemetry && MAPBOX_TOKEN && (
+                  <GeofenceEditor
+                    radiusKm={geofenceRadiusKm}
+                    onRadiusChange={setGeofenceRadiusKm}
+                    editing={editingGeofence}
+                    onToggleEdit={() => setEditingGeofence((v) => !v)}
+                    centerLat={demoGeofence?.center_lat}
+                    centerLng={demoGeofence?.center_lng}
+                  />
+                )}
+
                 <div className="rounded-xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
                   {!MAPBOX_TOKEN ? (
                     <div className="h-60 sm:h-80 flex items-center justify-center" style={{ color: 'var(--color-text-muted)' }}>
@@ -636,7 +648,9 @@ export default function UnifiedDashboard() {
                     <span>🕐 {new Date(latestTelemetry.timestamp).toLocaleString()}</span>
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full inline-block" style={{ background: 'var(--color-royal-green)' }} />
-                      {isAr ? 'منطقة آمنة (5 كم)' : 'Safe zone (5 km)'}
+                      {isAr
+                        ? `منطقة آمنة (${geofenceRadiusKm.toFixed(1)} كم)`
+                        : `Safe zone (${geofenceRadiusKm.toFixed(1)} km)`}
                     </span>
                   </div>
                 )}
