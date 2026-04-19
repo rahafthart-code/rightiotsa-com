@@ -101,6 +101,53 @@ export default function UnifiedDashboard() {
     setSelectedAnimal(filtered.length > 0 ? filtered[0] : null);
   }, [selectedSpecies, allAnimals]);
 
+  // Reset geofence when animal changes (use device location as default)
+  useEffect(() => {
+    setGeofenceCenter(null);
+    setGeofenceRadiusKm(5);
+    setEditingGeofence(false);
+    lastAlertedRef.current = null;
+  }, [selectedAnimal?.id]);
+
+  // Search-filtered list (by name or IMEI)
+  const visibleAnimals = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return filteredAnimals;
+    return filteredAnimals.filter(
+      (a) =>
+        (a.name || "").toLowerCase().includes(q) ||
+        (a.device_imei || "").toLowerCase().includes(q),
+    );
+  }, [filteredAnimals, searchQuery]);
+
+  // Detect geofence breach and push alert
+  useEffect(() => {
+    if (!selectedAnimal || !latestTelemetry || !demoGeofence) return;
+    const d = haversineKm(
+      demoGeofence.center_lat,
+      demoGeofence.center_lng,
+      latestTelemetry.lat,
+      latestTelemetry.lng,
+    );
+    if (d > demoGeofence.radius_km) {
+      const key = `${selectedAnimal.id}:${latestTelemetry.timestamp}`;
+      if (lastAlertedRef.current !== key) {
+        lastAlertedRef.current = key;
+        setAlerts((prev) => [
+          {
+            id: `${Date.now()}-${selectedAnimal.id}`,
+            animalId: selectedAnimal.id,
+            animalName: t(selectedAnimal.name) || selectedAnimal.name,
+            timestamp: latestTelemetry.timestamp || new Date().toISOString(),
+            distanceKm: d,
+            active: true,
+          },
+          ...prev,
+        ].slice(0, 50));
+      }
+    }
+  }, [selectedAnimal, latestTelemetry, demoGeofence, t]);
+
   // Fetch telemetry + health
   useEffect(() => {
     if (!selectedAnimal) {
