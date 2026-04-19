@@ -339,7 +339,24 @@ export default function UnifiedDashboard() {
             <span className="text-xs font-semibold" style={{ color: 'var(--color-royal-green)' }}>
               ✓ {isAr ? 'اشتراك نشط' : 'Active Subscription'}
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-1 items-center">
+              <button
+                onClick={() => setNotifOpen(true)}
+                className="relative p-1.5 rounded-lg hover:bg-black/5 transition-colors"
+                title={isAr ? 'مركز التنبيهات' : 'Notification center'}
+              >
+                <svg className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {alerts.length > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-1 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-alert-pulse"
+                    style={{ background: 'var(--color-danger)' }}
+                  >
+                    {alerts.length > 9 ? '9+' : alerts.length}
+                  </span>
+                )}
+              </button>
               <button onClick={handleProfile} className="p-1.5 rounded-lg hover:bg-black/5 transition-colors" title={isAr ? 'الملف الشخصي' : 'Profile'}>
                 <svg className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
