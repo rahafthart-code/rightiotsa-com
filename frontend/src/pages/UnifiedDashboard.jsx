@@ -717,6 +717,14 @@ export default function UnifiedDashboard() {
           </>
         )}
       </main>
+
+      <NotificationCenter
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        alerts={alerts}
+        onClear={() => setAlerts([])}
+      />
+      <InstallPrompt />
     </div>
   );
 }
