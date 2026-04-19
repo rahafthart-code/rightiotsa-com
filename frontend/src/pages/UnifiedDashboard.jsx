@@ -420,7 +420,7 @@ export default function UnifiedDashboard() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isAr ? 'بحث بالاسم أو IMEI…' : 'Search by name or IMEI…'}
-              className="w-full px-3 py-2 ps-9 text-xs rounded-lg outline-none transition-all"
+              className="w-full px-3 py-2 ps-9 pe-8 text-xs rounded-lg outline-none transition-all"
               style={{
                 background: 'var(--color-bg-secondary)',
                 border: '1px solid var(--color-border)',
@@ -452,8 +452,36 @@ export default function UnifiedDashboard() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Animals List */}
+        <div className="flex-1 overflow-y-auto">
+          {loading && <div className="p-4 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>{t("loading")}</div>}
+          {error && <div className="p-4 text-sm text-red-600">{error}</div>}
+
+          {!loading && !error && filteredAnimals.length === 0 && (
+            <div className="p-4">
+              <div className="rounded-xl p-4" style={{ background: 'var(--color-success-bg)', border: '1px solid rgba(0,108,53,0.2)' }}>
+                <p className="text-sm font-medium" style={{ color: 'var(--color-royal-green)' }}>
+                  {isAr ? 'لا توجد أجهزة مسجلة لهذا النوع' : 'No devices for this species'}
+                </p>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                  {isAr ? 'جرّب النوع الآخر أو تواصل مع المدير' : 'Try another species or contact admin'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && filteredAnimals.length > 0 && visibleAnimals.length === 0 && (
+            <div className="p-4 text-center text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              {isAr ? 'لا نتائج للبحث' : 'No results'}
+            </div>
+          )}
+
+          {visibleAnimals.map((animal) => {
             const status = getConnectivityStatus(animal.last_seen_at);
             const isSelected = selectedAnimal?.id === animal.id;
+            const lastSeenLabel = timeAgo(animal.last_seen_at, isAr);
 
             return (
               <div
@@ -463,15 +491,19 @@ export default function UnifiedDashboard() {
                 style={{
                   borderColor: 'var(--color-border)',
                   background: isSelected ? 'rgba(0,108,53,0.06)' : 'transparent',
-                  borderRight: isSelected ? '3px solid var(--color-royal-green)' : '3px solid transparent',
+                  borderInlineStart: isSelected ? '3px solid var(--color-royal-green)' : '3px solid transparent',
                 }}
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-sm" style={{ color: 'var(--color-text-primary)' }}>{t(animal.name) || animal.name}</h3>
-                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{animal.device_imei}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>{t(animal.name) || animal.name}</h3>
+                    <p className="text-[11px] mt-0.5 font-mono truncate" style={{ color: 'var(--color-text-muted)' }}>{animal.device_imei}</p>
+                    <p className="text-[10px] mt-1 flex items-center gap-1" style={{ color: status === 'online' ? 'var(--color-royal-green)' : 'var(--color-text-muted)' }}>
+                      <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: status === 'online' ? 'var(--color-royal-green)' : 'var(--color-text-muted)' }} />
+                      {lastSeenLabel}
+                    </p>
                   </div>
-                  <span className="px-2 py-0.5 text-[10px] rounded-full font-medium"
+                  <span className="px-2 py-0.5 text-[10px] rounded-full font-medium whitespace-nowrap"
                     style={status === 'online'
                       ? { background: 'rgba(0,108,53,0.1)', color: 'var(--color-royal-green)', border: '1px solid rgba(0,108,53,0.3)' }
                       : { background: 'rgba(217,119,6,0.1)', color: '#d97706', border: '1px solid rgba(217,119,6,0.3)' }
