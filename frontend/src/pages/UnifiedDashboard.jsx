@@ -410,9 +410,48 @@ export default function UnifiedDashboard() {
                 </p>
               </div>
             </div>
-          )}
+        </div>
 
-          {filteredAnimals.map((animal) => {
+        {/* Search */}
+        <div className="p-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isAr ? 'بحث بالاسم أو IMEI…' : 'Search by name or IMEI…'}
+              className="w-full px-3 py-2 ps-9 text-xs rounded-lg outline-none transition-all"
+              style={{
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)',
+              }}
+              aria-label={isAr ? 'بحث عن أصل' : 'Search assets'}
+            />
+            <svg
+              className="w-4 h-4 absolute top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{
+                color: 'var(--color-text-muted)',
+                [isAr ? 'right' : 'left']: '0.625rem',
+              }}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute top-1/2 -translate-y-1/2 text-xs"
+                style={{
+                  color: 'var(--color-text-muted)',
+                  [isAr ? 'left' : 'right']: '0.5rem',
+                }}
+                aria-label={isAr ? 'مسح البحث' : 'Clear search'}
+              >
+                ✕
+              </button>
+            )}
+          </div>
             const status = getConnectivityStatus(animal.last_seen_at);
             const isSelected = selectedAnimal?.id === animal.id;
 
