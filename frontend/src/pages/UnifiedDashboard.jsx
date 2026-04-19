@@ -42,9 +42,19 @@ export default function UnifiedDashboard() {
   const [satelliteView, setSatelliteView] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Phase-1 interactive state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [alerts, setAlerts] = useState([]);
+  const [editingGeofence, setEditingGeofence] = useState(false);
+  const [geofenceRadiusKm, setGeofenceRadiusKm] = useState(5);
+  const [geofenceCenter, setGeofenceCenter] = useState(null); // {lat,lng}
+  const lastAlertedRef = useRef(null);
+
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const geofenceSourceRef = useRef(null);
 
   const species = [
     { value: "Camel", label: t("camels"), emoji: "🐪" },
@@ -52,10 +62,11 @@ export default function UnifiedDashboard() {
     { value: "Falcon", label: t("falcons"), emoji: "🦅" },
   ];
 
-  const demoGeofence = selectedAnimal && latestTelemetry ? {
-    center_lat: latestTelemetry.lat,
-    center_lng: latestTelemetry.lng,
-    radius_km: 5.0,
+  // Active geofence: user-edited center wins, else falls back to current position
+  const demoGeofence = selectedAnimal && (geofenceCenter || latestTelemetry) ? {
+    center_lat: geofenceCenter?.lat ?? latestTelemetry.lat,
+    center_lng: geofenceCenter?.lng ?? latestTelemetry.lng,
+    radius_km: geofenceRadiusKm,
     is_active: true,
   } : null;
 
