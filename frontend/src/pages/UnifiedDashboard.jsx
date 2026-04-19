@@ -172,7 +172,21 @@ export default function UnifiedDashboard() {
     return () => clearInterval(interval);
   }, [selectedAnimal]);
 
-  // Map
+  // Build a circle polygon (lat/lng) around a center
+  const buildCircle = (lat, lng, km, points = 64) => {
+    const coords = [];
+    for (let i = 0; i <= points; i++) {
+      const angle = (i / points) * 2 * Math.PI;
+      const dy = km * Math.sin(angle);
+      const dx = km * Math.cos(angle);
+      const cLat = lat + dy / 111.32;
+      const cLng = lng + dx / (111.32 * Math.cos((lat * Math.PI) / 180));
+      coords.push([cLng, cLat]);
+    }
+    return coords;
+  };
+
+  // Map — created once per (animal, satelliteView, language)
   useEffect(() => {
     if (!latestTelemetry || !MAPBOX_TOKEN || !mapContainerRef.current) return;
 
@@ -195,6 +209,7 @@ export default function UnifiedDashboard() {
         mapRef.current.remove();
         mapRef.current = null;
         markerRef.current = null;
+        geofenceSourceRef.current = null;
       }
 
       const map = new mapboxgl.Map({
@@ -212,35 +227,23 @@ export default function UnifiedDashboard() {
           }
         });
 
-        if (demoGeofence) {
-          const center = [demoGeofence.center_lng, demoGeofence.center_lat];
-          const points = 64;
-          const km = demoGeofence.radius_km;
-          const coords = [];
-          for (let i = 0; i <= points; i++) {
-            const angle = (i / points) * 2 * Math.PI;
-            const dx = km * Math.cos(angle);
-            const dy = km * Math.sin(angle);
-            const lat = center[1] + (dy / 111.32);
-            const lng = center[0] + (dx / (111.32 * Math.cos(center[1] * Math.PI / 180)));
-            coords.push([lng, lat]);
-          }
-
-          if (!map.getSource('geofence')) {
-            map.addSource('geofence', {
-              type: 'geojson',
-              data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } }
-            });
-            map.addLayer({
-              id: 'geofence-fill', type: 'fill', source: 'geofence',
-              paint: { 'fill-color': '#006c35', 'fill-opacity': 0.08 }
-            });
-            map.addLayer({
-              id: 'geofence-line', type: 'line', source: 'geofence',
-              paint: { 'line-color': '#006c35', 'line-width': 2, 'line-dasharray': [3, 2] }
-            });
-          }
-        }
+        // Initial geofence
+        const cLat = geofenceCenter?.lat ?? latestTelemetry.lat;
+        const cLng = geofenceCenter?.lng ?? latestTelemetry.lng;
+        const ring = buildCircle(cLat, cLng, geofenceRadiusKm);
+        map.addSource('geofence', {
+          type: 'geojson',
+          data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] } }
+        });
+        map.addLayer({
+          id: 'geofence-fill', type: 'fill', source: 'geofence',
+          paint: { 'fill-color': '#006c35', 'fill-opacity': 0.1 }
+        });
+        map.addLayer({
+          id: 'geofence-line', type: 'line', source: 'geofence',
+          paint: { 'line-color': '#006c35', 'line-width': 2, 'line-dasharray': [3, 2] }
+        });
+        geofenceSourceRef.current = map.getSource('geofence');
       });
 
       map.addControl(new mapboxgl.NavigationControl(), "top-right");
@@ -259,9 +262,46 @@ export default function UnifiedDashboard() {
         mapRef.current.remove();
         mapRef.current = null;
         markerRef.current = null;
+        geofenceSourceRef.current = null;
       }
     };
-  }, [latestTelemetry, satelliteView, isAr]);
+  }, [selectedAnimal?.id, satelliteView, isAr, MAPBOX_TOKEN ? !!latestTelemetry : false]);
+
+  // Sync animal marker position when telemetry updates (without rebuilding map)
+  useEffect(() => {
+    if (mapRef.current && markerRef.current && latestTelemetry) {
+      markerRef.current.setLngLat([latestTelemetry.lng, latestTelemetry.lat]);
+    }
+  }, [latestTelemetry?.lat, latestTelemetry?.lng]);
+
+  // Sync geofence circle when center or radius changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !demoGeofence) return;
+    const apply = () => {
+      const src = map.getSource('geofence');
+      if (!src) return;
+      const ring = buildCircle(demoGeofence.center_lat, demoGeofence.center_lng, demoGeofence.radius_km);
+      src.setData({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] } });
+    };
+    if (map.isStyleLoaded()) apply(); else map.once('load', apply);
+  }, [demoGeofence?.center_lat, demoGeofence?.center_lng, demoGeofence?.radius_km]);
+
+  // Click-to-set center while editing
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const handler = (e) => {
+      if (!editingGeofence) return;
+      setGeofenceCenter({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+    };
+    map.on('click', handler);
+    map.getCanvas().style.cursor = editingGeofence ? 'crosshair' : '';
+    return () => {
+      try { map.off('click', handler); } catch (e) {}
+      try { map.getCanvas().style.cursor = ''; } catch (e) {}
+    };
+  }, [editingGeofence, mapRef.current]);
 
   const handleLogout = () => { localStorage.clear(); navigate('/'); };
   const handleProfile = () => navigate('/profile');
