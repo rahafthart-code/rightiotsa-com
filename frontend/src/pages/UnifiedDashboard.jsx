@@ -394,23 +394,6 @@ export default function UnifiedDashboard() {
           </div>
         </div>
 
-        {/* Animals List */}
-        <div className="flex-1 overflow-y-auto">
-          {loading && <div className="p-4 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>{t("loading")}</div>}
-          {error && <div className="p-4 text-sm text-red-600">{error}</div>}
-
-          {!loading && !error && filteredAnimals.length === 0 && (
-            <div className="p-4">
-              <div className="rounded-xl p-4" style={{ background: 'var(--color-success-bg)', border: '1px solid rgba(0,108,53,0.2)' }}>
-                <p className="text-sm font-medium" style={{ color: 'var(--color-royal-green)' }}>
-                  {isAr ? 'لا توجد أجهزة مسجلة لهذا النوع' : 'No devices for this species'}
-                </p>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                  {isAr ? 'جرّب النوع الآخر أو تواصل مع المدير' : 'Try another species or contact admin'}
-                </p>
-              </div>
-            </div>
-        </div>
 
         {/* Search */}
         <div className="p-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
