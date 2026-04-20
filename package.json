@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cd frontend && npx vite --host",
-    "build": "cd frontend && npx vite build",
-    "build:dev": "cd frontend && (npm ls @rollup/rollup-linux-x64-gnu >/dev/null 2>&1 || npm install @rollup/rollup-linux-x64-gnu --no-save --force) && npx vite build",
-    "preview": "cd frontend && npx vite preview"
+    "build": "cd frontend && npx vite build --outDir ../dist --emptyOutDir",
+    "build:dev": "cd frontend && (npm ls @rollup/rollup-linux-x64-gnu >/dev/null 2>&1 || npm install @rollup/rollup-linux-x64-gnu --no-save --force) && npx vite build --outDir ../dist --emptyOutDir",
+    "preview": "cd frontend && npx vite preview --outDir ../dist"
   }
 }
