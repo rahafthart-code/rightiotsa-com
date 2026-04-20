@@ -183,6 +183,46 @@ export default function UnifiedDashboard() {
     return () => clearInterval(interval);
   }, [selectedAnimal]);
 
+  // Fetch latest health for all filtered animals (for Daily Pulse widget)
+  useEffect(() => {
+    if (!filteredAnimals.length) { setHerdHealth({}); return; }
+    let cancelled = false;
+    const loadAll = async () => {
+      const out = {};
+      await Promise.all(
+        filteredAnimals.map(async (a) => {
+          try {
+            const h = await api.getLatestHealth(a.device_imei);
+            if (h) out[a.device_imei] = h;
+          } catch { /* ignore */ }
+        }),
+      );
+      if (!cancelled) setHerdHealth(out);
+    };
+    loadAll();
+    const id = setInterval(loadAll, 60000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [filteredAnimals]);
+
+  // Trigger engagement modal once after the user views Health tab
+  useEffect(() => {
+    if (activeTab !== 'health') return;
+    if (healthViewedRef.current) return;
+    healthViewedRef.current = true;
+    if (!shouldShowHealthAlertsModal()) return;
+    const t = setTimeout(() => setHealthModalOpen(true), 4500);
+    return () => clearTimeout(t);
+  }, [activeTab]);
+
+  // Build weekly series for the selected animal (uses latest temp as baseline)
+  const weeklySeries = useMemo(() => {
+    if (!selectedAnimal) return [];
+    const baseTemp = healthData?.temperature ?? 37.2;
+    const baseAct = 55;
+    const seed = (selectedAnimal.id || 0) + (selectedAnimal.device_imei?.length || 0);
+    return buildWeeklySeries(baseTemp, baseAct, seed);
+  }, [selectedAnimal, healthData]);
+
   // Build a circle polygon (lat/lng) around a center
   const buildCircle = (lat, lng, km, points = 64) => {
     const coords = [];
