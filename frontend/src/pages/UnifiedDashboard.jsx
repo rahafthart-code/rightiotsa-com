@@ -605,18 +605,52 @@ export default function UnifiedDashboard() {
                     </span>
                   )}
                 </div>
-                <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
-                  <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
-                    <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
-                    <div>📡 {t('network')}: Sigfox 0G</div>
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <ShareLocationButton animal={selectedAnimal} latestTelemetry={latestTelemetry} isAr={isAr} />
+                  <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+                    <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
+                      <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
+                      <div>📡 {t('network')}: Sigfox 0G</div>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="mt-4 flex items-center gap-1 border-b -mb-px" style={{ borderColor: 'var(--color-border)' }}>
+                {[
+                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
+                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
+                ].map((tab) => {
+                  const active = activeTab === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveTab(tab.key)}
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2"
+                      style={{
+                        color: active ? 'var(--color-royal-green)' : 'var(--color-text-muted)',
+                        borderColor: active ? 'var(--color-royal-green)' : 'transparent',
+                      }}
+                    >
+                      <span className="me-1">{tab.icon}</span>{tab.label}
+                    </button>
+                  );
+                })}
               </div>
             </header>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
-              <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
+              {activeTab === 'overview' && (
+                <DailyPulseWidget animals={filteredAnimals} healthByImei={herdHealth} isAr={isAr} />
+              )}
+
+              {activeTab === 'overview' && (
+                <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
+              )}
+
+              {activeTab === 'overview' && (
 
               {/* Sensor Cards Row */}
               <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
