@@ -884,6 +884,7 @@ export default function UnifiedDashboard() {
         alerts={alerts}
         onClear={() => setAlerts([])}
       />
+      <HealthAlertsModal open={healthModalOpen} onClose={() => setHealthModalOpen(false)} isAr={isAr} />
       <InstallPrompt />
     </div>
   );
