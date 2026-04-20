@@ -651,7 +651,7 @@ export default function UnifiedDashboard() {
               )}
 
               {activeTab === 'overview' && (
-
+                <>
               {/* Sensor Cards Row */}
               <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <SensorCard
@@ -798,6 +798,81 @@ export default function UnifiedDashboard() {
                   </table>
                 </div>
               </section>
+                </>
+              )}
+
+              {activeTab === 'health' && (
+                <section className="space-y-5">
+                  <div
+                    className="rounded-2xl p-4 sm:p-5"
+                    style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                  >
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                          📈 {isAr ? 'التقرير الأسبوعي' : 'Weekly Health Report'}
+                        </h3>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                          {isAr
+                            ? 'متوسط درجة الحرارة ومؤشرات النشاط خلال 7 أيام'
+                            : 'Average temperature and activity indicators over 7 days'}
+                        </p>
+                      </div>
+                      {(() => {
+                        const last = weeklySeries[weeklySeries.length - 1];
+                        const s = last ? classifyTemperature(last.temperature) : 'unknown';
+                        return (
+                          <span
+                            className="px-3 py-1 text-[11px] font-bold rounded-full border"
+                            style={{ background: statusBg(s), color: statusColor(s), borderColor: statusColor(s) }}
+                          >
+                            {statusLabel(s, isAr)}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <HealthChart data={weeklySeries} isAr={isAr} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { key: 'stable', icon: '🟢', label: isAr ? 'مستقر' : 'Stable', desc: isAr ? 'القراءات ضمن المعدل الطبيعي' : 'Readings within normal range' },
+                      { key: 'irregular', icon: '🟡', label: isAr ? 'غير منتظم' : 'Irregular', desc: isAr ? 'تذبذب في الحرارة أو النشاط' : 'Temperature or activity fluctuations' },
+                      { key: 'fever', icon: '🔴', label: isAr ? 'حمى محتملة' : 'Potential Fever', desc: isAr ? 'تجاوزت الحرارة الحد الآمن' : 'Temperature exceeded safe limit' },
+                    ].map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-xl p-3"
+                        style={{ background: statusBg(item.key), border: `1px solid ${statusColor(item.key)}` }}
+                      >
+                        <div className="flex items-center gap-2 text-sm font-bold" style={{ color: statusColor(item.key) }}>
+                          <span>{item.icon}</span>{item.label}
+                        </div>
+                        <div className="text-[11px] mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                          {item.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className="rounded-xl p-4 flex items-start gap-3"
+                    style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}
+                  >
+                    <div className="text-2xl">🩺</div>
+                    <div className="flex-1">
+                      <div className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                        {isAr ? 'تقرير المختص البيطري' : 'Veterinary Insight'}
+                      </div>
+                      <p className="text-[12px] mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                        {isAr
+                          ? 'بناءً على بيانات الأسبوع الماضي، يبدو حلالك في حالة صحية جيدة. استمر بمراقبة درجات الحرارة والنشاط بانتظام.'
+                          : "Based on last week's data, your herd appears to be in good health. Continue monitoring temperature and activity regularly."}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           </>
         )}
