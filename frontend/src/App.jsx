@@ -12,6 +12,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsConditionsPage from "./pages/TermsConditionsPage";
 import FAQPage from "./pages/FAQPage";
 import ContactPage from "./pages/ContactPage";
+import GuestView from "./pages/GuestView";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 
@@ -150,6 +151,7 @@ export default function App() {
         <Route path="/terms" element={<TermsConditionsPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/guest/:token" element={<GuestView />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />

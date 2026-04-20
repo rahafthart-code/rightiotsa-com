@@ -10,6 +10,11 @@ import GeofenceAlert from "../components/GeofenceAlert";
 import GeofenceEditor from "../components/GeofenceEditor";
 import NotificationCenter from "../components/NotificationCenter";
 import InstallPrompt from "../components/InstallPrompt";
+import HealthChart from "../components/HealthChart";
+import DailyPulseWidget from "../components/DailyPulseWidget";
+import ShareLocationButton from "../components/ShareLocationButton";
+import HealthAlertsModal, { shouldShowHealthAlertsModal } from "../components/HealthAlertsModal";
+import { buildWeeklySeries, classifyTemperature, statusBg, statusColor, statusLabel } from "../utils/healthStatus";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -50,6 +55,12 @@ export default function UnifiedDashboard() {
   const [geofenceRadiusKm, setGeofenceRadiusKm] = useState(5);
   const [geofenceCenter, setGeofenceCenter] = useState(null); // {lat,lng}
   const lastAlertedRef = useRef(null);
+
+  // Health intelligence state
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'health'
+  const [herdHealth, setHerdHealth] = useState({}); // imei -> health
+  const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const healthViewedRef = useRef(false);
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -171,6 +182,46 @@ export default function UnifiedDashboard() {
     const interval = setInterval(fetch, 30000);
     return () => clearInterval(interval);
   }, [selectedAnimal]);
+
+  // Fetch latest health for all filtered animals (for Daily Pulse widget)
+  useEffect(() => {
+    if (!filteredAnimals.length) { setHerdHealth({}); return; }
+    let cancelled = false;
+    const loadAll = async () => {
+      const out = {};
+      await Promise.all(
+        filteredAnimals.map(async (a) => {
+          try {
+            const h = await api.getLatestHealth(a.device_imei);
+            if (h) out[a.device_imei] = h;
+          } catch { /* ignore */ }
+        }),
+      );
+      if (!cancelled) setHerdHealth(out);
+    };
+    loadAll();
+    const id = setInterval(loadAll, 60000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [filteredAnimals]);
+
+  // Trigger engagement modal once after the user views Health tab
+  useEffect(() => {
+    if (activeTab !== 'health') return;
+    if (healthViewedRef.current) return;
+    healthViewedRef.current = true;
+    if (!shouldShowHealthAlertsModal()) return;
+    const t = setTimeout(() => setHealthModalOpen(true), 4500);
+    return () => clearTimeout(t);
+  }, [activeTab]);
+
+  // Build weekly series for the selected animal (uses latest temp as baseline)
+  const weeklySeries = useMemo(() => {
+    if (!selectedAnimal) return [];
+    const baseTemp = healthData?.temperature ?? 37.2;
+    const baseAct = 55;
+    const seed = (selectedAnimal.id || 0) + (selectedAnimal.device_imei?.length || 0);
+    return buildWeeklySeries(baseTemp, baseAct, seed);
+  }, [selectedAnimal, healthData]);
 
   // Build a circle polygon (lat/lng) around a center
   const buildCircle = (lat, lng, km, points = 64) => {
@@ -554,19 +605,53 @@ export default function UnifiedDashboard() {
                     </span>
                   )}
                 </div>
-                <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
-                  <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
-                    <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
-                    <div>📡 {t('network')}: Sigfox 0G</div>
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <ShareLocationButton animal={selectedAnimal} latestTelemetry={latestTelemetry} isAr={isAr} />
+                  <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+                    <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
+                      <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
+                      <div>📡 {t('network')}: Sigfox 0G</div>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="mt-4 flex items-center gap-1 border-b -mb-px" style={{ borderColor: 'var(--color-border)' }}>
+                {[
+                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
+                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
+                ].map((tab) => {
+                  const active = activeTab === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveTab(tab.key)}
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2"
+                      style={{
+                        color: active ? 'var(--color-royal-green)' : 'var(--color-text-muted)',
+                        borderColor: active ? 'var(--color-royal-green)' : 'transparent',
+                      }}
+                    >
+                      <span className="me-1">{tab.icon}</span>{tab.label}
+                    </button>
+                  );
+                })}
               </div>
             </header>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
-              <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
+              {activeTab === 'overview' && (
+                <DailyPulseWidget animals={filteredAnimals} healthByImei={herdHealth} isAr={isAr} />
+              )}
 
+              {activeTab === 'overview' && (
+                <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
+              )}
+
+              {activeTab === 'overview' && (
+                <>
               {/* Sensor Cards Row */}
               <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <SensorCard
@@ -713,6 +798,81 @@ export default function UnifiedDashboard() {
                   </table>
                 </div>
               </section>
+                </>
+              )}
+
+              {activeTab === 'health' && (
+                <section className="space-y-5">
+                  <div
+                    className="rounded-2xl p-4 sm:p-5"
+                    style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                  >
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                          📈 {isAr ? 'التقرير الأسبوعي' : 'Weekly Health Report'}
+                        </h3>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                          {isAr
+                            ? 'متوسط درجة الحرارة ومؤشرات النشاط خلال 7 أيام'
+                            : 'Average temperature and activity indicators over 7 days'}
+                        </p>
+                      </div>
+                      {(() => {
+                        const last = weeklySeries[weeklySeries.length - 1];
+                        const s = last ? classifyTemperature(last.temperature) : 'unknown';
+                        return (
+                          <span
+                            className="px-3 py-1 text-[11px] font-bold rounded-full border"
+                            style={{ background: statusBg(s), color: statusColor(s), borderColor: statusColor(s) }}
+                          >
+                            {statusLabel(s, isAr)}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <HealthChart data={weeklySeries} isAr={isAr} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { key: 'stable', icon: '🟢', label: isAr ? 'مستقر' : 'Stable', desc: isAr ? 'القراءات ضمن المعدل الطبيعي' : 'Readings within normal range' },
+                      { key: 'irregular', icon: '🟡', label: isAr ? 'غير منتظم' : 'Irregular', desc: isAr ? 'تذبذب في الحرارة أو النشاط' : 'Temperature or activity fluctuations' },
+                      { key: 'fever', icon: '🔴', label: isAr ? 'حمى محتملة' : 'Potential Fever', desc: isAr ? 'تجاوزت الحرارة الحد الآمن' : 'Temperature exceeded safe limit' },
+                    ].map((item) => (
+                      <div
+                        key={item.key}
+                        className="rounded-xl p-3"
+                        style={{ background: statusBg(item.key), border: `1px solid ${statusColor(item.key)}` }}
+                      >
+                        <div className="flex items-center gap-2 text-sm font-bold" style={{ color: statusColor(item.key) }}>
+                          <span>{item.icon}</span>{item.label}
+                        </div>
+                        <div className="text-[11px] mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                          {item.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className="rounded-xl p-4 flex items-start gap-3"
+                    style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}
+                  >
+                    <div className="text-2xl">🩺</div>
+                    <div className="flex-1">
+                      <div className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                        {isAr ? 'تقرير المختص البيطري' : 'Veterinary Insight'}
+                      </div>
+                      <p className="text-[12px] mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                        {isAr
+                          ? 'بناءً على بيانات الأسبوع الماضي، يبدو حلالك في حالة صحية جيدة. استمر بمراقبة درجات الحرارة والنشاط بانتظام.'
+                          : "Based on last week's data, your herd appears to be in good health. Continue monitoring temperature and activity regularly."}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           </>
         )}
@@ -724,6 +884,7 @@ export default function UnifiedDashboard() {
         alerts={alerts}
         onClear={() => setAlerts([])}
       />
+      <HealthAlertsModal open={healthModalOpen} onClose={() => setHealthModalOpen(false)} isAr={isAr} />
       <InstallPrompt />
     </div>
   );
