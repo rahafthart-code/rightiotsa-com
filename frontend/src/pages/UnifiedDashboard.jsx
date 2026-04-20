@@ -10,6 +10,11 @@ import GeofenceAlert from "../components/GeofenceAlert";
 import GeofenceEditor from "../components/GeofenceEditor";
 import NotificationCenter from "../components/NotificationCenter";
 import InstallPrompt from "../components/InstallPrompt";
+import HealthChart from "../components/HealthChart";
+import DailyPulseWidget from "../components/DailyPulseWidget";
+import ShareLocationButton from "../components/ShareLocationButton";
+import HealthAlertsModal, { shouldShowHealthAlertsModal } from "../components/HealthAlertsModal";
+import { buildWeeklySeries, classifyTemperature, statusBg, statusColor, statusLabel } from "../utils/healthStatus";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
