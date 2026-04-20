@@ -56,6 +56,12 @@ export default function UnifiedDashboard() {
   const [geofenceCenter, setGeofenceCenter] = useState(null); // {lat,lng}
   const lastAlertedRef = useRef(null);
 
+  // Health intelligence state
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'health'
+  const [herdHealth, setHerdHealth] = useState({}); // imei -> health
+  const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const healthViewedRef = useRef(false);
+
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
