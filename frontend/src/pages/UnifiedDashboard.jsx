@@ -15,6 +15,11 @@ import DailyPulseWidget from "../components/DailyPulseWidget";
 import ShareLocationButton from "../components/ShareLocationButton";
 import HealthAlertsModal, { shouldShowHealthAlertsModal } from "../components/HealthAlertsModal";
 import { buildWeeklySeries, classifyTemperature, statusBg, statusColor, statusLabel } from "../utils/healthStatus";
+import AssetPassport from "../components/AssetPassport";
+import StabilityScore from "../components/StabilityScore";
+import MediaGallery from "../components/MediaGallery";
+import SmartReminders from "../components/SmartReminders";
+import HerdGroups from "../components/HerdGroups";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -621,6 +626,8 @@ export default function UnifiedDashboard() {
                 {[
                   { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
                   { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
+                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', icon: '🛂' },
+                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', icon: '🏡' },
                 ].map((tab) => {
                   const active = activeTab === tab.key;
                   return (
