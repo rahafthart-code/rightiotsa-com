@@ -654,6 +654,20 @@ export default function UnifiedDashboard() {
               )}
 
               {activeTab === 'overview' && (
+                <StabilityScore
+                  animal={selectedAnimal}
+                  telemetryRecords={telemetryRecords}
+                  geofence={demoGeofence}
+                  healthData={healthData}
+                  isAr={isAr}
+                />
+              )}
+
+              {activeTab === 'overview' && (
+                <SmartReminders isAr={isAr} />
+              )}
+
+              {activeTab === 'overview' && (
                 <GeofenceAlert animal={selectedAnimal} latestTelemetry={latestTelemetry} geofence={demoGeofence} />
               )}
 
