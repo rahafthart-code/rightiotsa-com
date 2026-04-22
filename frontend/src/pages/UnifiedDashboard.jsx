@@ -894,6 +894,19 @@ export default function UnifiedDashboard() {
                   </div>
                 </section>
               )}
+
+              {activeTab === 'passport' && (
+                <section className="space-y-5">
+                  <AssetPassport animal={selectedAnimal} isAr={isAr} />
+                  <MediaGallery animal={selectedAnimal} isAr={isAr} />
+                </section>
+              )}
+
+              {activeTab === 'groups' && (
+                <section className="space-y-5">
+                  <HerdGroups animals={allAnimals} healthByImei={herdHealth} isAr={isAr} />
+                </section>
+              )}
             </div>
           </>
         )}
