@@ -15,6 +15,11 @@ import DailyPulseWidget from "../components/DailyPulseWidget";
 import ShareLocationButton from "../components/ShareLocationButton";
 import HealthAlertsModal, { shouldShowHealthAlertsModal } from "../components/HealthAlertsModal";
 import { buildWeeklySeries, classifyTemperature, statusBg, statusColor, statusLabel } from "../utils/healthStatus";
+import AssetPassport from "../components/AssetPassport";
+import StabilityScore from "../components/StabilityScore";
+import MediaGallery from "../components/MediaGallery";
+import SmartReminders from "../components/SmartReminders";
+import HerdGroups from "../components/HerdGroups";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -621,6 +626,8 @@ export default function UnifiedDashboard() {
                 {[
                   { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
                   { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
+                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', icon: '🛂' },
+                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', icon: '🏡' },
                 ].map((tab) => {
                   const active = activeTab === tab.key;
                   return (
@@ -644,6 +651,20 @@ export default function UnifiedDashboard() {
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
               {activeTab === 'overview' && (
                 <DailyPulseWidget animals={filteredAnimals} healthByImei={herdHealth} isAr={isAr} />
+              )}
+
+              {activeTab === 'overview' && (
+                <StabilityScore
+                  animal={selectedAnimal}
+                  telemetryRecords={telemetryRecords}
+                  geofence={demoGeofence}
+                  healthData={healthData}
+                  isAr={isAr}
+                />
+              )}
+
+              {activeTab === 'overview' && (
+                <SmartReminders isAr={isAr} />
               )}
 
               {activeTab === 'overview' && (
@@ -871,6 +892,19 @@ export default function UnifiedDashboard() {
                       </p>
                     </div>
                   </div>
+                </section>
+              )}
+
+              {activeTab === 'passport' && (
+                <section className="space-y-5">
+                  <AssetPassport animal={selectedAnimal} isAr={isAr} />
+                  <MediaGallery animal={selectedAnimal} isAr={isAr} />
+                </section>
+              )}
+
+              {activeTab === 'groups' && (
+                <section className="space-y-5">
+                  <HerdGroups animals={allAnimals} healthByImei={herdHealth} isAr={isAr} />
                 </section>
               )}
             </div>
