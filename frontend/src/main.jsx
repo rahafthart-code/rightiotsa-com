@@ -5,7 +5,6 @@ import App from "./App";
 import "./index.css";
 import "./i18n";
 import "mapbox-gl/dist/mapbox-gl.css";
-// preview demo mode
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
