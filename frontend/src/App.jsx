@@ -15,30 +15,30 @@ import ContactPage from "./pages/ContactPage";
 import GuestView from "./pages/GuestView";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
+import { ensureMockUser } from "./utils/mockData";
+
+// Preview/demo mode: skip the login screen entirely and seed a mock session.
+ensureMockUser();
 
 function useAuth() {
   const userRaw = localStorage.getItem("user");
-  if (!userRaw) return { isAuthenticated: false, isAdmin: false, user: null };
+  if (!userRaw) return { isAuthenticated: true, isAdmin: true, user: null };
   try {
     const user = JSON.parse(userRaw);
     return { isAuthenticated: true, isAdmin: !!user.is_admin, user };
   } catch {
-    return { isAuthenticated: false, isAdmin: false, user: null };
+    return { isAuthenticated: true, isAdmin: true, user: null };
   }
 }
 
+// In preview/demo mode all routes are accessible without authentication.
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
-  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location }} />;
+  ensureMockUser();
   return children;
 }
 
 function AdminRoute({ children }) {
-  const { isAuthenticated, isAdmin } = useAuth();
-  const location = useLocation();
-  if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location }} />;
-  if (!isAdmin) return <Navigate to="/dashboard" replace />;
+  ensureMockUser();
   return children;
 }
 
@@ -142,8 +142,10 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<AppShell><LoginPage /></AppShell>} />
+        {/* Demo mode: open straight to the dashboard. */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/checkout" element={<CheckoutPage />} />
@@ -154,7 +156,7 @@ export default function App() {
         <Route path="/guest/:token" element={<GuestView />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
       <WhatsAppWidget />
     </>
