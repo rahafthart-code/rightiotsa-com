@@ -142,8 +142,10 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<AppShell><LoginPage /></AppShell>} />
+        {/* Demo mode: open straight to the dashboard. */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/checkout" element={<CheckoutPage />} />
@@ -154,7 +156,7 @@ export default function App() {
         <Route path="/guest/:token" element={<GuestView />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
       <WhatsAppWidget />
     </>
