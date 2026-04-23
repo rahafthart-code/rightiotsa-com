@@ -57,6 +57,8 @@ export default function HerdGroups({ animals = [], healthByImei = {}, isAr }) {
     );
   };
 
+  // Recomputes the herd's "نسبة الانضباط" automatically whenever members or
+  // their latest health readings change.
   const groupStats = (g) => {
     const members = animals.filter((a) => g.imeis.includes(a.device_imei));
     const total = members.length;
@@ -67,6 +69,21 @@ export default function HerdGroups({ animals = [], healthByImei = {}, isAr }) {
     const discipline = total === 0 ? 100 : Math.round((stable / total) * 100);
     return { total, stable, discipline };
   };
+
+  // Move an asset from any current herd into a target herd (or "unassign").
+  const moveAssetToGroup = (imei, targetGroupId) => {
+    setGroups((prev) =>
+      prev.map((g) => {
+        const without = g.imeis.filter((i) => i !== imei);
+        if (g.id === targetGroupId) {
+          return { ...g, imeis: without.includes(imei) ? without : [...without, imei] };
+        }
+        return { ...g, imeis: without };
+      }),
+    );
+  };
+
+  const findGroupOfImei = (imei) => groups.find((g) => g.imeis.includes(imei))?.id || '';
 
   const active = groups.find((g) => g.id === activeGroupId);
 
