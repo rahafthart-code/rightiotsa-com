@@ -20,6 +20,8 @@ import StabilityScore from "../components/StabilityScore";
 import MediaGallery from "../components/MediaGallery";
 import SmartReminders from "../components/SmartReminders";
 import HerdGroups from "../components/HerdGroups";
+import SmartAlertEngine from "../components/SmartAlertEngine";
+import PassportExportModal from "../components/PassportExportModal";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -65,6 +67,7 @@ export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'health'
   const [herdHealth, setHerdHealth] = useState({}); // imei -> health
   const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const [passportExportOpen, setPassportExportOpen] = useState(false);
   const healthViewedRef = useRef(false);
 
   const mapContainerRef = useRef(null);
