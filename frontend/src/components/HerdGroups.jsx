@@ -222,6 +222,73 @@ export default function HerdGroups({ animals = [], healthByImei = {}, isAr }) {
           )}
         </div>
       )}
+
+      {/* Asset transfer matrix — move any asset to any herd via a select. */}
+      {animals.length > 0 && (
+        <div className="mt-6">
+          <div className="text-xs font-bold mb-2 flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+            🔄 {isAr ? 'نقل الأصول بين العزب' : 'Transfer Assets Between Herds'}
+          </div>
+          <p className="text-[11px] mb-3" style={{ color: 'var(--color-text-muted)' }}>
+            {isAr
+              ? 'اختر العزبة المستهدفة لكل أصل. يتم تحديث نسبة الانضباط لكل عزبة تلقائياً.'
+              : 'Pick the target herd for each asset. Each herd\'s discipline score updates automatically.'}
+          </p>
+          <div
+            className="rounded-xl overflow-hidden"
+            style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}
+          >
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ background: 'rgba(0,108,53,0.06)' }}>
+                  <th className="text-start px-3 py-2 text-[10px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>
+                    {isAr ? 'الأصل' : 'Asset'}
+                  </th>
+                  <th className="text-start px-3 py-2 text-[10px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>
+                    IMEI
+                  </th>
+                  <th className="text-start px-3 py-2 text-[10px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>
+                    {isAr ? 'العزبة' : 'Herd'}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {animals.map((a) => {
+                  const currentGroup = findGroupOfImei(a.device_imei);
+                  return (
+                    <tr key={a.device_imei} className="border-t" style={{ borderColor: 'var(--color-border)' }}>
+                      <td className="px-3 py-2 font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                        {a.name}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                        {a.device_imei}
+                      </td>
+                      <td className="px-3 py-2">
+                        <select
+                          value={currentGroup}
+                          onChange={(e) => moveAssetToGroup(a.device_imei, e.target.value)}
+                          className="px-2 py-1 rounded-md text-xs outline-none"
+                          style={{
+                            background: 'var(--color-bg-card)',
+                            border: `1px solid ${currentGroup ? 'var(--color-royal-green)' : 'var(--color-border)'}`,
+                            color: 'var(--color-text-primary)',
+                          }}
+                        >
+                          <option value="">{isAr ? '— غير معيّن —' : '— Unassigned —'}</option>
+                          {groups.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
+
