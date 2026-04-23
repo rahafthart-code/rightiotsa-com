@@ -20,6 +20,8 @@ import StabilityScore from "../components/StabilityScore";
 import MediaGallery from "../components/MediaGallery";
 import SmartReminders from "../components/SmartReminders";
 import HerdGroups from "../components/HerdGroups";
+import SmartAlertEngine from "../components/SmartAlertEngine";
+import PassportExportModal from "../components/PassportExportModal";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -65,6 +67,7 @@ export default function UnifiedDashboard() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'health'
   const [herdHealth, setHerdHealth] = useState({}); // imei -> health
   const [healthModalOpen, setHealthModalOpen] = useState(false);
+  const [passportExportOpen, setPassportExportOpen] = useState(false);
   const healthViewedRef = useRef(false);
 
   const mapContainerRef = useRef(null);
@@ -650,6 +653,15 @@ export default function UnifiedDashboard() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" style={{ background: 'var(--color-bg-primary)' }}>
               {activeTab === 'overview' && (
+                <SmartAlertEngine
+                  animal={selectedAnimal}
+                  healthData={healthData}
+                  isAr={isAr}
+                  onOpenHealth={() => setActiveTab('health')}
+                />
+              )}
+
+              {activeTab === 'overview' && (
                 <DailyPulseWidget animals={filteredAnimals} healthByImei={herdHealth} isAr={isAr} />
               )}
 
@@ -897,6 +909,21 @@ export default function UnifiedDashboard() {
 
               {activeTab === 'passport' && (
                 <section className="space-y-5">
+                  <div className="flex items-center justify-end">
+                    <button
+                      onClick={() => setPassportExportOpen(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-xl text-white transition-all"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--color-royal-green), var(--color-royal-green-dark))',
+                        border: '1.5px solid var(--color-desert-gold)',
+                        boxShadow: '0 4px 14px rgba(0,108,53,0.25)',
+                      }}
+                      title={isAr ? 'تحميل النسخة الرسمية بصيغة PDF' : 'Download official PDF version'}
+                    >
+                      <span>📄</span>
+                      {isAr ? 'تحميل النسخة الرسمية (PDF)' : 'Download Official Version (PDF)'}
+                    </button>
+                  </div>
                   <AssetPassport animal={selectedAnimal} isAr={isAr} />
                   <MediaGallery animal={selectedAnimal} isAr={isAr} />
                 </section>
@@ -919,6 +946,12 @@ export default function UnifiedDashboard() {
         onClear={() => setAlerts([])}
       />
       <HealthAlertsModal open={healthModalOpen} onClose={() => setHealthModalOpen(false)} isAr={isAr} />
+      <PassportExportModal
+        open={passportExportOpen}
+        onClose={() => setPassportExportOpen(false)}
+        animal={selectedAnimal}
+        isAr={isAr}
+      />
       <InstallPrompt />
     </div>
   );
