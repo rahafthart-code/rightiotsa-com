@@ -226,7 +226,7 @@ export default function LandingPage() {
                     {plan.price_sar} <span className="text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>{isAr ? 'ر.س/سنة' : 'SAR/year'}</span>
                   </div>
                   <ul className="space-y-3 mb-8">
-                    {(isAr ? plan.features_ar : plan.features_en).map((feature, idx) => (
+                    {((isAr ? plan.features_ar : plan.features_en) || plan.features || []).map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         <span style={{ color: 'var(--color-royal-green)' }}>✓</span>
                         {feature}
