@@ -441,13 +441,15 @@ export default function UnifiedDashboard() {
               <button
                 key={sp.value}
                 onClick={() => { setSelectedSpecies(sp.value); setSidebarOpen(false); }}
-                className="flex-1 px-2 py-2 rounded-xl text-center transition-all"
+                className="flex-1 px-2 py-2 rounded-xl text-center transition-all hover-lift"
                 style={selectedSpecies === sp.value
                   ? { background: 'var(--color-royal-green)', color: 'white', boxShadow: '0 2px 8px rgba(0,108,53,0.3)' }
                   : { background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }
                 }
               >
-                <span className="block text-lg">{sp.emoji}</span>
+                <span className="flex justify-center">
+                  <sp.Icon size={22} strokeWidth={1.8} />
+                </span>
                 <span className="block text-[10px] mt-0.5 font-medium">{sp.label}</span>
               </button>
             ))}
