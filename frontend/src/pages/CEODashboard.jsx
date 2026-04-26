@@ -347,6 +347,7 @@ export default function CEODashboard() {
                     <th className="py-2 pr-3 text-[11px] uppercase">{isAr ? 'القيمة' : 'Value'}</th>
                     <th className="py-2 pr-3 text-[11px] uppercase">{isAr ? 'الاستقرار' : 'Stability'}</th>
                     <th className="py-2 pr-3 text-[11px] uppercase">{isAr ? 'آخر قراءة' : 'Last Reading'}</th>
+                    <th className="py-2 pr-3 text-[11px] uppercase">{isAr ? 'الجواز' : 'Passport'}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -367,6 +368,15 @@ export default function CEODashboard() {
                         </td>
                         <td className="py-2 pr-3 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
                           {r?.recorded_at ? new Date(r.recorded_at).toLocaleString(isAr ? 'ar-SA' : 'en-US') : '—'}
+                        </td>
+                        <td className="py-2 pr-3">
+                          <button
+                            onClick={() => navigate(`/passport/${a.id}`)}
+                            className="text-[11px] font-bold px-2 py-1 rounded-lg"
+                            style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}
+                          >
+                            🪪 {isAr ? 'افتح' : 'Open'}
+                          </button>
                         </td>
                       </tr>
                     );
