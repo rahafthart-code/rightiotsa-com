@@ -14,16 +14,272 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assets: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          insured_value: number | null
+          name: string
+          notes: string | null
+          owner_id: string
+          serial_number: string | null
+          species: Database["public"]["Enums"]["asset_species"]
+          stable_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          insured_value?: number | null
+          name: string
+          notes?: string | null
+          owner_id: string
+          serial_number?: string | null
+          species: Database["public"]["Enums"]["asset_species"]
+          stable_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          insured_value?: number | null
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          serial_number?: string | null
+          species?: Database["public"]["Enums"]["asset_species"]
+          stable_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_stable_id_fkey"
+            columns: ["stable_id"]
+            isOneToOne: false
+            referencedRelation: "stables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devices: {
+        Row: {
+          api_key_hash: string
+          asset_id: string | null
+          battery_level: number | null
+          created_at: string
+          device_serial: string
+          id: string
+          is_active: boolean
+          last_seen_at: string | null
+          network_type: string | null
+          owner_id: string
+          signal_strength: number | null
+          updated_at: string
+        }
+        Insert: {
+          api_key_hash: string
+          asset_id?: string | null
+          battery_level?: number | null
+          created_at?: string
+          device_serial: string
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string | null
+          network_type?: string | null
+          owner_id: string
+          signal_strength?: number | null
+          updated_at?: string
+        }
+        Update: {
+          api_key_hash?: string
+          asset_id?: string | null
+          battery_level?: number | null
+          created_at?: string
+          device_serial?: string
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string | null
+          network_type?: string | null
+          owner_id?: string
+          signal_strength?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sensor_readings: {
+        Row: {
+          asset_id: string | null
+          battery_level: number | null
+          device_id: string
+          heart_rate: number | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          raw_payload: Json | null
+          recorded_at: string
+          signal_strength: number | null
+          stability_score: number | null
+          temperature: number | null
+        }
+        Insert: {
+          asset_id?: string | null
+          battery_level?: number | null
+          device_id: string
+          heart_rate?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          raw_payload?: Json | null
+          recorded_at?: string
+          signal_strength?: number | null
+          stability_score?: number | null
+          temperature?: number | null
+        }
+        Update: {
+          asset_id?: string | null
+          battery_level?: number | null
+          device_id?: string
+          heart_rate?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          raw_payload?: Json | null
+          recorded_at?: string
+          signal_strength?: number | null
+          stability_score?: number | null
+          temperature?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sensor_readings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sensor_readings_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stables: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "ceo" | "owner"
+      asset_species: "camel" | "horse" | "falcon"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +406,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "ceo", "owner"],
+      asset_species: ["camel", "horse", "falcon"],
+    },
   },
 } as const
