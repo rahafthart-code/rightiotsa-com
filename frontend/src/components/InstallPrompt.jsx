@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Smartphone, Download } from "./icons";
 
 const DISMISS_KEY = "right_install_dismissed_at";
 const DISMISS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -85,13 +86,13 @@ export default function InstallPrompt() {
       aria-label={isAr ? "تثبيت التطبيق" : "Install app"}
     >
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg animate-float"
+        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 animate-float"
         style={{
           background: "var(--color-desert-gold)",
           color: "var(--color-royal-green-dark)",
         }}
       >
-        📲
+        <Smartphone size={22} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[13px] font-bold leading-tight">
@@ -111,13 +112,14 @@ export default function InstallPrompt() {
       <div className="flex flex-col gap-1">
         <button
           onClick={install}
-          className="px-3 py-1.5 text-[11px] font-bold rounded-lg whitespace-nowrap hover-lift animate-glow"
+          className="px-3 py-1.5 text-[11px] font-bold rounded-lg whitespace-nowrap hover-lift animate-glow inline-flex items-center gap-1"
           style={{
             background: "var(--color-desert-gold)",
             color: "var(--color-royal-green-dark)",
           }}
         >
-          {isAr ? "📲 تثبيت" : "📲 Install"}
+          <Download size={13} strokeWidth={2.4} />
+          {isAr ? "تثبيت" : "Install"}
         </button>
         <button
           onClick={dismiss}

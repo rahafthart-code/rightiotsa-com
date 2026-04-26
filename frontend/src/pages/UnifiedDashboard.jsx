@@ -22,6 +22,7 @@ import SmartReminders from "../components/SmartReminders";
 import HerdGroups from "../components/HerdGroups";
 import SmartAlertEngine from "../components/SmartAlertEngine";
 import PassportExportModal from "../components/PassportExportModal";
+import { CamelIcon, HorseIcon, FalconIcon, getSpeciesIcon, MapPin, Thermometer, Bell, AlertTriangle, HeartPulse, FileBadge, Layers, Zap, Radio } from "../components/icons";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -76,9 +77,9 @@ export default function UnifiedDashboard() {
   const geofenceSourceRef = useRef(null);
 
   const species = [
-    { value: "Camel", label: t("camels"), emoji: "🐪" },
-    { value: "Horse", label: t("horses"), emoji: "🐴" },
-    { value: "Falcon", label: t("falcons"), emoji: "🦅" },
+    { value: "Camel", label: t("camels"), Icon: CamelIcon },
+    { value: "Horse", label: t("horses"), Icon: HorseIcon },
+    { value: "Falcon", label: t("falcons"), Icon: FalconIcon },
   ];
 
   // Active geofence: user-edited center wins, else falls back to current position
@@ -440,13 +441,15 @@ export default function UnifiedDashboard() {
               <button
                 key={sp.value}
                 onClick={() => { setSelectedSpecies(sp.value); setSidebarOpen(false); }}
-                className="flex-1 px-2 py-2 rounded-xl text-center transition-all"
+                className="flex-1 px-2 py-2 rounded-xl text-center transition-all hover-lift"
                 style={selectedSpecies === sp.value
                   ? { background: 'var(--color-royal-green)', color: 'white', boxShadow: '0 2px 8px rgba(0,108,53,0.3)' }
                   : { background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }
                 }
               >
-                <span className="block text-lg">{sp.emoji}</span>
+                <span className="flex justify-center">
+                  <sp.Icon size={22} strokeWidth={1.8} />
+                </span>
                 <span className="block text-[10px] mt-0.5 font-medium">{sp.label}</span>
               </button>
             ))}
@@ -564,9 +567,9 @@ export default function UnifiedDashboard() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {!selectedAnimal && allAnimals.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-            <div className="max-w-lg w-full rounded-2xl p-6 sm:p-8 text-center" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
-                <span className="text-3xl sm:text-4xl">🐪</span>
+            <div className="max-w-lg w-full rounded-2xl p-6 sm:p-8 text-center hover-lift" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-float" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))', color: 'var(--color-royal-green)' }}>
+                <CamelIcon size={36} strokeWidth={1.8} />
               </div>
               <h2 className="text-lg sm:text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
                 {isAr ? 'نظام التتبع الذكي' : 'Smart Tracking System'}
@@ -576,12 +579,14 @@ export default function UnifiedDashboard() {
               </p>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: "📍", label: isAr ? 'تتبع GPS' : 'GPS Tracking' },
-                  { icon: "🌡️", label: isAr ? 'مراقبة حرارية' : 'Temperature' },
-                  { icon: "🔔", label: isAr ? 'تنبيهات سياج' : 'Geofence Alerts' },
+                  { Icon: MapPin, label: isAr ? 'تتبع GPS' : 'GPS Tracking' },
+                  { Icon: Thermometer, label: isAr ? 'مراقبة حرارية' : 'Temperature' },
+                  { Icon: Bell, label: isAr ? 'تنبيهات سياج' : 'Geofence Alerts' },
                 ].map((item, i) => (
-                  <div key={i} className="rounded-xl p-3" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
-                    <div className="text-xl mb-1">{item.icon}</div>
+                  <div key={i} className="rounded-xl p-3 hover-lift" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+                    <div className="mb-1 flex justify-center" style={{ color: 'var(--color-royal-green)' }}>
+                      <item.Icon size={22} strokeWidth={2} />
+                    </div>
                     <div className="text-[11px] font-medium" style={{ color: 'var(--color-text-muted)' }}>{item.label}</div>
                   </div>
                 ))}
@@ -596,8 +601,8 @@ export default function UnifiedDashboard() {
             <header className="p-4 sm:p-5 border-b" style={{ background: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-xl sm:text-2xl" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))' }}>
-                    {currentSpecies?.emoji}
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))', color: 'var(--color-royal-green)' }}>
+                    {currentSpecies?.Icon ? <currentSpecies.Icon size={26} strokeWidth={1.8} /> : null}
                   </div>
                   <div>
                     <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
@@ -617,8 +622,8 @@ export default function UnifiedDashboard() {
                   <ShareLocationButton animal={selectedAnimal} latestTelemetry={latestTelemetry} isAr={isAr} />
                   <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
                     <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
-                      <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
-                      <div>📡 {t('network')}: Sigfox 0G</div>
+                      <div className="inline-flex items-center gap-1"><Zap size={11} strokeWidth={2.4} /> {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
+                      <div className="inline-flex items-center gap-1"><Radio size={11} strokeWidth={2.4} /> {t('network')}: Sigfox 0G</div>
                     </div>
                   </div>
                 </div>
@@ -627,23 +632,24 @@ export default function UnifiedDashboard() {
               {/* Tabs */}
               <div className="mt-4 flex items-center gap-1 border-b -mb-px" style={{ borderColor: 'var(--color-border)' }}>
                 {[
-                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
-                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
-                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', icon: '🛂' },
-                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', icon: '🏡' },
+                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', Icon: MapPin },
+                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', Icon: HeartPulse },
+                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', Icon: FileBadge },
+                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', Icon: Layers },
                 ].map((tab) => {
                   const active = activeTab === tab.key;
                   return (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2 inline-flex items-center gap-1.5"
                       style={{
                         color: active ? 'var(--color-royal-green)' : 'var(--color-text-muted)',
                         borderColor: active ? 'var(--color-royal-green)' : 'transparent',
                       }}
                     >
-                      <span className="me-1">{tab.icon}</span>{tab.label}
+                      <tab.Icon size={15} strokeWidth={2} />
+                      {tab.label}
                     </button>
                   );
                 })}
@@ -820,7 +826,7 @@ export default function UnifiedDashboard() {
                             <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs" style={{ color: 'var(--color-text-primary)' }}>{item.battery != null ? `${item.battery}%` : "—"}</td>
                             <td className="px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                               {item.alert_status === 'out_of_range'
-                                ? <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'var(--color-danger-bg)', color: 'var(--color-danger)' }}>⚠️ {isAr ? 'خارج النطاق' : 'Out of Range'}</span>
+                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'var(--color-danger-bg)', color: 'var(--color-danger)' }}><AlertTriangle size={11} strokeWidth={2.4} /> {isAr ? 'خارج النطاق' : 'Out of Range'}</span>
                                 : (item.status ? (t(item.status) || item.status) : "—")
                               }
                             </td>

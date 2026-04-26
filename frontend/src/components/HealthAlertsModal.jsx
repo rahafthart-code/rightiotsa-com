@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BellRing } from "lucide-react";
 
 const STORAGE_KEY = "right_health_alerts_dismissed_at";
 const DISMISS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -52,7 +53,7 @@ export default function HealthAlertsModal({ open, onClose, isAr }) {
           className="px-5 py-6 text-center text-white"
           style={{ background: 'linear-gradient(135deg, var(--color-royal-green), var(--color-royal-green-dark))' }}
         >
-          <div className="text-4xl mb-2">🔔</div>
+          <div className="flex justify-center mb-2 animate-wiggle"><BellRing size={40} strokeWidth={2} /></div>
           <h2 className="text-base font-bold leading-snug">
             {isAr ? 'ابقَ على اطلاع دائم' : 'Stay always informed'}
           </h2>
