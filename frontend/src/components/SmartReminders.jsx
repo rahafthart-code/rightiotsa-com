@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Syringe, Satellite, Stethoscope, BellRing, PartyPopper } from 'lucide-react';
 
 function daysFromNow(d) {
   const ms = new Date(d).getTime() - Date.now();
@@ -11,7 +12,7 @@ function buildDefaultReminders(isAr) {
   return [
     {
       id: 'vac-1',
-      icon: '💉',
+      Icon: Syringe,
       type: isAr ? 'تطعيم' : 'Vaccination',
       title: isAr ? 'موعد تطعيم الجدري للإبل' : 'Camel pox vaccination',
       due: mk(3),
@@ -19,7 +20,7 @@ function buildDefaultReminders(isAr) {
     },
     {
       id: 'iot-1',
-      icon: '🛰️',
+      Icon: Satellite,
       type: isAr ? 'صيانة الجهاز' : 'IoT Maintenance',
       title: isAr ? 'فحص جهاز التتبع وتحديث البرنامج' : 'Tracker device check & firmware update',
       due: mk(10),
@@ -27,7 +28,7 @@ function buildDefaultReminders(isAr) {
     },
     {
       id: 'vet-1',
-      icon: '🩺',
+      Icon: Stethoscope,
       type: isAr ? 'فحص دوري' : 'Health Checkup',
       title: isAr ? 'كشف بيطري دوري للقطيع' : 'Routine veterinary checkup',
       due: mk(21),
@@ -71,7 +72,8 @@ export default function SmartReminders({ isAr }) {
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div>
           <h3 className="text-sm sm:text-base font-bold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-            🔔 {isAr ? 'المساعد الذكي للتذكيرات' : 'Smart Reminders'}
+            <BellRing size={18} className="animate-wiggle" style={{ color: 'var(--color-royal-green)' }} />
+            {isAr ? 'المساعد الذكي للتذكيرات' : 'Smart Reminders'}
           </h3>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
             {isAr ? 'تطعيمات، صيانة الأجهزة، وفحوصات صحية' : 'Vaccinations, device maintenance, and health checkups'}
@@ -95,7 +97,9 @@ export default function SmartReminders({ isAr }) {
               className="flex items-center gap-3 rounded-xl p-3"
               style={{ background: s.bg, border: `1px solid ${s.border}` }}
             >
-              <div className="text-xl">{it.icon}</div>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+                <it.Icon size={18} strokeWidth={2} />
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[11px] font-bold uppercase tracking-wide" style={{ color: s.color }}>
                   {it.type}
@@ -118,8 +122,9 @@ export default function SmartReminders({ isAr }) {
           );
         })}
         {items.length === 0 && (
-          <li className="text-center text-sm py-6" style={{ color: 'var(--color-text-muted)' }}>
-            {isAr ? '🎉 لا توجد تذكيرات حالياً' : '🎉 No active reminders'}
+          <li className="flex items-center justify-center gap-2 text-sm py-6" style={{ color: 'var(--color-text-muted)' }}>
+            <PartyPopper size={18} />
+            {isAr ? 'لا توجد تذكيرات حالياً' : 'No active reminders'}
           </li>
         )}
       </ul>

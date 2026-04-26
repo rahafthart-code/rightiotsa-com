@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Sun, CloudSun, Cloud, MapPin } from "lucide-react";
+
+const ICONS = { Sunny: Sun, Clear: CloudSun, "Partly Cloudy": Cloud };
 
 export default function WeatherWidget({ lat, lng }) {
   const { i18n } = useTranslation();
@@ -12,15 +15,12 @@ export default function WeatherWidget({ lat, lng }) {
       return;
     }
 
-    // Simulate weather data (in production, use OpenWeather API)
     const simulateWeather = () => {
-      // Riyadh area typical conditions
       const conditions = [
-        { temp: 28, condition: "Sunny", condition_ar: "مشمس", icon: "☀️" },
-        { temp: 32, condition: "Clear", condition_ar: "صافٍ", icon: "🌤️" },
-        { temp: 25, condition: "Partly Cloudy", condition_ar: "غيوم متفرقة", icon: "⛅" }
+        { temp: 28, condition: "Sunny", condition_ar: "مشمس" },
+        { temp: 32, condition: "Clear", condition_ar: "صافٍ" },
+        { temp: 25, condition: "Partly Cloudy", condition_ar: "غيوم متفرقة" },
       ];
-      
       const randomWeather = conditions[Math.floor(Math.random() * conditions.length)];
       setWeather(randomWeather);
       setLoading(false);
@@ -29,26 +29,45 @@ export default function WeatherWidget({ lat, lng }) {
     simulateWeather();
   }, [lat, lng]);
 
-  if (loading || !weather) {
-    return null;
-  }
+  if (loading || !weather) return null;
+
+  const Icon = ICONS[weather.condition] || Sun;
 
   return (
-    <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 p-3 rounded-lg">
+    <div
+      className="rounded-xl p-3 hover-lift"
+      style={{
+        background: "var(--color-bg-card)",
+        border: "1px solid var(--color-border)",
+      }}
+    >
       <div className="flex items-center gap-3">
-        <div className="text-3xl">{weather.icon}</div>
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center animate-float"
+          style={{
+            background: "linear-gradient(135deg, rgba(197,165,90,0.2), rgba(0,108,53,0.1))",
+            color: "var(--color-desert-gold-dark)",
+          }}
+        >
+          <Icon size={22} strokeWidth={2} />
+        </div>
         <div>
-          <div className="text-2xl font-bold text-slate-100">{weather.temp}°C</div>
-          <div className="text-xs text-slate-400">
-            {i18n.language === 'ar' ? weather.condition_ar : weather.condition}
+          <div className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            {weather.temp}°C
+          </div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            {i18n.language === "ar" ? weather.condition_ar : weather.condition}
           </div>
         </div>
       </div>
-      <div className="text-[10px] text-slate-500 mt-2">
-        {i18n.language === 'ar' 
-          ? `📍 الموقع: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`
-          : `📍 Location: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`
-        }
+      <div
+        className="text-[10px] mt-2 inline-flex items-center gap-1"
+        style={{ color: "var(--color-text-muted)" }}
+      >
+        <MapPin size={11} />
+        {i18n.language === "ar"
+          ? `الموقع: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`
+          : `Location: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`}
       </div>
     </div>
   );
