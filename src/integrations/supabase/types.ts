@@ -18,6 +18,9 @@ export type Database = {
         Row: {
           birth_date: string | null
           created_at: string
+          geofence_lat: number | null
+          geofence_lng: number | null
+          geofence_radius_km: number | null
           id: string
           image_url: string | null
           insured_value: number | null
@@ -32,6 +35,9 @@ export type Database = {
         Insert: {
           birth_date?: string | null
           created_at?: string
+          geofence_lat?: number | null
+          geofence_lng?: number | null
+          geofence_radius_km?: number | null
           id?: string
           image_url?: string | null
           insured_value?: number | null
@@ -46,6 +52,9 @@ export type Database = {
         Update: {
           birth_date?: string | null
           created_at?: string
+          geofence_lat?: number | null
+          geofence_lng?: number | null
+          geofence_radius_km?: number | null
           id?: string
           image_url?: string | null
           insured_value?: number | null
@@ -269,12 +278,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compute_stability: {
+        Args: {
+          p_asset_id: string
+          p_lat: number
+          p_lng: number
+          p_temp: number
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      haversine_km: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number }
+        Returns: number
       }
     }
     Enums: {

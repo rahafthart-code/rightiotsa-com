@@ -85,7 +85,10 @@ Deno.serve(async (req) => {
       recorded_at: body.recorded_at ?? new Date().toISOString(),
       latitude: body.latitude ?? null,
       longitude: body.longitude ?? null,
-      stability_score: body.stability_score ?? null,
+      // stability_score is computed server-side by the
+      // compute_stability(60% geofence + 40% health) trigger.
+      // We only honor a client-provided value if it's explicitly set (rare, e.g. backfill).
+      stability_score: typeof body.stability_score === "number" ? body.stability_score : null,
       temperature: body.temperature ?? null,
       heart_rate: body.heart_rate ?? null,
       battery_level: body.battery_level ?? null,
