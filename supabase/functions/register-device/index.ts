@@ -1,6 +1,6 @@
 // Register a new IoT device for an asset.
 // Generates a one-time API key (returned to the user), stores only its SHA-256 hash.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
