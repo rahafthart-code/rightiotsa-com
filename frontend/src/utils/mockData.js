@@ -80,6 +80,8 @@ export const MOCK_PLANS = [
     currency: "SAR",
     interval: "year",
     features: ["GPS Tracking", "Geofence", "Alerts"],
+    features_en: ["GPS Tracking", "Geofence", "Smart Alerts"],
+    features_ar: ["تتبع GPS", "نطاق آمن", "تنبيهات ذكية"],
   },
   {
     id: 2,
@@ -89,6 +91,8 @@ export const MOCK_PLANS = [
     currency: "SAR",
     interval: "year",
     features: ["All Basic", "Health Monitoring", "Vet Reports"],
+    features_en: ["All Basic features", "Health Monitoring", "Vet Reports"],
+    features_ar: ["كل مزايا الأساسي", "مراقبة صحية", "تقارير بيطرية"],
   },
 ];
 
