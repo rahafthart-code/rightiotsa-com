@@ -85,7 +85,7 @@ export default function InstallPrompt() {
       aria-label={isAr ? "تثبيت التطبيق" : "Install app"}
     >
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg animate-float"
         style={{
           background: "var(--color-desert-gold)",
           color: "var(--color-royal-green-dark)",
@@ -111,13 +111,13 @@ export default function InstallPrompt() {
       <div className="flex flex-col gap-1">
         <button
           onClick={install}
-          className="px-3 py-1.5 text-[11px] font-bold rounded-lg whitespace-nowrap"
+          className="px-3 py-1.5 text-[11px] font-bold rounded-lg whitespace-nowrap hover-lift animate-glow"
           style={{
             background: "var(--color-desert-gold)",
             color: "var(--color-royal-green-dark)",
           }}
         >
-          {isAr ? "تثبيت" : "Install"}
+          {isAr ? "📲 تثبيت" : "📲 Install"}
         </button>
         <button
           onClick={dismiss}

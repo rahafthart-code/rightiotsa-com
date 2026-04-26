@@ -110,8 +110,8 @@ function DashboardShell() {
     <div className="h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
       <header className="z-20 shadow-sm" style={{ background: 'var(--color-royal-green)', borderBottom: '3px solid var(--color-desert-gold)' }}>
         <div className="max-w-full mx-auto flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
-            <img src={logoImage} alt="Right Logo" className="h-10 w-auto" style={{ objectFit: 'contain' }} />
+          <div className="flex items-center gap-3 cursor-pointer hover-lift" onClick={() => navigate("/dashboard")}>
+            <img src={logoImage} alt="Right Logo" className="h-10 w-auto animate-float" style={{ objectFit: 'contain' }} />
             <div>
               <span className="text-sm font-bold text-white">{t('appName')}</span>
               <span className="text-[10px] block" style={{ color: 'var(--color-desert-gold-light)' }}>
@@ -121,11 +121,11 @@ function DashboardShell() {
           </div>
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
+              <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium icon-pop">
                 {t('adminPortal')}
               </button>
             )}
-            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
+            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all hover-lift" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
               {i18n.language === 'ar' ? 'EN' : 'عربي'}
             </button>
           </div>
