@@ -52,7 +52,7 @@ export default function HealthAlertsModal({ open, onClose, isAr }) {
           className="px-5 py-6 text-center text-white"
           style={{ background: 'linear-gradient(135deg, var(--color-royal-green), var(--color-royal-green-dark))' }}
         >
-          <div className="text-4xl mb-2">🔔</div>
+          <div className="flex justify-center mb-2 animate-wiggle"><BellRing size={40} strokeWidth={2} /></div>
           <h2 className="text-base font-bold leading-snug">
             {isAr ? 'ابقَ على اطلاع دائم' : 'Stay always informed'}
           </h2>
