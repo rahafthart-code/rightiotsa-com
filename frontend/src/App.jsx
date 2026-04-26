@@ -14,6 +14,7 @@ import FAQPage from "./pages/FAQPage";
 import ContactPage from "./pages/ContactPage";
 import GuestView from "./pages/GuestView";
 import CEODashboard from "./pages/CEODashboard";
+import PassportPage from "./pages/PassportPage";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { ensureMockUser } from "./utils/mockData";
