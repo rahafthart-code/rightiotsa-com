@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BellRing } from "lucide-react";
 
 const STORAGE_KEY = "right_health_alerts_dismissed_at";
 const DISMISS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
