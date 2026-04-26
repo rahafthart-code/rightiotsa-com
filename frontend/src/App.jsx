@@ -13,6 +13,7 @@ import TermsConditionsPage from "./pages/TermsConditionsPage";
 import FAQPage from "./pages/FAQPage";
 import ContactPage from "./pages/ContactPage";
 import GuestView from "./pages/GuestView";
+import CEODashboard from "./pages/CEODashboard";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { ensureMockUser } from "./utils/mockData";
@@ -76,6 +77,9 @@ function AppShell({ children }) {
                 <button onClick={() => navigate('/dashboard')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
                   {t('dashboard')}
                 </button>
+                <button onClick={() => navigate('/ceo')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
+                  👑 CEO
+                </button>
                 {useAuth().isAdmin && (
                   <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
                     {t('adminPortal')}
@@ -120,6 +124,9 @@ function DashboardShell() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/ceo')} className="text-xs text-white/90 hover:text-white transition-colors font-bold icon-pop px-2 py-1 rounded" style={{ background: 'rgba(197,165,90,0.18)' }}>
+              👑 CEO
+            </button>
             {isAdmin && (
               <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium icon-pop">
                 {t('adminPortal')}
@@ -155,6 +162,7 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/guest/:token" element={<GuestView />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
+        <Route path="/ceo" element={<ProtectedRoute><CEODashboard /></ProtectedRoute>} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
