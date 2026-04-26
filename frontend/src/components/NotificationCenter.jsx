@@ -48,7 +48,7 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
           }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-xl">🔔</span>
+            <BellRing size={22} className="text-white animate-wiggle" />
             <div>
               <h2 className="text-sm font-bold text-white">
                 {isAr ? "مركز التنبيهات" : "Notification Center"}
@@ -65,12 +65,10 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
           </div>
           <button
             onClick={onClose}
-            className="text-white/80 hover:text-white p-1"
+            className="text-white/80 hover:text-white p-1 icon-pop"
             aria-label={isAr ? "إغلاق" : "Close"}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X size={20} />
           </button>
         </header>
 
@@ -83,7 +81,7 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
                 color: "var(--color-text-muted)",
               }}
             >
-              <div className="text-4xl mb-2">✅</div>
+              <CheckCircle2 size={48} className="mx-auto mb-2" style={{ color: "var(--color-royal-green)" }} />
               <p className="text-sm font-medium">
                 {isAr ? "لا توجد تنبيهات" : "No alerts"}
               </p>
@@ -116,7 +114,7 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
                 >
                   <div className="flex items-start gap-2">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm"
+                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{
                         background: isActive
                           ? "var(--color-danger)"
@@ -124,7 +122,7 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
                         color: "white",
                       }}
                     >
-                      ⚠️
+                      <AlertTriangle size={16} strokeWidth={2.4} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
@@ -152,10 +150,11 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
                       </p>
                       {isActive && (
                         <span
-                          className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold text-white"
+                          className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold text-white animate-glow"
                           style={{ background: "var(--color-danger)" }}
                         >
-                          {isAr ? "🚨 طارئ نشط" : "🚨 Active emergency"}
+                          <Siren size={10} strokeWidth={2.5} />
+                          {isAr ? "طارئ نشط" : "Active emergency"}
                         </span>
                       )}
                     </div>
@@ -173,14 +172,15 @@ export default function NotificationCenter({ open, onClose, alerts, onClear }) {
           >
             <button
               onClick={onClear}
-              className="w-full py-2 text-xs font-semibold rounded-lg transition-all"
+              className="w-full py-2 text-xs font-semibold rounded-lg transition-all hover-lift inline-flex items-center justify-center gap-2"
               style={{
                 background: "var(--color-bg-secondary)",
                 color: "var(--color-text-secondary)",
                 border: "1px solid var(--color-border)",
               }}
             >
-              {isAr ? "🧹 مسح كل التنبيهات" : "🧹 Clear all alerts"}
+              <Trash2 size={14} />
+              {isAr ? "مسح كل التنبيهات" : "Clear all alerts"}
             </button>
           </div>
         )}
