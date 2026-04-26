@@ -22,7 +22,7 @@ import SmartReminders from "../components/SmartReminders";
 import HerdGroups from "../components/HerdGroups";
 import SmartAlertEngine from "../components/SmartAlertEngine";
 import PassportExportModal from "../components/PassportExportModal";
-import { CamelIcon, HorseIcon, FalconIcon, getSpeciesIcon, MapPin, Thermometer, Bell, AlertTriangle } from "../components/icons";
+import { CamelIcon, HorseIcon, FalconIcon, getSpeciesIcon, MapPin, Thermometer, Bell, AlertTriangle, HeartPulse, FileBadge, Layers, Zap, Radio } from "../components/icons";
 
 function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -604,7 +604,6 @@ export default function UnifiedDashboard() {
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(0,108,53,0.1), rgba(197,165,90,0.1))', color: 'var(--color-royal-green)' }}>
                     {currentSpecies?.Icon ? <currentSpecies.Icon size={26} strokeWidth={1.8} /> : null}
                   </div>
-                  </div>
                   <div>
                     <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                       {t(selectedAnimal.name) || selectedAnimal.name}
@@ -623,8 +622,8 @@ export default function UnifiedDashboard() {
                   <ShareLocationButton animal={selectedAnimal} latestTelemetry={latestTelemetry} isAr={isAr} />
                   <div className="rounded-xl px-3 sm:px-4 py-2" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
                     <div className="text-[10px] sm:text-[11px] space-y-0.5" style={{ color: 'var(--color-desert-gold-dark)' }}>
-                      <div>🔋 {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
-                      <div>📡 {t('network')}: Sigfox 0G</div>
+                      <div className="inline-flex items-center gap-1"><Zap size={11} strokeWidth={2.4} /> {t('battery')}: 5 {isAr ? 'سنوات' : 'Years'}</div>
+                      <div className="inline-flex items-center gap-1"><Radio size={11} strokeWidth={2.4} /> {t('network')}: Sigfox 0G</div>
                     </div>
                   </div>
                 </div>
@@ -633,23 +632,24 @@ export default function UnifiedDashboard() {
               {/* Tabs */}
               <div className="mt-4 flex items-center gap-1 border-b -mb-px" style={{ borderColor: 'var(--color-border)' }}>
                 {[
-                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: '📍' },
-                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: '💓' },
-                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', icon: '🛂' },
-                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', icon: '🏡' },
+                  { key: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', Icon: MapPin },
+                  { key: 'health', label: isAr ? 'التقارير الصحية' : 'Health Reports', Icon: HeartPulse },
+                  { key: 'passport', label: isAr ? 'الجواز الرقمي' : 'Digital Passport', Icon: FileBadge },
+                  { key: 'groups', label: isAr ? 'إدارة العزب' : 'Herd Groups', Icon: Layers },
                 ].map((tab) => {
                   const active = activeTab === tab.key;
                   return (
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2"
+                      className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold transition-all border-b-2 inline-flex items-center gap-1.5"
                       style={{
                         color: active ? 'var(--color-royal-green)' : 'var(--color-text-muted)',
                         borderColor: active ? 'var(--color-royal-green)' : 'transparent',
                       }}
                     >
-                      <span className="me-1">{tab.icon}</span>{tab.label}
+                      <tab.Icon size={15} strokeWidth={2} />
+                      {tab.label}
                     </button>
                   );
                 })}
