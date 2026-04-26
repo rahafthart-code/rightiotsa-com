@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Bell, BellRing, AlertTriangle, CheckCircle2, X, Trash2, Siren } from "lucide-react";
 
 /**
  * Slide-out notification center listing recent geofence alerts.
