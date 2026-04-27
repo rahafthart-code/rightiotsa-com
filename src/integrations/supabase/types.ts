@@ -17,53 +17,80 @@ export type Database = {
       assets: {
         Row: {
           birth_date: string | null
+          cloudinary_id: string | null
           created_at: string
           geofence_lat: number | null
           geofence_lng: number | null
           geofence_radius_km: number | null
           id: string
           image_url: string | null
+          insurance_value: number | null
           insured_value: number | null
+          is_active: boolean | null
+          is_insured: boolean | null
           name: string
           notes: string | null
           owner_id: string
+          photo_url: string | null
+          registration_no: string | null
+          sensor_device_id: string | null
           serial_number: string | null
           species: Database["public"]["Enums"]["asset_species"]
+          stability_index: number | null
           stable_id: string | null
+          status: string
           updated_at: string
         }
         Insert: {
           birth_date?: string | null
+          cloudinary_id?: string | null
           created_at?: string
           geofence_lat?: number | null
           geofence_lng?: number | null
           geofence_radius_km?: number | null
           id?: string
           image_url?: string | null
+          insurance_value?: number | null
           insured_value?: number | null
+          is_active?: boolean | null
+          is_insured?: boolean | null
           name: string
           notes?: string | null
           owner_id: string
+          photo_url?: string | null
+          registration_no?: string | null
+          sensor_device_id?: string | null
           serial_number?: string | null
           species: Database["public"]["Enums"]["asset_species"]
+          stability_index?: number | null
           stable_id?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
           birth_date?: string | null
+          cloudinary_id?: string | null
           created_at?: string
           geofence_lat?: number | null
           geofence_lng?: number | null
           geofence_radius_km?: number | null
           id?: string
           image_url?: string | null
+          insurance_value?: number | null
           insured_value?: number | null
+          is_active?: boolean | null
+          is_insured?: boolean | null
           name?: string
           notes?: string | null
           owner_id?: string
+          photo_url?: string | null
+          registration_no?: string | null
+          sensor_device_id?: string | null
           serial_number?: string | null
           species?: Database["public"]["Enums"]["asset_species"]
+          stability_index?: number | null
           stable_id?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: [
