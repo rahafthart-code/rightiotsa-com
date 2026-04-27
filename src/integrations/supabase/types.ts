@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      asset_passports: {
+        Row: {
+          asset_id: string
+          birth_date: string | null
+          bloodline: string | null
+          color_markings: string | null
+          created_at: string
+          expires_at: string | null
+          gender: string | null
+          height_cm: number | null
+          id: string
+          issued_at: string | null
+          issuing_authority: string | null
+          microchip_id: string | null
+          official_name: string | null
+          passport_no: string | null
+          updated_at: string
+          vaccinations: Json | null
+          veterinarian_id: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          asset_id: string
+          birth_date?: string | null
+          bloodline?: string | null
+          color_markings?: string | null
+          created_at?: string
+          expires_at?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string
+          issued_at?: string | null
+          issuing_authority?: string | null
+          microchip_id?: string | null
+          official_name?: string | null
+          passport_no?: string | null
+          updated_at?: string
+          vaccinations?: Json | null
+          veterinarian_id?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          asset_id?: string
+          birth_date?: string | null
+          bloodline?: string | null
+          color_markings?: string | null
+          created_at?: string
+          expires_at?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string
+          issued_at?: string | null
+          issuing_authority?: string | null
+          microchip_id?: string | null
+          official_name?: string | null
+          passport_no?: string | null
+          updated_at?: string
+          vaccinations?: Json | null
+          veterinarian_id?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_passports_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           birth_date: string | null
