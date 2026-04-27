@@ -156,6 +156,56 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          asset_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          owner_id: string
+          photo_url: string | null
+          read_at: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          asset_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          owner_id: string
+          photo_url?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          asset_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          owner_id?: string
+          photo_url?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
