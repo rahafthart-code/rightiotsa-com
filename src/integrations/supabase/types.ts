@@ -194,46 +194,76 @@ export type Database = {
       }
       sensor_readings: {
         Row: {
+          activity_score: number | null
           asset_id: string | null
           battery_level: number | null
           device_id: string
+          env_humidity: number | null
+          env_score: number | null
+          env_temp: number | null
+          gps_lat: number | null
+          gps_lng: number | null
           heart_rate: number | null
           id: string
+          is_in_zone: boolean | null
           latitude: number | null
           longitude: number | null
           raw_payload: Json | null
           recorded_at: string
+          respiration_rate: number | null
           signal_strength: number | null
+          smoothed_stability: number | null
           stability_score: number | null
           temperature: number | null
+          vital_score: number | null
         }
         Insert: {
+          activity_score?: number | null
           asset_id?: string | null
           battery_level?: number | null
           device_id: string
+          env_humidity?: number | null
+          env_score?: number | null
+          env_temp?: number | null
+          gps_lat?: number | null
+          gps_lng?: number | null
           heart_rate?: number | null
           id?: string
+          is_in_zone?: boolean | null
           latitude?: number | null
           longitude?: number | null
           raw_payload?: Json | null
           recorded_at?: string
+          respiration_rate?: number | null
           signal_strength?: number | null
+          smoothed_stability?: number | null
           stability_score?: number | null
           temperature?: number | null
+          vital_score?: number | null
         }
         Update: {
+          activity_score?: number | null
           asset_id?: string | null
           battery_level?: number | null
           device_id?: string
+          env_humidity?: number | null
+          env_score?: number | null
+          env_temp?: number | null
+          gps_lat?: number | null
+          gps_lng?: number | null
           heart_rate?: number | null
           id?: string
+          is_in_zone?: boolean | null
           latitude?: number | null
           longitude?: number | null
           raw_payload?: Json | null
           recorded_at?: string
+          respiration_rate?: number | null
           signal_strength?: number | null
+          smoothed_stability?: number | null
           stability_score?: number | null
           temperature?: number | null
+          vital_score?: number | null
         }
         Relationships: [
           {
@@ -319,6 +349,24 @@ export type Database = {
           p_temp: number
         }
         Returns: number
+      }
+      compute_stability_v2: {
+        Args: {
+          p_activity_score?: number
+          p_asset_id: string
+          p_env_humidity?: number
+          p_env_temp?: number
+          p_heart_rate?: number
+          p_lat: number
+          p_lng: number
+          p_respiration_rate?: number
+          p_temp: number
+        }
+        Returns: {
+          env_pct: number
+          stability: number
+          vital_pct: number
+        }[]
       }
       has_role: {
         Args: {
