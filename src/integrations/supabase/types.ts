@@ -500,6 +500,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_realtime_topic: { Args: { _topic: string }; Returns: boolean }
       compute_stability: {
         Args: {
           p_asset_id: string
