@@ -135,6 +135,8 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          last_seen_at: string | null
+          national_id: string | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -144,6 +146,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          last_seen_at?: string | null
+          national_id?: string | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -153,6 +157,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          last_seen_at?: string | null
+          national_id?: string | null
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -300,7 +306,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "ceo" | "owner"
+      app_role: "admin" | "ceo" | "owner" | "vet" | "viewer"
       asset_species: "camel" | "horse" | "falcon"
     }
     CompositeTypes: {
@@ -429,7 +435,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "ceo", "owner"],
+      app_role: ["admin", "ceo", "owner", "vet", "viewer"],
       asset_species: ["camel", "horse", "falcon"],
     },
   },
