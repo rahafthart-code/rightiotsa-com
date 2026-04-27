@@ -234,12 +234,21 @@ export default function PassportPage() {
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div ref={cardRef} className="rounded-3xl overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', boxShadow: '0 12px 40px -12px rgba(0,0,0,0.15)' }}>
 
-          {/* === IDENTITY CARD === */}
-          <section className="relative p-5 sm:p-7" style={{ background: 'linear-gradient(135deg, var(--color-royal-green) 0%, var(--color-royal-green-dark) 100%)', color: 'white' }}>
+          {/* === IDENTITY CARD (Cyber-Heritage) === */}
+          <section className="relative p-5 sm:p-7 overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--color-royal-green) 0%, var(--color-royal-green-dark) 100%)', color: 'white' }}>
+            {/* Subtle dotted heritage pattern */}
             <div className="absolute inset-0 opacity-10 select-none pointer-events-none" aria-hidden style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 2px)', backgroundSize: '24px 24px' }} />
+            {/* Cyber scanlines */}
+            <div className="absolute inset-0 opacity-[0.07] select-none pointer-events-none mix-blend-overlay" aria-hidden style={{ backgroundImage: 'repeating-linear-gradient(180deg, rgba(255,255,255,0.6) 0 1px, transparent 1px 3px)' }} />
+            {/* Corner brackets */}
+            <CornerBracket pos="tl" />
+            <CornerBracket pos="tr" />
+            <CornerBracket pos="bl" />
+            <CornerBracket pos="br" />
+
             <div className="relative grid grid-cols-1 sm:grid-cols-[140px_1fr_140px] gap-5 items-center">
               {/* Photo */}
-              <div className="rounded-2xl overflow-hidden border-4 mx-auto sm:mx-0" style={{ borderColor: 'var(--color-desert-gold)', width: 140, height: 140, background: 'rgba(255,255,255,0.08)' }}>
+              <div className="rounded-2xl overflow-hidden border-4 mx-auto sm:mx-0 relative" style={{ borderColor: 'var(--color-desert-gold)', width: 140, height: 140, background: 'rgba(255,255,255,0.08)', boxShadow: '0 0 0 2px rgba(197,165,90,0.35), 0 12px 32px -8px rgba(0,0,0,0.45)' }}>
                 {asset.image_url ? (
                   <img src={asset.image_url} alt={asset.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
                 ) : (
@@ -250,14 +259,15 @@ export default function PassportPage() {
               </div>
               {/* Identity */}
               <div className="text-center sm:text-start">
-                <div className="text-[11px] uppercase tracking-[0.25em] font-bold" style={{ color: 'var(--color-desert-gold-light)' }}>
-                  {isAr ? 'جواز السفر التقني' : 'Technical Passport'}
+                <div className="text-[11px] uppercase tracking-[0.32em] font-bold flex items-center gap-2 justify-center sm:justify-start" style={{ color: 'var(--color-desert-gold-light)' }}>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--color-desert-gold)' }} />
+                  {isAr ? 'جواز السفر التقني' : 'TECHNICAL PASSPORT'}
                 </div>
-                <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold">{asset.name}</h1>
+                <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold drop-shadow-sm">{asset.name}</h1>
                 <div className="mt-2 flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                   <Badge>{asset.species}</Badge>
                   {asset.serial_number && <Badge mono>#{asset.serial_number}</Badge>}
-                  <Badge style={{ background: tier.color }}>{tier.label} {score != null && `· ${Math.round(score)}/100`}</Badge>
+                  <Badge style={{ background: tier.color, boxShadow: `0 0 14px ${tier.color}` }}>{tier.label} {score != null && `· ${Math.round(score)}/100`}</Badge>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
                   <Mini label={isAr ? 'القيمة المؤمّنة' : 'Insured Value'} value={`${Number(asset.insured_value || 0).toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`} />
@@ -266,9 +276,9 @@ export default function PassportPage() {
               </div>
               {/* QR */}
               <div className="flex flex-col items-center gap-1 mx-auto">
-                {qrUrl && <img src={qrUrl} alt="QR" className="w-[120px] h-[120px] rounded-lg bg-white p-1" />}
-                <div className="text-[10px] opacity-90 text-center max-w-[120px] break-words">
-                  {isAr ? 'امسح للمشاركة' : 'Scan to share'}
+                {qrUrl && <img src={qrUrl} alt="QR" className="w-[120px] h-[120px] rounded-lg bg-white p-1" style={{ boxShadow: '0 0 0 2px var(--color-desert-gold)' }} />}
+                <div className="text-[10px] opacity-90 text-center max-w-[120px] break-words font-mono tracking-wider">
+                  {isAr ? 'امسح للمشاركة' : 'SCAN · SHARE'}
                 </div>
               </div>
             </div>
@@ -324,6 +334,17 @@ function Badge({ children, mono, style }) {
       {children}
     </span>
   );
+}
+
+function CornerBracket({ pos }) {
+  const base = { position: 'absolute', width: 22, height: 22, borderColor: 'var(--color-desert-gold)', pointerEvents: 'none' };
+  const map = {
+    tl: { top: 10, left: 10, borderTop: '2px solid', borderLeft: '2px solid' },
+    tr: { top: 10, right: 10, borderTop: '2px solid', borderRight: '2px solid' },
+    bl: { bottom: 10, left: 10, borderBottom: '2px solid', borderLeft: '2px solid' },
+    br: { bottom: 10, right: 10, borderBottom: '2px solid', borderRight: '2px solid' },
+  };
+  return <span aria-hidden style={{ ...base, ...map[pos] }} />;
 }
 
 function Mini({ label, value }) {

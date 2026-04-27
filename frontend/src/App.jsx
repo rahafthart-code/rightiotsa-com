@@ -17,6 +17,7 @@ import CEODashboard from "./pages/CEODashboard";
 import PassportPage from "./pages/PassportPage";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
+import PushOptInBanner from "./components/PushOptInBanner";
 import { ensureMockUser } from "./utils/mockData";
 
 // Preview/demo mode: skip the login screen entirely and seed a mock session.
@@ -169,6 +170,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
       <WhatsAppWidget />
+      <PushOptInBanner />
     </>
   );
 }
