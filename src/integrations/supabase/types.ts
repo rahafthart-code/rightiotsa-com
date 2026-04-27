@@ -282,6 +282,44 @@ export type Database = {
           },
         ]
       }
+      stability_snapshots: {
+        Row: {
+          asset_id: string
+          env_score: number | null
+          final_index: number | null
+          id: string
+          snapped_at: string
+          status_flag: string | null
+          vital_score: number | null
+        }
+        Insert: {
+          asset_id: string
+          env_score?: number | null
+          final_index?: number | null
+          id?: string
+          snapped_at?: string
+          status_flag?: string | null
+          vital_score?: number | null
+        }
+        Update: {
+          asset_id?: string
+          env_score?: number | null
+          final_index?: number | null
+          id?: string
+          snapped_at?: string
+          status_flag?: string | null
+          vital_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stability_snapshots_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stables: {
         Row: {
           created_at: string
@@ -379,6 +417,7 @@ export type Database = {
         Args: { lat1: number; lat2: number; lng1: number; lng2: number }
         Returns: number
       }
+      snapshot_all_assets: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "ceo" | "owner" | "vet" | "viewer"
