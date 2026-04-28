@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useStables } from '../hooks/useStables';
+import { useSensorHealth } from '../hooks/useSensorHealth';
 import AssetCard from '../components/AssetCard';
 import StableTabs from '../components/stables/StableTabs';
 import StableStatsCard from '../components/stables/StableStatsCard';
@@ -42,6 +43,9 @@ export default function StableDashboard() {
   // Pass the hook-provided filter directly to the assets hook
   const { assets, loading: assetsLoading } = useAssets(ownerId, stableFilter);
 
+  // Page-level offline banner driven by useSensorHealth (scoped to current view)
+  const { offlineAlert, devices: scopedDevices } = useSensorHealth(ownerId, selectedStable, isAr);
+
   const [modalOpen, setModalOpen] = useState(false);
 
   const stableMap = useMemo(() => {
@@ -71,6 +75,22 @@ export default function StableDashboard() {
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="max-w-7xl mx-auto space-y-5">
+        {/* Page-level offline banner */}
+        {offlineAlert && (
+          <div
+            className="rounded-xl px-4 py-3 flex items-center gap-3 shadow-sm"
+            style={{ background: '#fef3c7', border: '1px solid #fcd34d', color: '#92400e' }}
+            role="alert"
+          >
+            <span className="text-xl">⚠️</span>
+            <div className="flex-1 text-sm font-bold">
+              {isAr
+                ? `${scopedDevices.filter((d) => !d.last_seen_at || Date.now() - new Date(d.last_seen_at).getTime() > 3600000).length} جهاز منقطع منذ أكثر من ساعة`
+                : `${scopedDevices.filter((d) => !d.last_seen_at || Date.now() - new Date(d.last_seen_at).getTime() > 3600000).length} device(s) offline for over an hour`}
+            </div>
+          </div>
+        )}
+
         {/* Page header */}
         <header className="flex items-start justify-between gap-3 flex-wrap">
           <div>
@@ -155,7 +175,6 @@ export default function StableDashboard() {
         <SensorHealthPanel
           ownerId={ownerId}
           stableId={selectedStable}
-          assets={assets}
           isAr={isAr}
         />
       </div>
