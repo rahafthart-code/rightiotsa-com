@@ -125,6 +125,8 @@ export default React.memo(AssetCard, (prev, next) => {
   const b = next.asset || {};
   return (
     prev.onClick === next.onClick &&
+    prev.stable?.id === next.stable?.id &&
+    prev.stable?.color === next.stable?.color &&
     a.id === b.id &&
     a.name === b.name &&
     a.status === b.status &&
