@@ -115,6 +115,7 @@ export default function PassportPage() {
           setAsset(cached.payload.asset);
           setDevice(cached.payload.device);
           setReadings(cached.payload.readings || []);
+          setSnapshots(cached.payload.snapshots || []);
           setFromCache(true);
         } else {
           setError(e.message || String(e));
