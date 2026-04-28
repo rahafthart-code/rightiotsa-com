@@ -18,6 +18,7 @@ import PassportPage from "./pages/PassportPage";
 import DigitalPassport from "./pages/DigitalPassport";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import Dashboard from "./pages/Dashboard";
+import AssetPassport from "./pages/AssetPassport";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import PushOptInBanner from "./components/PushOptInBanner";
@@ -170,6 +171,7 @@ export default function App() {
         <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
         <Route path="/ceo" element={<ProtectedRoute><CEODashboard /></ProtectedRoute>} />
         <Route path="/passport/:id" element={<PassportPage />} />
+        <Route path="/asset-passport/:id" element={<ProtectedRoute><AssetPassport /></ProtectedRoute>} />
         <Route path="/digital-passport/:id" element={<DigitalPassport />} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
