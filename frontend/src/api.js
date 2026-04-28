@@ -57,21 +57,14 @@ export function requestOtp(payload) {
 }
 
 export async function verifyOtp(emailOrMobile, code) {
-  try {
-    const res = await apiClient.post("/verify-otp", {
-      email_or_mobile: emailOrMobile,
-      code: code
-    });
-    const { access_token, user, is_admin } = res.data;
-    localStorage.setItem("access_token", access_token);
-    localStorage.setItem("user", JSON.stringify({ ...user, is_admin }));
-    return res.data;
-  } catch (err) {
-    // Preview fallback: accept any code so the demo never blocks the user.
-    localStorage.setItem("access_token", "mock-preview-token");
-    localStorage.setItem("user", JSON.stringify(MOCK_USER));
-    return { access_token: "mock-preview-token", user: MOCK_USER, is_admin: true };
-  }
+  const res = await apiClient.post("/verify-otp", {
+    email_or_mobile: emailOrMobile,
+    code: code
+  });
+  const { access_token, user, is_admin } = res.data;
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem("user", JSON.stringify({ ...user, is_admin }));
+  return res.data;
 }
 
 export function fetchCurrentUser() {
@@ -114,17 +107,14 @@ export function adminListDevices() {
 }
 
 export async function devTestLogin() {
-  try {
-    const res = await apiClient.post("/dev/test-login");
-    const { access_token, user, is_admin } = res.data;
-    localStorage.setItem("access_token", access_token);
-    localStorage.setItem("user", JSON.stringify({ ...user, is_admin }));
-    return res.data;
-  } catch (err) {
-    localStorage.setItem("access_token", "mock-preview-token");
-    localStorage.setItem("user", JSON.stringify(MOCK_USER));
-    return { access_token: "mock-preview-token", user: MOCK_USER, is_admin: true };
+  if (!import.meta.env.DEV) {
+    throw new Error("Test login is disabled in production");
   }
+  const res = await apiClient.post("/dev/test-login");
+  const { access_token, user, is_admin } = res.data;
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem("user", JSON.stringify({ ...user, is_admin }));
+  return res.data;
 }
 
 // ========== SUBSCRIPTION API ==========
