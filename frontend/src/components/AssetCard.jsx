@@ -5,8 +5,10 @@ import { useLatestReading } from '../hooks/useLatestReading';
 /**
  * Asset card with live sensor_readings (heart_rate, temperature) and
  * a pulsing red border when status === 'danger'.
+ * Memoized to skip re-renders when neighbouring cards in the dashboard
+ * grid update — only re-renders when this asset's data or onClick change.
  */
-export default function AssetCard({ asset, onClick }) {
+function AssetCard({ asset, onClick }) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const reading = useLatestReading(asset.id);
