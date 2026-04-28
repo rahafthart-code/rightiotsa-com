@@ -180,3 +180,18 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid var(--color-desert-gold);
   cursor: pointer;
 }
+
+/* Realtime Owner Dashboard — danger pulse */
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    border-color: #dc2626;
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0);
+    border-color: #ef4444;
+  }
+}
+.animate-pulse-danger {
+  animation: pulse-danger 1.6s ease-in-out infinite;
+}
