@@ -18,6 +18,7 @@ import PassportPage from "./pages/PassportPage";
 import DigitalPassport from "./pages/DigitalPassport";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import Dashboard from "./pages/Dashboard";
+import AssetPassport from "./pages/AssetPassport";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import PushOptInBanner from "./components/PushOptInBanner";
