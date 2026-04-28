@@ -72,7 +72,7 @@ export default function PassportPage() {
         setError(null);
         const { data: assetRow, error: aErr } = await supabase
           .from('assets')
-          .select('id, name, species, serial_number, insured_value, image_url, birth_date, notes, geofence_lat, geofence_lng, geofence_radius_km, owner_id, stable_id')
+          .select('id, name, species, serial_number, insured_value, insurance_value, image_url, birth_date, notes, geofence_lat, geofence_lng, geofence_radius_km, owner_id, stable_id, status, stability_index, is_insured, is_active')
           .eq('id', id)
           .maybeSingle();
         if (aErr) throw aErr;
@@ -126,17 +126,30 @@ export default function PassportPage() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices', filter: `asset_id=eq.${id}` }, (p) => {
         setDevice((d) => ({ ...(d || {}), ...p.new }));
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: `id=eq.${id}` }, (p) => {
+        setAsset((a) => ({ ...(a || {}), ...p.new }));
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [id]);
 
   const latest = readings[0];
-  const score = latest?.stability_score != null ? Number(latest.stability_score) : null;
-  const tier = score == null
-    ? { label: isAr ? 'لا يوجد بيانات' : 'No Data', color: 'var(--color-text-muted)' }
-    : score >= 80 ? { label: isAr ? 'مستقر' : 'Stable', color: 'var(--color-royal-green)' }
-    : score >= 60 ? { label: isAr ? 'مراقبة' : 'Watch', color: 'var(--color-desert-gold-dark)' }
-    : { label: isAr ? 'حرج' : 'Critical', color: 'var(--color-danger)' };
+  // Prefer authoritative asset.stability_index (synced via DB trigger), fallback to latest reading
+  const score = asset?.stability_index != null
+    ? Number(asset.stability_index)
+    : (latest?.stability_score != null ? Number(latest.stability_score) : null);
+  // Prefer asset.status (authoritative), fallback to score-based tier
+  const statusKey = asset?.status || (
+    score == null ? 'nodata' : score >= 85 ? 'stable' : score >= 70 ? 'warning' : 'danger'
+  );
+  const tier = statusKey === 'stable'  ? { label: isAr ? 'مستقر' : 'Stable',   color: 'var(--color-royal-green)' }
+             : statusKey === 'warning' ? { label: isAr ? 'تحذير' : 'Warning',  color: 'var(--color-desert-gold-dark)' }
+             : statusKey === 'danger'  ? { label: isAr ? 'خطر'   : 'Danger',   color: 'var(--color-danger)' }
+             : statusKey === 'offline' ? { label: isAr ? 'غير متصل' : 'Offline', color: 'var(--color-text-muted)' }
+             : { label: isAr ? 'لا توجد بيانات' : 'No Data', color: 'var(--color-text-muted)' };
+
+  // Insurance value — read from either column (insured_value is canonical, insurance_value is legacy)
+  const insVal = Number(asset?.insured_value || asset?.insurance_value || 0);
 
   // Sparkline series (oldest → newest)
   const series = useMemo(() => readings.slice().reverse(), [readings]);
@@ -267,10 +280,23 @@ export default function PassportPage() {
                 <div className="mt-2 flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                   <Badge>{asset.species}</Badge>
                   {asset.serial_number && <Badge mono>#{asset.serial_number}</Badge>}
-                  <Badge style={{ background: tier.color, boxShadow: `0 0 14px ${tier.color}` }}>{tier.label} {score != null && `· ${Math.round(score)}/100`}</Badge>
+                  {asset.is_insured && (
+                    <Badge style={{ background: 'var(--color-desert-gold-light)', color: 'var(--color-royal-green-dark)' }}>
+                      {isAr ? '🛡 مؤمَّن' : '🛡 Insured'}
+                    </Badge>
+                  )}
+                  <Badge style={{ background: tier.color, color: 'white', boxShadow: `0 0 18px ${tier.color}, 0 0 0 1px rgba(255,255,255,0.25)` }}>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle animate-pulse" style={{ background: 'white' }} />
+                    {tier.label} {score != null && `· ${Math.round(score)}/100`}
+                  </Badge>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
-                  <Mini label={isAr ? 'القيمة المؤمّنة' : 'Insured Value'} value={`${Number(asset.insured_value || 0).toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`} />
+                  <Mini
+                    label={isAr ? 'القيمة المؤمّنة' : 'Insured Value'}
+                    value={insVal > 0
+                      ? `${insVal.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`
+                      : '—'}
+                  />
                   <Mini label={isAr ? 'تاريخ الميلاد' : 'Birth Date'} value={asset.birth_date || '—'} />
                 </div>
               </div>
