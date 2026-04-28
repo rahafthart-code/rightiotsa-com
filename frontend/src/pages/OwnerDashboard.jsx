@@ -32,7 +32,7 @@ export default function OwnerDashboard() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const { assets, loading } = useAssets(userId);
+  const { assets, loading, portfolioIndex, dangerCount, warningCount, stableCount } = useAssets(userId);
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications(userId);
 
   // Auto-open DangerAlert when any asset enters 'danger' (once per asset)
