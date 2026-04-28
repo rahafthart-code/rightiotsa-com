@@ -72,7 +72,7 @@ export default function PassportPage() {
         setError(null);
         const { data: assetRow, error: aErr } = await supabase
           .from('assets')
-          .select('id, name, species, serial_number, insured_value, image_url, birth_date, notes, geofence_lat, geofence_lng, geofence_radius_km, owner_id, stable_id')
+          .select('id, name, species, serial_number, insured_value, insurance_value, image_url, birth_date, notes, geofence_lat, geofence_lng, geofence_radius_km, owner_id, stable_id, status, stability_index, is_insured, is_active')
           .eq('id', id)
           .maybeSingle();
         if (aErr) throw aErr;
