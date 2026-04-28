@@ -92,12 +92,23 @@ export default function PassportPage() {
           .order('recorded_at', { ascending: false })
           .limit(100);
 
+        // Hourly stability snapshots — last 30 days for the passport timeline
+        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: snapRows } = await supabase
+          .from('stability_snapshots')
+          .select('snapped_at, vital_score, env_score, final_index, status_flag')
+          .eq('asset_id', id)
+          .gte('snapped_at', since)
+          .order('snapped_at', { ascending: false })
+          .limit(720);
+
         if (cancelled) return;
         setAsset(assetRow);
         setDevice(deviceRow ?? null);
         setReadings(readingRows ?? []);
+        setSnapshots(snapRows ?? []);
         setFromCache(false);
-        writeCache(id, { asset: assetRow, device: deviceRow, readings: readingRows });
+        writeCache(id, { asset: assetRow, device: deviceRow, readings: readingRows, snapshots: snapRows });
       } catch (e) {
         const cached = readCache(id);
         if (cached?.payload) {
