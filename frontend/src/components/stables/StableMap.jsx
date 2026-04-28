@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import circle from '@turf/circle';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { useAssetLocation } from '../../hooks/useAssetLocation';
 
 /**
  * Interactive Mapbox map for a Stable.
