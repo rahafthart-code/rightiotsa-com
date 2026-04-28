@@ -63,6 +63,20 @@ function AssetCard({ asset, onClick, stable }) {
         >
           {statusLabel}
         </div>
+        {stable && (
+          <div
+            className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 max-w-[60%] truncate"
+            style={{
+              background: 'rgba(255,255,255,0.92)',
+              color: stable.color || '#1D9E75',
+              border: `1px solid ${(stable.color || '#1D9E75')}55`,
+            }}
+            title={isAr ? stable.name : stable.name_en || stable.name}
+          >
+            <span>{stable.icon === 'farm' ? '🌾' : stable.icon === 'ranch' ? '🐎' : stable.icon === 'desert' ? '⛺' : '🌴'}</span>
+            <span className="truncate">{isAr ? stable.name : stable.name_en || stable.name}</span>
+          </div>
+        )}
       </div>
 
       <div className="p-3 space-y-2">
