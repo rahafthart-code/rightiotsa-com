@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -213,7 +213,7 @@ export default function Dashboard() {
                 <AssetCard
                   key={asset.id}
                   asset={asset}
-                  onClick={() => navigate(`/passport/${asset.id}`)}
+                  onClick={handleAssetClick(asset.id)}
                 />
               ))}
             </div>
