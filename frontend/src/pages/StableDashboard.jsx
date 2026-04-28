@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useStables } from '../hooks/useStables';
+import { useSensorHealth } from '../hooks/useSensorHealth';
 import AssetCard from '../components/AssetCard';
 import StableTabs from '../components/stables/StableTabs';
 import StableStatsCard from '../components/stables/StableStatsCard';
@@ -41,6 +42,9 @@ export default function StableDashboard() {
 
   // Pass the hook-provided filter directly to the assets hook
   const { assets, loading: assetsLoading } = useAssets(ownerId, stableFilter);
+
+  // Page-level offline banner driven by useSensorHealth (scoped to current view)
+  const { offlineAlert, devices: scopedDevices } = useSensorHealth(ownerId, selectedStable, isAr);
 
   const [modalOpen, setModalOpen] = useState(false);
 
