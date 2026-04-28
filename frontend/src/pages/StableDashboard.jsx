@@ -75,6 +75,22 @@ export default function StableDashboard() {
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="max-w-7xl mx-auto space-y-5">
+        {/* Page-level offline banner */}
+        {offlineAlert && (
+          <div
+            className="rounded-xl px-4 py-3 flex items-center gap-3 shadow-sm"
+            style={{ background: '#fef3c7', border: '1px solid #fcd34d', color: '#92400e' }}
+            role="alert"
+          >
+            <span className="text-xl">⚠️</span>
+            <div className="flex-1 text-sm font-bold">
+              {isAr
+                ? `${scopedDevices.filter((d) => !d.last_seen_at || Date.now() - new Date(d.last_seen_at).getTime() > 3600000).length} جهاز منقطع منذ أكثر من ساعة`
+                : `${scopedDevices.filter((d) => !d.last_seen_at || Date.now() - new Date(d.last_seen_at).getTime() > 3600000).length} device(s) offline for over an hour`}
+            </div>
+          </div>
+        )}
+
         {/* Page header */}
         <header className="flex items-start justify-between gap-3 flex-wrap">
           <div>
