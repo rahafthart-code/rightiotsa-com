@@ -1,11 +1,10 @@
 import React from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
-import UnifiedDashboard from "./pages/UnifiedDashboard";
 import AdminPortal from "./pages/AdminPortal";
 import CheckoutPage from "./pages/CheckoutPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
@@ -19,29 +18,31 @@ import DigitalPassport from "./pages/DigitalPassport";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import Dashboard from "./pages/Dashboard";
 import AssetPassport from "./pages/AssetPassport";
+import AssetsListPage from "./pages/AssetsListPage";
+import HealthReportsPage from "./pages/HealthReportsPage";
+import NewHealthReportPage from "./pages/NewHealthReportPage";
+import HealthReportDetailPage from "./pages/HealthReportDetailPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import PushOptInBanner from "./components/PushOptInBanner";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedLayout from "./components/ProtectedLayout";
 import { ensureMockUser } from "./utils/mockData";
 
-// Preview/demo mode: skip the login screen entirely and seed a mock session.
+// Preview/demo mode: seed a mock session so the dashboard remains accessible
+// without a real login during development. Real auth still works via /login.
 ensureMockUser();
 
-function useAuth() {
+function useLocalAuth() {
   const userRaw = localStorage.getItem("user");
-  if (!userRaw) return { isAuthenticated: true, isAdmin: true, user: null };
+  if (!userRaw) return { isAuthenticated: false, isAdmin: false, user: null };
   try {
     const user = JSON.parse(userRaw);
     return { isAuthenticated: true, isAdmin: !!user.is_admin, user };
   } catch {
-    return { isAuthenticated: true, isAdmin: true, user: null };
+    return { isAuthenticated: false, isAdmin: false, user: null };
   }
-}
-
-// In preview/demo mode all routes are accessible without authentication.
-function ProtectedRoute({ children }) {
-  ensureMockUser();
-  return children;
 }
 
 function AdminRoute({ children }) {
@@ -51,52 +52,35 @@ function AdminRoute({ children }) {
 
 function AppShell({ children }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useLocalAuth();
   const { t, i18n } = useTranslation();
 
   const toggleLanguage = () => {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
+    const newLang = i18n.language === "ar" ? "en" : "ar";
     i18n.changeLanguage(newLang);
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = newLang;
   };
 
   React.useEffect(() => {
-    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)' }}>
-      <header className="sticky top-0 z-20 shadow-sm" style={{ background: 'var(--color-royal-green)', borderBottom: '3px solid var(--color-desert-gold)' }}>
+    <div className="min-h-screen" style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+      <header className="sticky top-0 z-20 shadow-sm" style={{ background: "var(--color-royal-green)", borderBottom: "3px solid var(--color-desert-gold)" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/login")}>
-            <img src={logoImage} alt="Right Logo" className="h-8 w-auto" style={{ objectFit: 'contain' }} />
+            <img src={logoImage} alt="Right Logo" className="h-8 w-auto" style={{ objectFit: "contain" }} />
             <div>
-              <div className="text-sm font-bold tracking-wide text-white">{t('appName')}</div>
-              <div className="text-[11px]" style={{ color: 'var(--color-desert-gold-light)' }}>{t('tagline')}</div>
+              <div className="text-sm font-bold tracking-wide text-white">{t("appName")}</div>
+              <div className="text-[11px]" style={{ color: "var(--color-desert-gold-light)" }}>{t("tagline")}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {isAuthenticated && (
-              <>
-                <button onClick={() => navigate('/dashboard')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
-                  {t('dashboard')}
-                </button>
-                <button onClick={() => navigate('/ceo')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
-                  👑 CEO
-                </button>
-                {useAuth().isAdmin && (
-                  <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium">
-                    {t('adminPortal')}
-                  </button>
-                )}
-              </>
-            )}
-            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
-              {i18n.language === 'ar' ? 'EN' : 'عربي'}
-            </button>
-          </div>
+          <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors" style={{ background: "var(--color-desert-gold)", color: "var(--color-royal-green-dark)" }}>
+            {i18n.language === "ar" ? "EN" : "عربي"}
+          </button>
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
@@ -104,75 +88,46 @@ function AppShell({ children }) {
   );
 }
 
-function DashboardShell() {
-  const navigate = useNavigate();
-  const { isAdmin } = useAuth();
-  const { t, i18n } = useTranslation();
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
-    i18n.changeLanguage(newLang);
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = newLang;
-  };
-
-  return (
-    <div className="h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
-      <header className="z-20 shadow-sm" style={{ background: 'var(--color-royal-green)', borderBottom: '3px solid var(--color-desert-gold)' }}>
-        <div className="max-w-full mx-auto flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-3 cursor-pointer hover-lift" onClick={() => navigate("/dashboard")}>
-            <img src={logoImage} alt="Right Logo" className="h-10 w-auto animate-float" style={{ objectFit: 'contain' }} />
-            <div>
-              <span className="text-sm font-bold text-white">{t('appName')}</span>
-              <span className="text-[10px] block" style={{ color: 'var(--color-desert-gold-light)' }}>
-                {i18n.language === 'ar' ? 'إدارة وتتبع الأصول الذكية' : 'Smart Herd Management & Tracking'}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/ceo')} className="text-xs text-white/90 hover:text-white transition-colors font-bold icon-pop px-2 py-1 rounded" style={{ background: 'rgba(197,165,90,0.18)' }}>
-              👑 CEO
-            </button>
-            {isAdmin && (
-              <button onClick={() => navigate('/admin-portal')} className="text-xs text-white/80 hover:text-white transition-colors font-medium icon-pop">
-                {t('adminPortal')}
-              </button>
-            )}
-            <button onClick={toggleLanguage} className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all hover-lift" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
-              {i18n.language === 'ar' ? 'EN' : 'عربي'}
-            </button>
-          </div>
-        </div>
-      </header>
-      <div className="flex-1 overflow-hidden">
-        <UnifiedDashboard />
-      </div>
-    </div>
-  );
+function RootRedirect() {
+  const { isAuthenticated } = useLocalAuth();
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
 }
 
 export default function App() {
   return (
     <>
       <Routes>
-        {/* Demo mode: open straight to the dashboard. */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        {/* Root: route based on auth */}
+        <Route path="/" element={<RootRedirect />} />
+
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/guest/:token" element={<GuestView />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
-        <Route path="/ceo" element={<ProtectedRoute><CEODashboard /></ProtectedRoute>} />
         <Route path="/passport/:id" element={<PassportPage />} />
-        <Route path="/asset-passport/:id" element={<ProtectedRoute><AssetPassport /></ProtectedRoute>} />
         <Route path="/digital-passport/:id" element={<DigitalPassport />} />
+
+        {/* Protected routes inside the dark-green sidebar layout */}
+        <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/assets" element={<AssetsListPage />} />
+          <Route path="/asset/:id" element={<AssetPassport />} />
+          <Route path="/asset-passport/:id" element={<AssetPassport />} />
+          <Route path="/reports" element={<HealthReportsPage />} />
+          <Route path="/reports/new" element={<NewHealthReportPage />} />
+          <Route path="/reports/:id" element={<HealthReportDetailPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/owner" element={<OwnerDashboard />} />
+          <Route path="/ceo" element={<CEODashboard />} />
+        </Route>
+
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

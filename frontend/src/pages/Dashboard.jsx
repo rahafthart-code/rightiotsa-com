@@ -87,74 +87,21 @@ export default function Dashboard() {
   return (
     <div
       className="min-h-screen"
-      style={{
-        background:
-          'linear-gradient(180deg, var(--color-bg-primary, #faf7f0) 0%, #f3ecd8 100%)',
-        color: 'var(--color-text-primary, #1a1a1a)',
-      }}
+      style={{ color: 'var(--color-text-primary, #1a1a1a)' }}
       dir={isAr ? 'rtl' : 'ltr'}
     >
-      {/* ─── Header ─────────────────────────────────────── */}
-      <header
-        className="sticky top-0 z-30 shadow-sm"
-        style={{
-          background: 'var(--color-royal-green, #006c35)',
-          borderBottom: '3px solid var(--color-desert-gold, #c5a55a)',
-        }}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-          <div
-            className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate('/dashboard')}
-          >
-            <img
-              src={logoImage}
-              alt="Right"
-              className="h-9 w-auto"
-              style={{ objectFit: 'contain' }}
-            />
-            <div>
-              <div className="text-sm font-bold text-white tracking-wide">
-                {t('appName') || 'Right'}
-              </div>
-              <div
-                className="text-[11px]"
-                style={{ color: 'var(--color-desert-gold-light, #e6d5a8)' }}
-              >
-                {isAr ? 'لوحة المالك — لحظية' : 'Owner Dashboard — Live'}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="text-white">
-              <NotificationBell
-                count={unreadCount}
-                onClick={() => setPanelOpen(true)}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate('/profile')}
-              className="hidden sm:inline-flex px-3 py-1.5 text-xs font-semibold rounded-lg text-white transition-colors hover:bg-white/10"
-              style={{ border: '1px solid rgba(255,255,255,0.25)' }}
-            >
-              {isAr ? 'الملف الشخصي' : 'Profile'}
-            </button>
-            {user && (
-              <button
-                type="button"
-                onClick={() => signOut().then(() => navigate('/login'))}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg transition-all"
-                style={{
-                  background: 'var(--color-desert-gold, #c5a55a)',
-                  color: 'var(--color-royal-green-dark, #004d25)',
-                }}
-              >
-                {isAr ? 'خروج' : 'Sign out'}
-              </button>
-            )}
-          </div>
+      {/* Compact page header (sidebar handles brand + nav) */}
+      <header className="flex items-center justify-between px-4 sm:px-6 pt-6 pb-2 max-w-7xl mx-auto">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: '#006c35' }}>
+            {isAr ? 'لوحة التحكم' : 'Dashboard'}
+          </h1>
+          <p className="text-xs mt-0.5" style={{ color: '#6b6b6b' }}>
+            {isAr ? 'محدّث لحظياً' : 'Live updates'}
+          </p>
+        </div>
+        <div style={{ color: '#006c35' }}>
+          <NotificationBell count={unreadCount} onClick={() => setPanelOpen(true)} />
         </div>
       </header>
 
