@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 import logoImage from "../assets/logo-transparent.png";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [profileData, setProfileData] = useState(null);
+  const [digestEnabled, setDigestEnabled] = useState(true);
+  const [savingDigest, setSavingDigest] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     // Load profile data from localStorage
     const userProfile = localStorage.getItem('userProfile');
     const user = localStorage.getItem('user');
-    
+
     if (userProfile) {
       setProfileData(JSON.parse(userProfile));
     } else if (user) {
-      // Fallback to user data from auth
       const userData = JSON.parse(user);
       setProfileData({
         fullName: userData.full_name || '',
@@ -25,7 +29,35 @@ export default function ProfilePage() {
         city: userData.city || ''
       });
     }
+
+    // Load digest preference from Supabase
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      setUserId(session.user.id);
+      const { data } = await supabase
+        .from('profiles')
+        .select('daily_digest_enabled')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (data && typeof data.daily_digest_enabled === 'boolean') {
+        setDigestEnabled(data.daily_digest_enabled);
+      }
+    })();
   }, []);
+
+  const toggleDigest = async () => {
+    if (!userId || savingDigest) return;
+    const next = !digestEnabled;
+    setDigestEnabled(next); // optimistic
+    setSavingDigest(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ daily_digest_enabled: next })
+      .eq('user_id', userId);
+    if (error) setDigestEnabled(!next); // revert on error
+    setSavingDigest(false);
+  };
 
   const handleLogout = () => {
     localStorage.clear();
