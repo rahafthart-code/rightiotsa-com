@@ -118,6 +118,7 @@ export default function App() {
         <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/assets" element={<AssetsListPage />} />
+          <Route path="/assets/new" element={<AddAsset />} />
           <Route path="/asset/:id" element={<AssetPassport />} />
           <Route path="/asset-passport/:id" element={<AssetPassport />} />
           <Route path="/reports" element={<HealthReportsPage />} />
