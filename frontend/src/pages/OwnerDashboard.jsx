@@ -32,7 +32,7 @@ export default function OwnerDashboard() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const { assets, loading } = useAssets(userId);
+  const { assets, loading, portfolioIndex, dangerCount, warningCount, stableCount } = useAssets(userId);
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications(userId);
 
   // Auto-open DangerAlert when any asset enters 'danger' (once per asset)
@@ -43,15 +43,19 @@ export default function OwnerDashboard() {
     if (fresh) setDangerAsset(fresh);
   }, [dangerAssets, dangerAsset]);
 
-  // Listen for cross-component danger events (from useNotifications)
+  // Listen for cross-component danger events (from useNotifications + useAssets)
   useEffect(() => {
     const onDanger = (e) => {
-      const assetId = e.detail?.asset_id;
-      const found = assets.find((a) => a.id === assetId);
+      const assetId = e.detail?.asset_id ?? e.detail?.id;
+      const found = assets.find((a) => a.id === assetId) || e.detail;
       if (found && !dismissedRef.current.has(found.id)) setDangerAsset(found);
     };
     window.addEventListener('danger-alert', onDanger);
-    return () => window.removeEventListener('danger-alert', onDanger);
+    window.addEventListener('asset-danger', onDanger);
+    return () => {
+      window.removeEventListener('danger-alert', onDanger);
+      window.removeEventListener('asset-danger', onDanger);
+    };
   }, [assets]);
 
   const closeDanger = () => {
@@ -116,6 +120,27 @@ export default function OwnerDashboard() {
               {isAr ? 'محدّث لحظياً' : 'Live updates'} · {assets.length} {isAr ? 'أصل' : 'assets'}
             </p>
           </div>
+          {assets.length > 0 && (
+            <div className="flex items-center gap-2 text-[11px]">
+              <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                <span className="text-slate-500">{isAr ? 'المحفظة' : 'Portfolio'}: </span>
+                <span className="font-bold text-emerald-400">{portfolioIndex}%</span>
+              </div>
+              {dangerCount > 0 && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900 text-red-400 font-bold">
+                  {dangerCount} {isAr ? 'خطر' : 'danger'}
+                </div>
+              )}
+              {warningCount > 0 && (
+                <div className="px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-900 text-amber-400 font-bold">
+                  {warningCount} {isAr ? 'تحذير' : 'warning'}
+                </div>
+              )}
+              <div className="px-3 py-1.5 rounded-lg bg-emerald-950/30 border border-emerald-900 text-emerald-400 font-bold">
+                {stableCount} {isAr ? 'مستقر' : 'stable'}
+              </div>
+            </div>
+          )}
         </div>
 
         {loading ? (
