@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd frontend && npx vite --host --port 8080 --strictPort",
+    "dev": "cd frontend && (npm ls @rollup/rollup-linux-x64-gnu >/dev/null 2>&1 || npm install --include=optional --no-save --force) && npx vite --host --port 8080 --strictPort",
     "build": "cd frontend && (npm ls @rollup/rollup-linux-x64-gnu >/dev/null 2>&1 || npm install --include=optional --no-save --force) && npx vite build --outDir ../dist --emptyOutDir",
     "build:dev": "cd frontend && (npm ls @rollup/rollup-linux-x64-gnu >/dev/null 2>&1 || npm install --include=optional --no-save --force) && npx vite build --outDir ../dist --emptyOutDir",
     "preview": "cd frontend && npx vite preview --outDir ../dist"
