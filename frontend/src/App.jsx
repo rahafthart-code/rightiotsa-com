@@ -171,6 +171,7 @@ export default function App() {
         <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
         <Route path="/ceo" element={<ProtectedRoute><CEODashboard /></ProtectedRoute>} />
         <Route path="/passport/:id" element={<PassportPage />} />
+        <Route path="/asset-passport/:id" element={<ProtectedRoute><AssetPassport /></ProtectedRoute>} />
         <Route path="/digital-passport/:id" element={<DigitalPassport />} />
         <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
