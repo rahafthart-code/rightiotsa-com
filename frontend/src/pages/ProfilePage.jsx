@@ -163,6 +163,41 @@ export default function ProfilePage() {
                 </p>
               </div>
 
+              {/* Daily Reassurance Digest Toggle */}
+              <div className="bg-slate-950/50 border border-slate-700 rounded-xl p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">🌟</span>
+                      <p className="text-base font-semibold text-slate-100">
+                        {isAr ? 'رسائل الطمأنينة اليومية' : 'Daily Reassurance Messages'}
+                      </p>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      {isAr
+                        ? 'تلقَّ تنبيهاً يومياً يطمئنك على حلالك ومؤشرات استقراره عندما لا تتفقد التطبيق لعدة أيام.'
+                        : "Receive a daily notification reassuring you about your livestock and their stability when you haven't checked the app for a few days."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={digestEnabled}
+                    onClick={toggleDigest}
+                    disabled={savingDigest || !userId}
+                    className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
+                      digestEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        digestEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
               {/* Account Status */}
               <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/30 rounded-xl p-5">
                 <div className="flex items-center gap-3">
