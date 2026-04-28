@@ -71,13 +71,26 @@ export default function PassportPage() {
     async function load() {
       try {
         setError(null);
+
+        // Verify the user is signed in — RLS only returns rows owned by them.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error(isAr ? 'يجب تسجيل الدخول لعرض جواز السفر' : 'Please sign in to view this passport');
+        }
+
         const { data: assetRow, error: aErr } = await supabase
           .from('assets')
           .select('id, name, species, serial_number, insured_value, insurance_value, image_url, birth_date, notes, geofence_lat, geofence_lng, geofence_radius_km, owner_id, stable_id, status, stability_index, is_insured, is_active')
           .eq('id', id)
           .maybeSingle();
         if (aErr) throw aErr;
-        if (!assetRow) throw new Error(isAr ? 'الأصل غير موجود' : 'Asset not found');
+        // With RLS, an unowned-but-existing row is indistinguishable from a missing row;
+        // both come back as null. Show a permission-style message that's accurate either way.
+        if (!assetRow) {
+          throw new Error(isAr
+            ? 'ليس لديك صلاحية للوصول إلى هذا الأصل'
+            : "You don't have permission to access this asset");
+        }
 
         const { data: deviceRow } = await supabase
           .from('devices')
