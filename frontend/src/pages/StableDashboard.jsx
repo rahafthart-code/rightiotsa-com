@@ -175,7 +175,6 @@ export default function StableDashboard() {
         <SensorHealthPanel
           ownerId={ownerId}
           stableId={selectedStable}
-          assets={assets}
           isAr={isAr}
         />
       </div>
