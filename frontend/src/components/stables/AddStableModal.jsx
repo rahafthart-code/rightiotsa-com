@@ -10,7 +10,7 @@ const ICONS = [
 
 const COLORS = ['#1D9E75', '#c5a55a', '#3b82f6', '#0ea5e9', '#d97706', '#ef4444'];
 
-export default function AddStableModal({ open, onClose, ownerId, onCreated, isAr }) {
+export default function AddStableModal({ open, onClose, ownerId, onCreated, onSubmit, isAr }) {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('stable');
   const [location, setLocation] = useState('');
@@ -41,33 +41,44 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, isAr
   }
 
   async function handleSave() {
-    if (!name.trim() || !ownerId) return;
+    if (!name.trim()) return;
     setSaving(true);
     setError(null);
-    const { data, error: err } = await supabase
-      .from('stables')
-      .insert({
-        owner_id: ownerId,
-        name: name.trim(),
-        icon,
-        location_name: location.trim() || null,
-        color,
-        center_lat: lat,
-        center_lng: lng,
-        radius_km: radius,
-        is_active: true,
-      })
-      .select()
-      .single();
-    setSaving(false);
-    if (err) {
-      setError(err.message);
-      return;
+    const payload = {
+      name: name.trim(),
+      icon,
+      location_name: location.trim() || null,
+      color,
+      center_lat: lat,
+      center_lng: lng,
+      radius_km: radius,
+      is_active: true,
+    };
+
+    try {
+      let data;
+      if (onSubmit) {
+        // Preferred: delegate to parent (e.g. useStables.createStable)
+        data = await onSubmit(payload);
+      } else {
+        if (!ownerId) throw new Error('No owner');
+        const { data: row, error: err } = await supabase
+          .from('stables')
+          .insert({ ...payload, owner_id: ownerId })
+          .select()
+          .single();
+        if (err) throw err;
+        data = row;
+      }
+      setSaving(false);
+      onCreated?.(data);
+      onClose();
+      // reset
+      setName(''); setLocation(''); setIcon('stable'); setColor('#1D9E75'); setRadius(5);
+    } catch (e) {
+      setSaving(false);
+      setError(e.message ?? String(e));
     }
-    onCreated?.(data);
-    onClose();
-    // reset
-    setName(''); setLocation(''); setIcon('stable'); setColor('#1D9E75'); setRadius(5);
   }
 
   return (
