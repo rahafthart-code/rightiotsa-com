@@ -21,14 +21,24 @@ export default function AssetsListPage() {
 
   return (
     <div className="px-4 sm:px-6 py-6 max-w-7xl mx-auto">
-      <header className="mb-5">
-        <h1 className="text-2xl font-bold" style={{ color: '#006c35' }}>
-          {isAr ? 'الأصول' : 'Assets'}
-        </h1>
-        <p className="text-sm mt-1" style={{ color: '#6b6b6b' }}>
-          {isAr ? 'جميع أصولك المسجلة في المنظومة' : 'All assets registered in your account'}
-          {' · '}{assets.length}
-        </p>
+      <header className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: '#006c35' }}>
+            {isAr ? 'الأصول' : 'Assets'}
+          </h1>
+          <p className="text-sm mt-1" style={{ color: '#6b6b6b' }}>
+            {isAr ? 'جميع أصولك المسجلة في المنظومة' : 'All assets registered in your account'}
+            {' · '}{assets.length}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/assets/new')}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-white font-bold text-sm shadow-sm"
+          style={{ background: '#006c35' }}
+        >
+          + {isAr ? 'إضافة أصل' : 'Add Asset'}
+        </button>
       </header>
 
       {loading ? (
