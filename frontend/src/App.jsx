@@ -39,6 +39,14 @@ const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const OwnerDashboardDark = lazy(() => import("./pages/OwnerDashboardDark"));
 const StableDashboard = lazy(() => import("./pages/StableDashboard"));
 
+// Admin Panel
+const AdminGuard = lazy(() => import("./admin/AdminGuard"));
+const AdminLayout = lazy(() => import("./admin/AdminLayout"));
+const AdminCustomersPage = lazy(() => import("./admin/pages/CustomersPage"));
+const AdminDevicesPage = lazy(() => import("./admin/pages/DevicesPage"));
+const AdminSubscriptionsPage = lazy(() => import("./admin/pages/SubscriptionsPage"));
+const AdminPlaceholderPage = lazy(() => import("./admin/pages/PlaceholderPage"));
+
 // Preview/demo mode: seed a mock session so the dashboard remains accessible
 // without a real login during development. Real auth still works via /login.
 ensureMockUser();
@@ -146,6 +154,17 @@ export default function App() {
           </Route>
 
           <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
+
+          {/* Admin Panel — only accessible to users with the 'admin' role */}
+          <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+            <Route index element={<Navigate to="customers" replace />} />
+            <Route path="customers" element={<AdminCustomersPage />} />
+            <Route path="devices" element={<AdminDevicesPage />} />
+            <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+            <Route path="reports" element={<AdminPlaceholderPage title="التقارير" subtitle="تقارير تفصيلية للعملاء والاشتراكات والأجهزة." />} />
+            <Route path="settings" element={<AdminPlaceholderPage title="الإعدادات" subtitle="إعدادات لوحة الإدارة." />} />
+          </Route>
+
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
