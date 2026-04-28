@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 import logoImage from "../assets/logo-transparent.png";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [profileData, setProfileData] = useState(null);
+  const [digestEnabled, setDigestEnabled] = useState(true);
+  const [savingDigest, setSavingDigest] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     // Load profile data from localStorage
     const userProfile = localStorage.getItem('userProfile');
     const user = localStorage.getItem('user');
-    
+
     if (userProfile) {
       setProfileData(JSON.parse(userProfile));
     } else if (user) {
-      // Fallback to user data from auth
       const userData = JSON.parse(user);
       setProfileData({
         fullName: userData.full_name || '',
@@ -25,7 +29,35 @@ export default function ProfilePage() {
         city: userData.city || ''
       });
     }
+
+    // Load digest preference from Supabase
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      setUserId(session.user.id);
+      const { data } = await supabase
+        .from('profiles')
+        .select('daily_digest_enabled')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+      if (data && typeof data.daily_digest_enabled === 'boolean') {
+        setDigestEnabled(data.daily_digest_enabled);
+      }
+    })();
   }, []);
+
+  const toggleDigest = async () => {
+    if (!userId || savingDigest) return;
+    const next = !digestEnabled;
+    setDigestEnabled(next); // optimistic
+    setSavingDigest(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ daily_digest_enabled: next })
+      .eq('user_id', userId);
+    if (error) setDigestEnabled(!next); // revert on error
+    setSavingDigest(false);
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -129,6 +161,41 @@ export default function ProfilePage() {
                 <p className="text-lg font-semibold text-slate-100">
                   {profileData.city || (i18n.language === 'ar' ? 'غير متوفر' : 'Not available')}
                 </p>
+              </div>
+
+              {/* Daily Reassurance Digest Toggle */}
+              <div className="bg-slate-950/50 border border-slate-700 rounded-xl p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">🌟</span>
+                      <p className="text-base font-semibold text-slate-100">
+                        {isAr ? 'رسائل الطمأنينة اليومية' : 'Daily Reassurance Messages'}
+                      </p>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      {isAr
+                        ? 'تلقَّ تنبيهاً يومياً يطمئنك على حلالك ومؤشرات استقراره عندما لا تتفقد التطبيق لعدة أيام.'
+                        : "Receive a daily notification reassuring you about your livestock and their stability when you haven't checked the app for a few days."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={digestEnabled}
+                    onClick={toggleDigest}
+                    disabled={savingDigest || !userId}
+                    className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
+                      digestEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        digestEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Account Status */}

@@ -281,6 +281,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          daily_digest_enabled: boolean
           full_name: string | null
           id: string
           last_seen_at: string | null
@@ -292,6 +293,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          daily_digest_enabled?: boolean
           full_name?: string | null
           id?: string
           last_seen_at?: string | null
@@ -303,6 +305,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          daily_digest_enabled?: boolean
           full_name?: string | null
           id?: string
           last_seen_at?: string | null
