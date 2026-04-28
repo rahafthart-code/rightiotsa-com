@@ -134,12 +134,22 @@ export default function PassportPage() {
   }, [id]);
 
   const latest = readings[0];
-  const score = latest?.stability_score != null ? Number(latest.stability_score) : null;
-  const tier = score == null
-    ? { label: isAr ? 'لا يوجد بيانات' : 'No Data', color: 'var(--color-text-muted)' }
-    : score >= 80 ? { label: isAr ? 'مستقر' : 'Stable', color: 'var(--color-royal-green)' }
-    : score >= 60 ? { label: isAr ? 'مراقبة' : 'Watch', color: 'var(--color-desert-gold-dark)' }
-    : { label: isAr ? 'حرج' : 'Critical', color: 'var(--color-danger)' };
+  // Prefer authoritative asset.stability_index (synced via DB trigger), fallback to latest reading
+  const score = asset?.stability_index != null
+    ? Number(asset.stability_index)
+    : (latest?.stability_score != null ? Number(latest.stability_score) : null);
+  // Prefer asset.status (authoritative), fallback to score-based tier
+  const statusKey = asset?.status || (
+    score == null ? 'nodata' : score >= 85 ? 'stable' : score >= 70 ? 'warning' : 'danger'
+  );
+  const tier = statusKey === 'stable'  ? { label: isAr ? 'مستقر' : 'Stable',   color: 'var(--color-royal-green)' }
+             : statusKey === 'warning' ? { label: isAr ? 'تحذير' : 'Warning',  color: 'var(--color-desert-gold-dark)' }
+             : statusKey === 'danger'  ? { label: isAr ? 'خطر'   : 'Danger',   color: 'var(--color-danger)' }
+             : statusKey === 'offline' ? { label: isAr ? 'غير متصل' : 'Offline', color: 'var(--color-text-muted)' }
+             : { label: isAr ? 'لا توجد بيانات' : 'No Data', color: 'var(--color-text-muted)' };
+
+  // Insurance value — read from either column (insured_value is canonical, insurance_value is legacy)
+  const insVal = Number(asset?.insured_value || asset?.insurance_value || 0);
 
   // Sparkline series (oldest → newest)
   const series = useMemo(() => readings.slice().reverse(), [readings]);
