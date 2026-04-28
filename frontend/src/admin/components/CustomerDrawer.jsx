@@ -65,30 +65,27 @@ export default function CustomerDrawer({ ownerId, onClose, onChanged }) {
       return;
     }
     setBusy(true);
-    // 1) Insert/upsert sensor_devices row
-    const { error: dErr } = await supabase.from('sensor_devices').upsert({
-      device_id: newDeviceId.trim(),
-      owner_id: ownerId,
-      asset_id: newDeviceAssetId || null,
-      stable_id: newDeviceStableId || null,
-      device_type: newDeviceType,
-      status: 'online',
-    }, { onConflict: 'device_id' });
+    // Call the secure admin edge function (server-side admin check + ownership validation)
+    const { data, error } = await supabase.functions.invoke('admin-activate-device', {
+      body: {
+        device_id: newDeviceId.trim(),
+        owner_id: ownerId,
+        asset_id: newDeviceAssetId || null,
+        stable_id: newDeviceStableId || null,
+        device_type: newDeviceType,
+      },
+    });
 
-    if (dErr) {
+    if (error || data?.error) {
       setBusy(false);
-      alert('فشل تفعيل الجهاز: ' + dErr.message);
+      const msg = data?.error
+        ? (typeof data.error === 'string' ? data.error : JSON.stringify(data.error))
+        : error.message;
+      alert('فشل تفعيل الجهاز: ' + msg);
       return;
     }
 
-    // 2) If linked to an asset, sync assets.sensor_device_id
-    if (newDeviceAssetId) {
-      await supabase.from('assets')
-        .update({ sensor_device_id: newDeviceId.trim() })
-        .eq('id', newDeviceAssetId);
-    }
-
-    // 3) Refresh
+    // Refresh devices list
     const { data: dRows } = await supabase.from('sensor_devices')
       .select('*').eq('owner_id', ownerId).order('updated_at', { ascending: false });
     setDevices(dRows || []);
