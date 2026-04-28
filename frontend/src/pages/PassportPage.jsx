@@ -169,6 +169,18 @@ export default function PassportPage() {
 
   // Sparkline series (oldest → newest)
   const series = useMemo(() => readings.slice().reverse(), [readings]);
+  // Hourly stability snapshots (oldest → newest) — 30-day passport timeline
+  // Normalize field name to `stability_score` so ChartCard can read it directly.
+  const snapshotSeries = useMemo(
+    () => snapshots.slice().reverse().map((s) => ({
+      recorded_at: s.snapped_at,
+      stability_score: s.final_index,
+      vital_score: s.vital_score,
+      env_score: s.env_score,
+    })),
+    [snapshots]
+  );
+  const stabilityChartSeries = snapshotSeries.length > 0 ? snapshotSeries : series;
 
   const exportPDF = async () => {
     if (!cardRef.current) return;
