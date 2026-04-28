@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -15,12 +15,8 @@ import SensorHealthPanel from '../components/stables/SensorHealthPanel';
  * Stable-driven Owner Dashboard.
  * Cream bg + royal-green (#1D9E75) accents.
  *
- * Layout:
- *  - StableTabs (filter)
- *  - StableStatsCard (when a specific stable is selected)
- *  - StableMap (geofence + status legend)
- *  - Asset grid (filtered by selected stable)
- *  - SensorHealthPanel (collapsible)
+ * Wired to useStables: selectedStable / setSelected / currentStats /
+ * stableFilter / createStable. The asset list is fetched via useAssets(ownerId, stableFilter).
  */
 export default function StableDashboard() {
   const navigate = useNavigate();
@@ -32,17 +28,21 @@ export default function StableDashboard() {
     try { ownerId = JSON.parse(localStorage.getItem('user') || '{}').id ?? ''; } catch {}
   }
 
-  const { assets, loading: assetsLoading } = useAssets(ownerId);
-  const { stables, stats, refetch: refetchStables } = useStables(ownerId);
+  const {
+    stables,
+    stableStats,
+    selectedStable,
+    setSelected,
+    createStable,
+    stableFilter,
+    currentStats,
+    totals,
+  } = useStables(ownerId);
 
-  const [selectedId, setSelectedId] = useState('all');
+  // Pass the hook-provided filter directly to the assets hook
+  const { assets, loading: assetsLoading } = useAssets(ownerId, stableFilter);
+
   const [modalOpen, setModalOpen] = useState(false);
-
-  // If selected stable was deleted, fall back to 'all'
-  useEffect(() => {
-    if (selectedId === 'all') return;
-    if (!stables.find((s) => s.id === selectedId)) setSelectedId('all');
-  }, [stables, selectedId]);
 
   const stableMap = useMemo(() => {
     const m = new Map();
@@ -50,29 +50,7 @@ export default function StableDashboard() {
     return m;
   }, [stables]);
 
-  const filteredAssets = useMemo(() => {
-    if (selectedId === 'all') return assets;
-    return assets.filter((a) => a.stable_id === selectedId);
-  }, [assets, selectedId]);
-
-  const selectedStable = selectedId !== 'all' ? stableMap.get(selectedId) : null;
-  const selectedStat = selectedId !== 'all' ? stats.find((x) => x.stable_id === selectedId) : null;
-
-  // For "all" view: aggregate stats
-  const aggregateStat = useMemo(() => {
-    if (selectedId !== 'all') return null;
-    return stats.reduce(
-      (acc, r) => ({
-        total_assets: acc.total_assets + (Number(r.total_assets) || 0),
-        stable_count: acc.stable_count + (Number(r.stable_count) || 0),
-        warning_count: acc.warning_count + (Number(r.warning_count) || 0),
-        danger_count: acc.danger_count + (Number(r.danger_count) || 0),
-        sensors_online: acc.sensors_online + (Number(r.sensors_online) || 0),
-        sensors_offline: acc.sensors_offline + (Number(r.sensors_offline) || 0),
-      }),
-      { total_assets: 0, stable_count: 0, warning_count: 0, danger_count: 0, sensors_online: 0, sensors_offline: 0 }
-    );
-  }, [stats, selectedId]);
+  const selectedStableObj = selectedStable !== 'all' ? stableMap.get(selectedStable) : null;
 
   const allStablePseudo = useMemo(
     () => ({
@@ -113,32 +91,32 @@ export default function StableDashboard() {
           </button>
         </header>
 
-        {/* Stable tabs */}
+        {/* Stable selector — bound to selectedStable / setSelected */}
         <StableTabs
           stables={stables}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
+          selectedId={selectedStable}
+          onSelect={setSelected}
           onAdd={() => setModalOpen(true)}
           isAr={isAr}
         />
 
-        {/* Stats card */}
+        {/* Stats card — currentStats when a stable is selected, else aggregate totals */}
         <StableStatsCard
-          stable={selectedStable || allStablePseudo}
-          stat={selectedStat || aggregateStat}
+          stable={selectedStableObj || allStablePseudo}
+          stat={currentStats || totals}
           isAr={isAr}
         />
 
         {/* Map */}
-        <StableMap stable={selectedStable} assets={filteredAssets} isAr={isAr} />
+        <StableMap stable={selectedStableObj} assets={assets} isAr={isAr} />
 
-        {/* Asset grid */}
+        {/* Asset grid (already filtered server-side via stableFilter) */}
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold" style={{ color: '#1D9E75' }}>
               {isAr ? 'الأصول' : 'Assets'}
               <span className="ms-2 text-xs font-semibold" style={{ color: '#6b6b6b' }}>
-                · {filteredAssets.length}
+                · {assets.length}
               </span>
             </h2>
           </div>
@@ -147,21 +125,21 @@ export default function StableDashboard() {
             <div className="text-center py-12 text-sm" style={{ color: '#6b6b6b' }}>
               {isAr ? 'جارٍ التحميل...' : 'Loading...'}
             </div>
-          ) : filteredAssets.length === 0 ? (
+          ) : assets.length === 0 ? (
             <div
               className="text-center py-12 rounded-2xl"
               style={{ background: '#fff', border: '1px dashed rgba(29,158,117,0.3)' }}
             >
               <div className="text-5xl mb-2">🐪</div>
               <p className="text-sm" style={{ color: '#6b6b6b' }}>
-                {selectedId === 'all'
+                {selectedStable === 'all'
                   ? (isAr ? 'لا توجد أصول مسجلة بعد' : 'No assets registered yet')
                   : (isAr ? 'لا توجد أصول في هذه العزبة' : 'No assets in this stable')}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredAssets.map((asset) => (
+              {assets.map((asset) => (
                 <AssetCard
                   key={asset.id}
                   asset={asset}
@@ -176,7 +154,7 @@ export default function StableDashboard() {
         {/* Sensor health panel */}
         <SensorHealthPanel
           ownerId={ownerId}
-          stableId={selectedId}
+          stableId={selectedStable}
           assets={assets}
           isAr={isAr}
         />
@@ -187,11 +165,8 @@ export default function StableDashboard() {
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           ownerId={ownerId}
+          onSubmit={createStable}
           isAr={isAr}
-          onCreated={(s) => {
-            refetchStables();
-            setSelectedId(s.id);
-          }}
         />
       )}
     </div>
