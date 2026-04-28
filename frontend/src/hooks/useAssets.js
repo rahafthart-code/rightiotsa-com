@@ -9,11 +9,14 @@ import { supabase } from '../lib/supabaseClient';
  * - On any UPDATE, exposes `flashId` for ~400ms so the card can flash.
  * - On asset transitioning to status='danger', dispatches `asset-danger` event.
  */
-export function useAssets(ownerId) {
+export function useAssets(ownerId, filter = {}) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [flashId, setFlashId] = useState(null);
+
+  // Stable serialization of filter so identity-changing parents don't refetch
+  const filterKey = useMemo(() => JSON.stringify(filter || {}), [filter]);
 
   const fetchAssets = useCallback(async () => {
     if (!ownerId) {
@@ -23,9 +26,7 @@ export function useAssets(ownerId) {
     }
     setLoading(true);
 
-    // Embed sensor_readings; we'll keep only the freshest one per asset
-    // client-side (Supabase JS doesn't support per-row foreign-table LIMIT).
-    const { data, error: err } = await supabase
+    let q = supabase
       .from('assets')
       .select(`
         *,
@@ -35,12 +36,18 @@ export function useAssets(ownerId) {
         )
       `)
       .eq('owner_id', ownerId)
-      .eq('is_active', true)
+      .eq('is_active', true);
+
+    // Apply caller-provided equality filters (e.g. { stable_id: '...' })
+    const parsed = JSON.parse(filterKey);
+    Object.entries(parsed).forEach(([col, val]) => {
+      if (val === null) q = q.is(col, null);
+      else q = q.eq(col, val);
+    });
+
+    const { data, error: err } = await q
       .order('created_at', { ascending: false })
-      .order('recorded_at', {
-        foreignTable: 'sensor_readings',
-        ascending: false,
-      })
+      .order('recorded_at', { foreignTable: 'sensor_readings', ascending: false })
       .limit(1, { foreignTable: 'sensor_readings' });
 
     if (err) {
@@ -54,7 +61,7 @@ export function useAssets(ownerId) {
       );
     }
     setLoading(false);
-  }, [ownerId]);
+  }, [ownerId, filterKey]);
 
   useEffect(() => {
     fetchAssets();
