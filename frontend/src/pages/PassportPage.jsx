@@ -280,10 +280,23 @@ export default function PassportPage() {
                 <div className="mt-2 flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                   <Badge>{asset.species}</Badge>
                   {asset.serial_number && <Badge mono>#{asset.serial_number}</Badge>}
-                  <Badge style={{ background: tier.color, boxShadow: `0 0 14px ${tier.color}` }}>{tier.label} {score != null && `· ${Math.round(score)}/100`}</Badge>
+                  {asset.is_insured && (
+                    <Badge style={{ background: 'var(--color-desert-gold-light)', color: 'var(--color-royal-green-dark)' }}>
+                      {isAr ? '🛡 مؤمَّن' : '🛡 Insured'}
+                    </Badge>
+                  )}
+                  <Badge style={{ background: tier.color, color: 'white', boxShadow: `0 0 18px ${tier.color}, 0 0 0 1px rgba(255,255,255,0.25)` }}>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle animate-pulse" style={{ background: 'white' }} />
+                    {tier.label} {score != null && `· ${Math.round(score)}/100`}
+                  </Badge>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
-                  <Mini label={isAr ? 'القيمة المؤمّنة' : 'Insured Value'} value={`${Number(asset.insured_value || 0).toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`} />
+                  <Mini
+                    label={isAr ? 'القيمة المؤمّنة' : 'Insured Value'}
+                    value={insVal > 0
+                      ? `${insVal.toLocaleString(isAr ? 'ar-SA' : 'en-US')} ${isAr ? 'ر.س' : 'SAR'}`
+                      : '—'}
+                  />
                   <Mini label={isAr ? 'تاريخ الميلاد' : 'Birth Date'} value={asset.birth_date || '—'} />
                 </div>
               </div>
