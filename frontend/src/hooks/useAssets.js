@@ -2,15 +2,18 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 /**
- * Live owner asset list with portfolio metrics.
- * - Subscribes to UPDATE/INSERT/DELETE on assets filtered by owner_id
- * - Reflects stability_index/status in real time
- * - Dispatches a global `asset-danger` CustomEvent when an asset transitions to 'danger'
+ * Live owner asset list with portfolio metrics + embedded latest sensor reading.
+ *
+ * - Initial fetch joins the most recent `sensor_readings` row per asset.
+ * - Realtime subscription on assets (filtered by owner) keeps cards fresh.
+ * - On any UPDATE, exposes `flashId` for ~400ms so the card can flash.
+ * - On asset transitioning to status='danger', dispatches `asset-danger` event.
  */
 export function useAssets(ownerId) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [flashId, setFlashId] = useState(null);
 
   const fetchAssets = useCallback(async () => {
     if (!ownerId) {
@@ -19,15 +22,37 @@ export function useAssets(ownerId) {
       return;
     }
     setLoading(true);
+
+    // Embed sensor_readings; we'll keep only the freshest one per asset
+    // client-side (Supabase JS doesn't support per-row foreign-table LIMIT).
     const { data, error: err } = await supabase
       .from('assets')
-      .select('*')
+      .select(`
+        *,
+        sensor_readings (
+          heart_rate, temperature, respiration_rate,
+          is_in_zone, latitude, longitude, recorded_at
+        )
+      `)
       .eq('owner_id', ownerId)
       .eq('is_active', true)
-      .order('status')           // danger first (alphabetical: danger < stable < warning isn't perfect; see sort below)
-      .order('stability_index'); // lowest stability first
-    if (err) setError(err.message);
-    else setAssets(data ?? []);
+      .order('created_at', { ascending: false })
+      .order('recorded_at', {
+        foreignTable: 'sensor_readings',
+        ascending: false,
+      })
+      .limit(1, { foreignTable: 'sensor_readings' });
+
+    if (err) {
+      setError(err.message);
+    } else {
+      setAssets(
+        (data ?? []).map((a) => ({
+          ...a,
+          latest_reading: a.sensor_readings?.[0] ?? null,
+        }))
+      );
+    }
     setLoading(false);
   }, [ownerId]);
 
@@ -46,16 +71,21 @@ export function useAssets(ownerId) {
           filter: `owner_id=eq.${ownerId}`,
         },
         (payload) => {
-          setAssets((prev) => {
-            if (payload.eventType === 'INSERT') {
-              return [payload.new, ...prev.filter((a) => a.id !== payload.new.id)];
-            }
-            if (payload.eventType === 'UPDATE') {
-              const prevAsset = prev.find((a) => a.id === payload.new.id);
-              // Fire danger event only on transition into 'danger'
+          if (payload.eventType === 'INSERT') {
+            setAssets((prev) => [
+              { ...payload.new, latest_reading: null },
+              ...prev.filter((a) => a.id !== payload.new.id),
+            ]);
+            setFlashId(payload.new.id);
+            setTimeout(() => setFlashId(null), 400);
+            return;
+          }
+          if (payload.eventType === 'UPDATE') {
+            setAssets((prev) => {
+              const before = prev.find((a) => a.id === payload.new.id);
               if (
                 payload.new.status === 'danger' &&
-                prevAsset?.status !== 'danger'
+                before?.status !== 'danger'
               ) {
                 window.dispatchEvent(
                   new CustomEvent('asset-danger', { detail: payload.new })
@@ -64,12 +94,14 @@ export function useAssets(ownerId) {
               return prev.map((a) =>
                 a.id === payload.new.id ? { ...a, ...payload.new } : a
               );
-            }
-            if (payload.eventType === 'DELETE') {
-              return prev.filter((a) => a.id !== payload.old.id);
-            }
-            return prev;
-          });
+            });
+            setFlashId(payload.new.id);
+            setTimeout(() => setFlashId(null), 400);
+            return;
+          }
+          if (payload.eventType === 'DELETE') {
+            setAssets((prev) => prev.filter((a) => a.id !== payload.old.id));
+          }
         }
       )
       .subscribe();
@@ -79,7 +111,7 @@ export function useAssets(ownerId) {
     };
   }, [ownerId, fetchAssets]);
 
-  // Sort: danger → warning → stable, then by stability_index ascending
+  // Sort: danger → warning → stable → other, then by stability ascending.
   const sortedAssets = useMemo(() => {
     const rank = { danger: 0, warning: 1, stable: 2, offline: 3 };
     return [...assets].sort((a, b) => {
@@ -96,7 +128,7 @@ export function useAssets(ownerId) {
         assets.reduce((s, a) => s + (Number(a.stability_index) || 0), 0) /
           assets.length
       )
-    : 0;
+    : 100;
   const dangerCount = assets.filter((a) => a.status === 'danger').length;
   const warningCount = assets.filter((a) => a.status === 'warning').length;
   const stableCount = assets.filter((a) => a.status === 'stable').length;
@@ -105,6 +137,7 @@ export function useAssets(ownerId) {
     assets: sortedAssets,
     loading,
     error,
+    flashId,
     portfolioIndex,
     dangerCount,
     warningCount,
