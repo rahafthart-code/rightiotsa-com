@@ -94,7 +94,7 @@ export default function DigitalPassport() {
   };
 
   if (loading) return <CenterMsg text={isAr ? 'جاري التحميل…' : 'Loading…'} />;
-  if (error) return <CenterMsg text={error} danger />;
+  if (error) return <AccessDenied message={error} isAr={isAr} />;
 
   const photo = asset?.image_url || asset?.photo_url;
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString(isAr ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
