@@ -1,6 +1,9 @@
 // IoT data ingestion endpoint
 // Devices POST sensor readings here with header: X-Device-Api-Key
 // No JWT required (devices aren't users). Auth is via API key per device.
+// The reading is forwarded to the `calculate_stability` SQL function which
+// inserts into sensor_readings; triggers compute vital/env/stability scores,
+// update asset status (stable ≥85, warning 70-84, danger <70) and create alerts.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.0";
 
 const corsHeaders = {
@@ -18,13 +21,37 @@ async function sha256Hex(input: string): Promise<string> {
     .join("");
 }
 
+// Haversine distance in km
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 interface ReadingPayload {
   recorded_at?: string;
+  // GPS — accept both naming styles
   latitude?: number;
   longitude?: number;
-  stability_score?: number;
-  temperature?: number;
+  gps_lat?: number;
+  gps_lng?: number;
+  // Vitals
   heart_rate?: number;
+  temperature?: number;
+  respiration?: number;
+  respiration_rate?: number;
+  activity?: number;
+  activity_score?: number;
+  // Environment
+  env_temp?: number;
+  env_humidity?: number;
+  // Device telemetry
   battery_level?: number;
   signal_strength?: number;
   raw?: Record<string, unknown>;
@@ -72,33 +99,52 @@ Deno.serve(async (req) => {
       .eq("api_key_hash", apiKeyHash)
       .maybeSingle();
 
-    if (deviceErr || !device || !device.is_active) {
+    if (deviceErr || !device || !device.is_active || !device.asset_id) {
       return new Response(JSON.stringify({ error: "Unauthorized device" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const reading = {
-      device_id: device.id,
-      asset_id: device.asset_id,
-      recorded_at: body.recorded_at ?? new Date().toISOString(),
-      latitude: body.latitude ?? null,
-      longitude: body.longitude ?? null,
-      // stability_score is computed server-side by the
-      // compute_stability(60% geofence + 40% health) trigger.
-      // We only honor a client-provided value if it's explicitly set (rare, e.g. backfill).
-      stability_score: typeof body.stability_score === "number" ? body.stability_score : null,
-      temperature: body.temperature ?? null,
-      heart_rate: body.heart_rate ?? null,
-      battery_level: body.battery_level ?? null,
-      signal_strength: body.signal_strength ?? null,
-      raw_payload: body.raw ?? null,
-    };
+    // Normalize incoming fields
+    const lat = body.gps_lat ?? body.latitude ?? null;
+    const lng = body.gps_lng ?? body.longitude ?? null;
+    const respiration = body.respiration_rate ?? body.respiration ?? null;
+    const activity = body.activity_score ?? body.activity ?? null;
 
-    const { error: insertErr } = await supabase.from("sensor_readings").insert(reading);
-    if (insertErr) {
-      console.error("Insert reading error:", insertErr);
+    // Geofence check (optional — DB also recomputes via compute_stability_v2)
+    let isInZone = true;
+    const { data: assetGeo } = await supabase
+      .from("assets")
+      .select("geofence_lat, geofence_lng, geofence_radius_km")
+      .eq("id", device.asset_id)
+      .maybeSingle();
+
+    if (
+      assetGeo?.geofence_lat != null &&
+      assetGeo?.geofence_lng != null &&
+      lat != null &&
+      lng != null
+    ) {
+      const dist = haversineKm(lat, lng, assetGeo.geofence_lat, assetGeo.geofence_lng);
+      isInZone = dist <= Number(assetGeo.geofence_radius_km ?? 5);
+    }
+
+    // Forward to SQL function — triggers handle stability, smoothing, alerts.
+    const { data: result, error: calcErr } = await supabase.rpc("calculate_stability", {
+      p_asset_id: device.asset_id,
+      p_heart_rate: body.heart_rate ?? null,
+      p_temperature: body.temperature ?? null,
+      p_resp_rate: respiration,
+      p_activity: activity,
+      p_gps_lat: lat,
+      p_gps_lng: lng,
+      p_env_temp: body.env_temp ?? null,
+      p_in_zone: isInZone,
+    });
+
+    if (calcErr) {
+      console.error("calculate_stability error:", calcErr);
       return new Response(JSON.stringify({ error: "Failed to save reading" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -115,7 +161,7 @@ Deno.serve(async (req) => {
       })
       .eq("id", device.id);
 
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ ok: true, asset_id: device.asset_id, result }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
