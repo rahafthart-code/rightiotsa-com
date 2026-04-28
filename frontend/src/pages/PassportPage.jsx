@@ -126,6 +126,9 @@ export default function PassportPage() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices', filter: `asset_id=eq.${id}` }, (p) => {
         setDevice((d) => ({ ...(d || {}), ...p.new }));
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'assets', filter: `id=eq.${id}` }, (p) => {
+        setAsset((a) => ({ ...(a || {}), ...p.new }));
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [id]);
