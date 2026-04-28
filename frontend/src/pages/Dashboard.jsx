@@ -9,6 +9,7 @@ import DangerAlert from '../components/DangerAlert';
 import NotificationBell from '../components/NotificationBell';
 import NotificationPanel from '../components/NotificationPanel';
 import PortfolioGauge from '../components/PortfolioGauge';
+import StableStatsRow from '../components/StableStatsRow';
 import logoImage from '../assets/logo-transparent.png';
 
 /**
@@ -185,6 +186,9 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
+
+        {/* ─── Stables & device health ─────────────────── */}
+        <StableStatsRow ownerId={ownerId} />
 
         {/* ─── Asset grid ──────────────────────────────── */}
         <section>

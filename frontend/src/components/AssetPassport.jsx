@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPassport } from '../utils/passportData';
+import DeviceHealthBox from './DeviceHealthBox';
 
 function Field({ label, value, mono = false, gold = false }) {
   return (
@@ -96,6 +97,13 @@ export default function AssetPassport({ animal, isAr }) {
             {p.registered.toLocaleDateString(isAr ? 'ar-SA' : 'en-GB')}
           </span>
         </div>
+
+        {/* Device health: battery + signal from sensor_devices */}
+        {animal.id && (
+          <div className="col-span-2 sm:col-span-3 mt-2">
+            <DeviceHealthBox assetId={animal.id} isAr={isAr} />
+          </div>
+        )}
       </div>
     </section>
   );
