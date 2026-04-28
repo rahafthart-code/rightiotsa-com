@@ -136,6 +136,9 @@ export default function PassportPage() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings', filter: `asset_id=eq.${id}` }, (p) => {
         setReadings((prev) => [p.new, ...prev].slice(0, 100));
       })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stability_snapshots', filter: `asset_id=eq.${id}` }, (p) => {
+        setSnapshots((prev) => [p.new, ...prev].slice(0, 720));
+      })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices', filter: `asset_id=eq.${id}` }, (p) => {
         setDevice((d) => ({ ...(d || {}), ...p.new }));
       })
