@@ -82,6 +82,19 @@ export default function Dashboard() {
     setDangerAsset(null);
   };
 
+  // Stable per-asset click handlers so memoized AssetCards don't re-render
+  // every parent render due to new arrow-function identities.
+  const clickHandlersRef = useRef(new Map());
+  const handleAssetClick = useCallback(
+    (id) => {
+      const cache = clickHandlersRef.current;
+      if (!cache.has(id)) cache.set(id, () => navigate(`/passport/${id}`));
+      return cache.get(id);
+    },
+    [navigate]
+  );
+
+
   if (authLoading) {
     return (
       <div
