@@ -9,7 +9,7 @@ import { useStables } from '../hooks/useStables';
 export default function StableStatsRow({ ownerId }) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
-  const { stables, stats, totals, loading } = useStables(ownerId);
+  const { stables, stableStats, totals, loading } = useStables(ownerId);
 
   if (loading) return null;
   if (!stables.length) return null;
@@ -23,26 +23,26 @@ export default function StableStatsRow({ ownerId }) {
     },
     {
       label: isAr ? 'متوسط الاستقرار' : 'Avg Stability',
-      value: `${totals.avgStability}%`,
+      value: `${totals.avg_stability}%`,
       accent: '#006c35',
       icon: '📊',
     },
     {
       label: isAr ? 'حساسات متصلة' : 'Sensors Online',
-      value: totals.online,
+      value: totals.sensors_online,
       accent: '#10b981',
       icon: '📡',
     },
     {
       label: isAr ? 'حساسات غير متصلة' : 'Sensors Offline',
-      value: totals.offline,
+      value: totals.sensors_offline,
       accent: '#6b7280',
       icon: '🔌',
     },
     {
       label: isAr ? 'بطاريات منخفضة' : 'Low Battery',
-      value: totals.lowBattery,
-      accent: totals.lowBattery > 0 ? '#d97706' : '#9ca3af',
+      value: totals.low_battery_count,
+      accent: totals.low_battery_count > 0 ? '#d97706' : '#9ca3af',
       icon: '🔋',
     },
   ];
@@ -84,7 +84,7 @@ export default function StableStatsRow({ ownerId }) {
       {/* Per-stable cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {stables.map((s) => {
-          const st = stats.find((x) => x.stable_id === s.id) || {};
+          const st = stableStats[s.id] || {};
           const avg = st.avg_stability != null ? Math.round(Number(st.avg_stability)) : null;
           const accent = s.color || '#1D9E75';
           return (
