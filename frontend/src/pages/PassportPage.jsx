@@ -35,6 +35,7 @@ export default function PassportPage() {
   const [asset, setAsset] = useState(null);
   const [device, setDevice] = useState(null);
   const [readings, setReadings] = useState([]);
+  const [snapshots, setSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrUrl, setQrUrl] = useState('');
