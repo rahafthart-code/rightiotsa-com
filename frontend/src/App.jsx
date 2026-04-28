@@ -19,6 +19,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import Dashboard from "./pages/Dashboard";
 import AssetPassport from "./pages/AssetPassport";
 import AssetsListPage from "./pages/AssetsListPage";
+import AddAsset from "./pages/AddAsset";
 import HealthReportsPage from "./pages/HealthReportsPage";
 import NewHealthReportPage from "./pages/NewHealthReportPage";
 import HealthReportDetailPage from "./pages/HealthReportDetailPage";
