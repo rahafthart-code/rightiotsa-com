@@ -584,6 +584,60 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          billing_cycle: string
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          max_assets: number
+          max_devices: number
+          max_stables: number
+          notes: string | null
+          owner_id: string
+          plan: string
+          price_sar: number | null
+          status: string
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle?: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          max_assets?: number
+          max_devices?: number
+          max_stables?: number
+          notes?: string | null
+          owner_id: string
+          plan?: string
+          price_sar?: number | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          max_assets?: number
+          max_devices?: number
+          max_stables?: number
+          notes?: string | null
+          owner_id?: string
+          plan?: string
+          price_sar?: number | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -607,6 +661,25 @@ export type Database = {
       }
     }
     Views: {
+      admin_dashboard: {
+        Row: {
+          assets_count: number | null
+          avg_stability: number | null
+          devices_count: number | null
+          devices_online: number | null
+          full_name: string | null
+          joined_at: string | null
+          last_seen_at: string | null
+          owner_id: string | null
+          phone: string | null
+          plan: string | null
+          price_sar: number | null
+          stables_count: number | null
+          sub_status: string | null
+          trial_ends_at: string | null
+        }
+        Relationships: []
+      }
       stable_stats: {
         Row: {
           avg_stability: number | null
