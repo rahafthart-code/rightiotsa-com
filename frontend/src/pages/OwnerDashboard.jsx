@@ -120,6 +120,27 @@ export default function OwnerDashboard() {
               {isAr ? 'محدّث لحظياً' : 'Live updates'} · {assets.length} {isAr ? 'أصل' : 'assets'}
             </p>
           </div>
+          {assets.length > 0 && (
+            <div className="flex items-center gap-2 text-[11px]">
+              <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                <span className="text-slate-500">{isAr ? 'المحفظة' : 'Portfolio'}: </span>
+                <span className="font-bold text-emerald-400">{portfolioIndex}%</span>
+              </div>
+              {dangerCount > 0 && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900 text-red-400 font-bold">
+                  {dangerCount} {isAr ? 'خطر' : 'danger'}
+                </div>
+              )}
+              {warningCount > 0 && (
+                <div className="px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-900 text-amber-400 font-bold">
+                  {warningCount} {isAr ? 'تحذير' : 'warning'}
+                </div>
+              )}
+              <div className="px-3 py-1.5 rounded-lg bg-emerald-950/30 border border-emerald-900 text-emerald-400 font-bold">
+                {stableCount} {isAr ? 'مستقر' : 'stable'}
+              </div>
+            </div>
+          )}
         </div>
 
         {loading ? (
