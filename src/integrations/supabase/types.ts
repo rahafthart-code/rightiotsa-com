@@ -169,6 +169,13 @@ export type Database = {
             foreignKeyName: "assets_stable_id_fkey"
             columns: ["stable_id"]
             isOneToOne: false
+            referencedRelation: "stable_stats"
+            referencedColumns: ["stable_id"]
+          },
+          {
+            foreignKeyName: "assets_stable_id_fkey"
+            columns: ["stable_id"]
+            isOneToOne: false
             referencedRelation: "stables"
             referencedColumns: ["id"]
           },
@@ -316,6 +323,82 @@ export type Database = {
         }
         Relationships: []
       }
+      sensor_devices: {
+        Row: {
+          asset_id: string | null
+          battery_pct: number | null
+          created_at: string
+          device_id: string
+          device_type: string | null
+          firmware_ver: string | null
+          id: string
+          last_lat: number | null
+          last_lng: number | null
+          last_seen_at: string | null
+          owner_id: string
+          signal_strength: number | null
+          stable_id: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_id?: string | null
+          battery_pct?: number | null
+          created_at?: string
+          device_id: string
+          device_type?: string | null
+          firmware_ver?: string | null
+          id?: string
+          last_lat?: number | null
+          last_lng?: number | null
+          last_seen_at?: string | null
+          owner_id: string
+          signal_strength?: number | null
+          stable_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string | null
+          battery_pct?: number | null
+          created_at?: string
+          device_id?: string
+          device_type?: string | null
+          firmware_ver?: string | null
+          id?: string
+          last_lat?: number | null
+          last_lng?: number | null
+          last_seen_at?: string | null
+          owner_id?: string
+          signal_strength?: number | null
+          stable_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sensor_devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sensor_devices_stable_id_fkey"
+            columns: ["stable_id"]
+            isOneToOne: false
+            referencedRelation: "stable_stats"
+            referencedColumns: ["stable_id"]
+          },
+          {
+            foreignKeyName: "sensor_devices_stable_id_fkey"
+            columns: ["stable_id"]
+            isOneToOne: false
+            referencedRelation: "stables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sensor_readings: {
         Row: {
           activity_score: number | null
@@ -446,33 +529,57 @@ export type Database = {
       }
       stables: {
         Row: {
+          center_lat: number | null
+          center_lng: number | null
+          color: string | null
           created_at: string
+          icon: string | null
           id: string
+          is_active: boolean | null
           latitude: number | null
           location: string | null
+          location_name: string | null
           longitude: number | null
           name: string
+          name_en: string | null
           owner_id: string
+          radius_km: number | null
           updated_at: string
         }
         Insert: {
+          center_lat?: number | null
+          center_lng?: number | null
+          color?: string | null
           created_at?: string
+          icon?: string | null
           id?: string
+          is_active?: boolean | null
           latitude?: number | null
           location?: string | null
+          location_name?: string | null
           longitude?: number | null
           name: string
+          name_en?: string | null
           owner_id: string
+          radius_km?: number | null
           updated_at?: string
         }
         Update: {
+          center_lat?: number | null
+          center_lng?: number | null
+          color?: string | null
           created_at?: string
+          icon?: string | null
           id?: string
+          is_active?: boolean | null
           latitude?: number | null
           location?: string | null
+          location_name?: string | null
           longitude?: number | null
           name?: string
+          name_en?: string | null
           owner_id?: string
+          radius_km?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -500,7 +607,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      stable_stats: {
+        Row: {
+          avg_stability: number | null
+          color: string | null
+          danger_count: number | null
+          icon: string | null
+          low_battery_count: number | null
+          name: string | null
+          owner_id: string | null
+          sensors_offline: number | null
+          sensors_online: number | null
+          stable_count: number | null
+          stable_id: string | null
+          total_assets: number | null
+          warning_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_stability: {
