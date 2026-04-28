@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS daily_digest_enabled boolean NOT NULL DEFAULT true;
