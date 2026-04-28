@@ -198,11 +198,15 @@ Deno.serve(async (req) => {
           });
         if (upErr) throw upErr;
 
-        const { data: pub } = admin.storage.from('reports').getPublicUrl(path);
+        // Private bucket: generate a signed URL valid for 7 days
+        const { data: signed, error: signErr } = await admin.storage
+          .from('reports')
+          .createSignedUrl(path, 60 * 60 * 24 * 7);
+        if (signErr) throw signErr;
         generated += 1;
 
         const list = ownerReports.get(st.owner_id) ?? [];
-        list.push({ stableName: st.name, url: pub.publicUrl });
+        list.push({ stableName: st.name, url: signed.signedUrl, path });
         ownerReports.set(st.owner_id, list);
       } catch (e) {
         errors.push({

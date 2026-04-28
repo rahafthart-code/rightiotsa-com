@@ -150,23 +150,25 @@ export default function LoginPage() {
               </p>
             </div>
             
-            <div className="mt-5 border-t border-slate-800 pt-4">
-              <button
-                type="button"
-                onClick={handleDevLogin}
-                disabled={loading}
-                className="w-full inline-flex items-center justify-center rounded-lg border border-dashed border-emerald-500/60 bg-slate-950/60 px-3 py-2 text-xs font-medium text-emerald-200 hover:bg-emerald-500/10 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-              >
-                {t('devTestLogin')}
-              </button>
-              <p className="mt-2 text-[11px] text-slate-500">
-                {t('devTestLoginInfo')}{" "}
-                <span className="font-mono text-emerald-300">
-                  test@example.com
-                </span>{" "}
-                {t('devTestLoginEmail')}
-              </p>
-            </div>
+            {import.meta.env.DEV && (
+              <div className="mt-5 border-t border-slate-800 pt-4">
+                <button
+                  type="button"
+                  onClick={handleDevLogin}
+                  disabled={loading}
+                  className="w-full inline-flex items-center justify-center rounded-lg border border-dashed border-emerald-500/60 bg-slate-950/60 px-3 py-2 text-xs font-medium text-emerald-200 hover:bg-emerald-500/10 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
+                  {t('devTestLogin')}
+                </button>
+                <p className="mt-2 text-[11px] text-slate-500">
+                  {t('devTestLoginInfo')}{" "}
+                  <span className="font-mono text-emerald-300">
+                    test@example.com
+                  </span>{" "}
+                  {t('devTestLoginEmail')}
+                </p>
+              </div>
+            )}
           </>
         )}
 
