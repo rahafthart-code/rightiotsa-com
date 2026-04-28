@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Download, ShieldCheck, Fingerprint, Dna, Stamp, Syringe, Calendar, Award } from 'lucide-react';
+import { Download, ShieldCheck, Fingerprint, Dna, Stamp, Syringe, Calendar, Award, ShieldOff, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import logoWhite from '../assets/logo-white.png';
 
@@ -26,13 +26,27 @@ export default function DigitalPassport() {
     (async () => {
       try {
         setLoading(true);
+
+        // Verify the user is signed in — RLS only returns rows owned by them.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error(isAr ? 'يجب تسجيل الدخول لعرض جواز السفر' : 'Please sign in to view this passport');
+        }
+
         const { data: a, error: aErr } = await supabase
           .from('assets')
-          .select('id, name, species, image_url, photo_url, registration_no, serial_number, status, stability_index, is_insured, insured_value')
+          .select('id, owner_id, name, species, image_url, photo_url, registration_no, serial_number, status, stability_index, is_insured, insured_value')
           .eq('id', id)
           .maybeSingle();
         if (aErr) throw aErr;
-        if (!a) throw new Error(isAr ? 'الأصل غير موجود' : 'Asset not found');
+        // With RLS, if the row exists but doesn't belong to the user, `a` will be null.
+        // We can't distinguish "missing" from "forbidden" without a server check, so we
+        // surface a permission-style message that's accurate in both cases.
+        if (!a) {
+          throw new Error(isAr
+            ? 'ليس لديك صلاحية للوصول إلى هذا الأصل'
+            : "You don't have permission to access this asset");
+        }
 
         const { data: p } = await supabase
           .from('asset_passports')
@@ -44,7 +58,7 @@ export default function DigitalPassport() {
         setAsset(a);
         setPassport(p || {});
       } catch (e) {
-        setError(e.message || String(e));
+        if (!cancelled) setError(e.message || String(e));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -80,7 +94,7 @@ export default function DigitalPassport() {
   };
 
   if (loading) return <CenterMsg text={isAr ? 'جاري التحميل…' : 'Loading…'} />;
-  if (error) return <CenterMsg text={error} danger />;
+  if (error) return <AccessDenied message={error} isAr={isAr} />;
 
   const photo = asset?.image_url || asset?.photo_url;
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString(isAr ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
@@ -401,6 +415,84 @@ function CenterMsg({ text, danger }) {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: '#050a08', color: danger ? '#fca5a5' : '#d4b37a' }}>
       <p className="text-sm tracking-wide">{text}</p>
+    </div>
+  );
+}
+
+function AccessDenied({ message, isAr }) {
+  return (
+    <div
+      dir={isAr ? 'rtl' : 'ltr'}
+      className="min-h-screen flex items-center justify-center px-6"
+      style={{
+        background: `
+          radial-gradient(circle at 20% 30%, rgba(220,38,38,0.18) 0%, transparent 50%),
+          radial-gradient(circle at 80% 70%, rgba(197,165,90,0.12) 0%, transparent 55%),
+          linear-gradient(135deg, #050a08 0%, #0a1410 50%, #08110d 100%)
+        `,
+        fontFamily: "'Cairo','Tajawal',system-ui,sans-serif",
+      }}
+    >
+      <div
+        className="relative max-w-md w-full text-center p-8 sm:p-10 rounded-3xl"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+          backdropFilter: 'blur(24px) saturate(140%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(140%)',
+          border: '1px solid rgba(220,38,38,0.25)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(220,38,38,0.15), inset 0 1px 0 rgba(255,255,255,0.06)',
+        }}
+      >
+        <div
+          className="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6"
+          style={{
+            background: 'radial-gradient(circle, rgba(220,38,38,0.3) 0%, rgba(220,38,38,0.05) 70%)',
+            border: '2px solid rgba(220,38,38,0.5)',
+            boxShadow: '0 0 30px rgba(220,38,38,0.3), inset 0 0 15px rgba(220,38,38,0.1)',
+          }}
+        >
+          <ShieldOff size={32} style={{ color: '#fca5a5' }} />
+        </div>
+
+        <div className="text-[10px] tracking-[0.3em] uppercase font-bold mb-3" style={{ color: '#fca5a5' }}>
+          {isAr ? 'وصول مرفوض' : 'Access Denied'}
+        </div>
+
+        <h2
+          className="text-2xl font-bold mb-3"
+          style={{
+            background: 'linear-gradient(135deg, #f4e4b8 0%, #c5a55a 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+          }}
+        >
+          {message}
+        </h2>
+
+        <p className="text-sm mb-8" style={{ color: 'rgba(244,228,184,0.6)' }}>
+          {isAr
+            ? 'هذا الأصل محمي بواسطة نظام الصلاحيات. يمكنك فقط عرض الأصول المسجّلة باسمك.'
+            : 'This asset is protected by our access control system. You can only view assets registered to your account.'}
+        </p>
+
+        <button
+          onClick={() => (window.location.href = '/dashboard')}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 hover:scale-105"
+          style={{
+            background: 'linear-gradient(135deg, rgba(197,165,90,0.25), rgba(168,137,50,0.15))',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(197,165,90,0.45)',
+            boxShadow: '0 8px 32px rgba(197,165,90,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+            color: '#f4e4b8',
+          }}
+        >
+          <ArrowLeft size={16} className={isAr ? 'rotate-180' : ''} />
+          <span className="text-sm font-semibold tracking-wide">
+            {isAr ? 'العودة إلى لوحة التحكم' : 'Back to Dashboard'}
+          </span>
+        </button>
+      </div>
     </div>
   );
 }
