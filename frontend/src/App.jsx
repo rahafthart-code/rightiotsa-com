@@ -17,6 +17,7 @@ import CEODashboard from "./pages/CEODashboard";
 import PassportPage from "./pages/PassportPage";
 import DigitalPassport from "./pages/DigitalPassport";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import Dashboard from "./pages/Dashboard";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import PushOptInBanner from "./components/PushOptInBanner";
@@ -165,7 +166,7 @@ export default function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/guest/:token" element={<GuestView />} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
         <Route path="/ceo" element={<ProtectedRoute><CEODashboard /></ProtectedRoute>} />
         <Route path="/passport/:id" element={<PassportPage />} />
