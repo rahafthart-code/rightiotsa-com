@@ -37,6 +37,7 @@ const HealthReportDetailPage = lazy(() => import("./pages/HealthReportDetailPage
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const OwnerDashboardDark = lazy(() => import("./pages/OwnerDashboardDark"));
+const StableDashboard = lazy(() => import("./pages/StableDashboard"));
 
 // Preview/demo mode: seed a mock session so the dashboard remains accessible
 // without a real login during development. Real auth still works via /login.
@@ -128,7 +129,8 @@ export default function App() {
 
           {/* Other protected routes inside the green sidebar layout */}
           <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
-            <Route path="/dashboard-legacy" element={<Dashboard />} />
+            <Route path="/dashboard-legacy" element={<StableDashboard />} />
+            <Route path="/stables" element={<StableDashboard />} />
             <Route path="/assets" element={<AssetsListPage />} />
             <Route path="/assets/new" element={<AddAsset />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
