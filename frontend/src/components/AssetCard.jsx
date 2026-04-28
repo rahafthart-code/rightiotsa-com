@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useLatestReading } from '../hooks/useLatestReading';
 
 /**
- * Asset card with live sensor_readings (heart_rate, temperature) and
+ * Asset card with live sensor_readings + optional stable badge.
+ * Pass `stable` (object with name/name_en/color/icon) to render a top-corner chip.
  * a pulsing red border when status === 'danger'.
  * Memoized to skip re-renders when neighbouring cards in the dashboard
  * grid update — only re-renders when this asset's data or onClick change.
  */
-function AssetCard({ asset, onClick }) {
+function AssetCard({ asset, onClick, stable }) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const reading = useLatestReading(asset.id);
@@ -62,6 +63,20 @@ function AssetCard({ asset, onClick }) {
         >
           {statusLabel}
         </div>
+        {stable && (
+          <div
+            className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 max-w-[60%] truncate"
+            style={{
+              background: 'rgba(255,255,255,0.92)',
+              color: stable.color || '#1D9E75',
+              border: `1px solid ${(stable.color || '#1D9E75')}55`,
+            }}
+            title={isAr ? stable.name : stable.name_en || stable.name}
+          >
+            <span>{stable.icon === 'farm' ? '🌾' : stable.icon === 'ranch' ? '🐎' : stable.icon === 'desert' ? '⛺' : '🌴'}</span>
+            <span className="truncate">{isAr ? stable.name : stable.name_en || stable.name}</span>
+          </div>
+        )}
       </div>
 
       <div className="p-3 space-y-2">
@@ -110,6 +125,8 @@ export default React.memo(AssetCard, (prev, next) => {
   const b = next.asset || {};
   return (
     prev.onClick === next.onClick &&
+    prev.stable?.id === next.stable?.id &&
+    prev.stable?.color === next.stable?.color &&
     a.id === b.id &&
     a.name === b.name &&
     a.status === b.status &&
