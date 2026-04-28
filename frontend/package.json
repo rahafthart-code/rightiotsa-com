@@ -8,7 +8,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.60.2",
     "@turf/circle": "^7.3.5",
     "axios": "latest",
     "html2canvas": "^1.4.1",
@@ -32,5 +31,8 @@
     "postcss": "latest",
     "tailwindcss": "latest",
     "vite": "latest"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.57.1"
   }
 }
