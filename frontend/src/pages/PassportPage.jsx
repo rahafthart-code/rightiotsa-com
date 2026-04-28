@@ -364,7 +364,7 @@ export default function PassportPage() {
               <Empty isAr={isAr} text={isAr ? 'لا توجد قراءات بعد' : 'No readings yet'} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ChartCard title={isAr ? 'الاستقرار' : 'Stability'} series={series} field="stability_score" color="var(--color-royal-green)" suffix="" min={0} max={100} isAr={isAr} />
+                <ChartCard title={isAr ? 'الاستقرار (٣٠ يومًا)' : 'Stability (30d)'} series={stabilityChartSeries} field="stability_score" color="var(--color-royal-green)" suffix="" min={0} max={100} isAr={isAr} />
                 <ChartCard title={isAr ? 'الحرارة' : 'Temperature'} series={series} field="temperature" color="var(--color-desert-gold-dark)" suffix="°C" isAr={isAr} />
                 <ChartCard title={isAr ? 'البطارية' : 'Battery'} series={series} field="battery_level" color="#3b82f6" suffix="%" min={0} max={100} isAr={isAr} />
               </div>
