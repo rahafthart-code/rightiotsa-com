@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Download, ShieldCheck, Fingerprint, Dna, Stamp, Syringe, Calendar, Award } from 'lucide-react';
+import { Download, ShieldCheck, Fingerprint, Dna, Stamp, Syringe, Calendar, Award, ShieldOff, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import logoWhite from '../assets/logo-white.png';
 
