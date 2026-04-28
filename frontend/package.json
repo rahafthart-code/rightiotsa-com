@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.57.1",
+    "@rollup/rollup-linux-x64-gnu": "^4.60.2",
     "axios": "latest",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.4",
