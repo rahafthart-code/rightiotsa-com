@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useLatestReading } from '../hooks/useLatestReading';
 
 /**
- * Asset card with live sensor_readings (heart_rate, temperature) and
+ * Asset card with live sensor_readings + optional stable badge.
+ * Pass `stable` (object with name/name_en/color/icon) to render a top-corner chip.
  * a pulsing red border when status === 'danger'.
  * Memoized to skip re-renders when neighbouring cards in the dashboard
  * grid update — only re-renders when this asset's data or onClick change.
  */
-function AssetCard({ asset, onClick }) {
+function AssetCard({ asset, onClick, stable }) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const reading = useLatestReading(asset.id);
