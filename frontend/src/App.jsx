@@ -1,35 +1,40 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ProfilePage from "./pages/ProfilePage";
-import AdminPortal from "./pages/AdminPortal";
-import CheckoutPage from "./pages/CheckoutPage";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import TermsConditionsPage from "./pages/TermsConditionsPage";
-import FAQPage from "./pages/FAQPage";
-import ContactPage from "./pages/ContactPage";
-import GuestView from "./pages/GuestView";
-import CEODashboard from "./pages/CEODashboard";
-import PassportPage from "./pages/PassportPage";
-import DigitalPassport from "./pages/DigitalPassport";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import Dashboard from "./pages/Dashboard";
-import AssetPassport from "./pages/AssetPassport";
-import AssetsListPage from "./pages/AssetsListPage";
-import AddAsset from "./pages/AddAsset";
-import HealthReportsPage from "./pages/HealthReportsPage";
-import NewHealthReportPage from "./pages/NewHealthReportPage";
-import HealthReportDetailPage from "./pages/HealthReportDetailPage";
-import NotificationsPage from "./pages/NotificationsPage";
 import logoImage from "./assets/logo-transparent.png";
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import PushOptInBanner from "./components/PushOptInBanner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedLayout from "./components/ProtectedLayout";
+import RootErrorBoundary from "./components/RootErrorBoundary";
+import PageSkeleton from "./components/PageSkeleton";
+import ConnectionStatusBanner from "./components/ConnectionStatusBanner";
 import { ensureMockUser } from "./utils/mockData";
+
+// Lazy-load every page so the initial bundle stays small.
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const AdminPortal = lazy(() => import("./pages/AdminPortal"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage"));
+const FAQPage = lazy(() => import("./pages/FAQPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const GuestView = lazy(() => import("./pages/GuestView"));
+const CEODashboard = lazy(() => import("./pages/CEODashboard"));
+const PassportPage = lazy(() => import("./pages/PassportPage"));
+const DigitalPassport = lazy(() => import("./pages/DigitalPassport"));
+const OwnerDashboard = lazy(() => import("./pages/OwnerDashboard"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AssetPassport = lazy(() => import("./pages/AssetPassport"));
+const AssetsListPage = lazy(() => import("./pages/AssetsListPage"));
+const AddAsset = lazy(() => import("./pages/AddAsset"));
+const HealthReportsPage = lazy(() => import("./pages/HealthReportsPage"));
+const NewHealthReportPage = lazy(() => import("./pages/NewHealthReportPage"));
+const HealthReportDetailPage = lazy(() => import("./pages/HealthReportDetailPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 
 // Preview/demo mode: seed a mock session so the dashboard remains accessible
 // without a real login during development. Real auth still works via /login.
@@ -96,45 +101,48 @@ function RootRedirect() {
 
 export default function App() {
   return (
-    <>
-      <Routes>
-        {/* Root: route based on auth */}
-        <Route path="/" element={<RootRedirect />} />
+    <RootErrorBoundary>
+      <ConnectionStatusBanner />
+      <Suspense fallback={<PageSkeleton />}>
+        <Routes>
+          {/* Root: route based on auth */}
+          <Route path="/" element={<RootRedirect />} />
 
-        {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsConditionsPage />} />
-        <Route path="/faq" element={<FAQPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/guest/:token" element={<GuestView />} />
-        <Route path="/passport/:id" element={<PassportPage />} />
-        <Route path="/digital-passport/:id" element={<DigitalPassport />} />
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsConditionsPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/guest/:token" element={<GuestView />} />
+          <Route path="/passport/:id" element={<PassportPage />} />
+          <Route path="/digital-passport/:id" element={<DigitalPassport />} />
 
-        {/* Protected routes inside the dark-green sidebar layout */}
-        <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/assets" element={<AssetsListPage />} />
-          <Route path="/assets/new" element={<AddAsset />} />
-          <Route path="/asset/:id" element={<AssetPassport />} />
-          <Route path="/asset-passport/:id" element={<AssetPassport />} />
-          <Route path="/reports" element={<HealthReportsPage />} />
-          <Route path="/reports/new" element={<NewHealthReportPage />} />
-          <Route path="/reports/:id" element={<HealthReportDetailPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/owner" element={<OwnerDashboard />} />
-          <Route path="/ceo" element={<CEODashboard />} />
-        </Route>
+          {/* Protected routes inside the dark-green sidebar layout */}
+          <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/assets" element={<AssetsListPage />} />
+            <Route path="/assets/new" element={<AddAsset />} />
+            <Route path="/asset/:id" element={<AssetPassport />} />
+            <Route path="/asset-passport/:id" element={<AssetPassport />} />
+            <Route path="/reports" element={<HealthReportsPage />} />
+            <Route path="/reports/new" element={<NewHealthReportPage />} />
+            <Route path="/reports/:id" element={<HealthReportDetailPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/owner" element={<OwnerDashboard />} />
+            <Route path="/ceo" element={<CEODashboard />} />
+          </Route>
 
-        <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+          <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Suspense>
       <WhatsAppWidget />
       <PushOptInBanner />
-    </>
+    </RootErrorBoundary>
   );
 }

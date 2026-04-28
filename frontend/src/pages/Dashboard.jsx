@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -44,6 +44,18 @@ export default function Dashboard() {
     () => assets.filter((a) => a.status === 'danger'),
     [assets]
   );
+
+  // Sort once per assets change: danger → warning → stable, then by stability asc.
+  const sortedAssets = useMemo(() => {
+    const rank = { danger: 0, warning: 1, stable: 2 };
+    return [...assets].sort((a, b) => {
+      const ra = rank[a.status] ?? 3;
+      const rb = rank[b.status] ?? 3;
+      if (ra !== rb) return ra - rb;
+      return (a.stability_index ?? 100) - (b.stability_index ?? 100);
+    });
+  }, [assets]);
+
   useEffect(() => {
     if (dangerAsset) return;
     const fresh = dangerAssets.find((a) => !dismissedRef.current.has(a.id));
@@ -69,6 +81,19 @@ export default function Dashboard() {
     if (dangerAsset) dismissedRef.current.add(dangerAsset.id);
     setDangerAsset(null);
   };
+
+  // Stable per-asset click handlers so memoized AssetCards don't re-render
+  // every parent render due to new arrow-function identities.
+  const clickHandlersRef = useRef(new Map());
+  const handleAssetClick = useCallback(
+    (id) => {
+      const cache = clickHandlersRef.current;
+      if (!cache.has(id)) cache.set(id, () => navigate(`/passport/${id}`));
+      return cache.get(id);
+    },
+    [navigate]
+  );
+
 
   if (authLoading) {
     return (
@@ -197,11 +222,11 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {assets.map((asset) => (
+              {sortedAssets.map((asset) => (
                 <AssetCard
                   key={asset.id}
                   asset={asset}
-                  onClick={() => navigate(`/passport/${asset.id}`)}
+                  onClick={handleAssetClick(asset.id)}
                 />
               ))}
             </div>

@@ -1,7 +1,7 @@
 {
-  "name": "رايت إنشورتك — تتبع الماشية والصحة",
-  "short_name": "رايت",
-  "description": "منصة رايت إنشورتك للتأمين وتتبع الماشية والمؤشرات الصحية في الوقت الفعلي.",
+  "name": "Right InsurTech",
+  "short_name": "Right",
+  "description": "Right InsurTech — premium livestock tracking platform with real-time GPS and health monitoring.",
   "dir": "rtl",
   "lang": "ar",
   "start_url": "/dashboard",
@@ -9,8 +9,8 @@
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait-primary",
-  "background_color": "#006c35",
-  "theme_color": "#006c35",
+  "background_color": "#090d17",
+  "theme_color": "#090d17",
   "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
@@ -50,13 +50,6 @@
       "short_name": "اللوحة",
       "description": "افتح لوحة التحكم مباشرة",
       "url": "/dashboard",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "بوابة الإدارة",
-      "short_name": "إدارة",
-      "description": "افتح بوابة الإدارة",
-      "url": "/admin-portal",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
