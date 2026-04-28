@@ -500,6 +500,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_stability: {
+        Args: {
+          p_activity: number
+          p_asset_id: string
+          p_env_temp: number
+          p_gps_lat: number
+          p_gps_lng: number
+          p_heart_rate: number
+          p_in_zone: boolean
+          p_resp_rate: number
+          p_temperature: number
+        }
+        Returns: Json
+      }
       can_access_realtime_topic: { Args: { _topic: string }; Returns: boolean }
       compute_stability: {
         Args: {
