@@ -104,3 +104,17 @@ function AssetCard({ asset, onClick }) {
     </button>
   );
 }
+
+export default React.memo(AssetCard, (prev, next) => {
+  const a = prev.asset || {};
+  const b = next.asset || {};
+  return (
+    prev.onClick === next.onClick &&
+    a.id === b.id &&
+    a.name === b.name &&
+    a.status === b.status &&
+    a.stability_index === b.stability_index &&
+    a.image_url === b.image_url &&
+    a.species === b.species
+  );
+});
