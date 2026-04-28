@@ -92,7 +92,10 @@ Deno.serve(async (req) => {
       .select('id, owner_id, stable_id')
       .eq('id', asset_id)
       .maybeSingle();
-    if (aErr) return json({ error: aErr.message }, 500);
+    if (aErr) {
+      console.error("asset lookup error:", aErr);
+      return json({ error: "Failed to verify asset" }, 500);
+    }
     if (!a) return json({ error: 'Asset not found' }, 404);
     if (a.owner_id !== owner_id) {
       return json({ error: 'Asset does not belong to owner' }, 400);
@@ -115,7 +118,10 @@ Deno.serve(async (req) => {
     )
     .select()
     .single();
-  if (devErr) return json({ error: devErr.message }, 500);
+  if (devErr) {
+    console.error("device upsert error:", devErr);
+    return json({ error: "Failed to register device" }, 500);
+  }
 
   // ── 6. Link to asset ───────────────────────────────────
   if (asset_id) {
@@ -124,9 +130,10 @@ Deno.serve(async (req) => {
       .update({ sensor_device_id: device_id })
       .eq('id', asset_id);
     if (linkErr) {
+      console.error("asset link error:", linkErr);
       // Non-fatal: device was created; report partial success
       return json(
-        { success: true, device, warning: `Asset link failed: ${linkErr.message}` },
+        { success: true, device, warning: "Asset link failed" },
         200,
       );
     }
