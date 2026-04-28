@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import circle from '@turf/circle';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { useAssetLocation } from '../../hooks/useAssetLocation';
 
 /**
  * Interactive Mapbox map for a Stable.
@@ -295,12 +296,14 @@ export default function StableMap({
     };
   }, [mapReady, assets]);
 
-  // ── GPS Trail for selected asset ─────────────────────────
+  // ── GPS Trail for selected asset (live via useAssetLocation) ──
+  const { trail: liveTrail } = useAssetLocation(selectedAssetId);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
-    // Clear previous trail
+    // Clear previous trail layers/sources first
     ['trail-line', 'trail-points'].forEach((id) => {
       if (map.getLayer(id)) map.removeLayer(id);
     });
@@ -308,122 +311,99 @@ export default function StableMap({
       if (map.getSource(id)) map.removeSource(id);
     });
 
-    if (!selectedAssetId) return;
+    if (!selectedAssetId || liveTrail.length < 2) return;
+
     const asset = assets.find((a) => a.id === selectedAssetId);
     const trailColor = statusColor(asset?.status);
 
-    let cancelled = false;
-    (async () => {
-      const { data, error } = await supabase
-        .from('sensor_readings')
-        .select('gps_lat, gps_lng, latitude, longitude, recorded_at, smoothed_stability, stability_score')
-        .eq('asset_id', selectedAssetId)
-        .order('recorded_at', { ascending: false })
-        .limit(50);
-      if (cancelled || error || !data?.length) return;
+    // Hook returns newest → oldest; map needs oldest → newest for the gradient
+    const ordered = [...liveTrail].reverse();
+    const coords = ordered.map((p) => [p.lng, p.lat]);
 
-      // oldest → newest
-      const ordered = [...data].reverse().filter((r) => {
-        const lat = r.gps_lat ?? r.latitude;
-        const lng = r.gps_lng ?? r.longitude;
-        return lat != null && lng != null;
-      });
-      if (ordered.length < 2) return;
+    map.addSource('trail-line-src', {
+      type: 'geojson',
+      lineMetrics: true,
+      data: {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: coords },
+        properties: {},
+      },
+    });
+    map.addLayer({
+      id: 'trail-line',
+      type: 'line',
+      source: 'trail-line-src',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: {
+        'line-width': 3,
+        'line-gradient': [
+          'interpolate', ['linear'], ['line-progress'],
+          0, 'rgba(120,120,120,0.3)',
+          1, trailColor,
+        ],
+      },
+    });
 
-      const coords = ordered.map((r) => [
-        Number(r.gps_lng ?? r.longitude),
-        Number(r.gps_lat ?? r.latitude),
-      ]);
-
-      map.addSource('trail-line-src', {
-        type: 'geojson',
-        lineMetrics: true,
-        data: {
+    map.addSource('trail-points-src', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: ordered.map((p, i) => ({
           type: 'Feature',
-          geometry: { type: 'LineString', coordinates: coords },
-          properties: {},
-        },
-      });
-      map.addLayer({
-        id: 'trail-line',
-        type: 'line',
-        source: 'trail-line-src',
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: {
-          'line-width': 3,
-          'line-gradient': [
-            'interpolate', ['linear'], ['line-progress'],
-            0, 'rgba(120,120,120,0.3)',
-            1, trailColor,
-          ],
-        },
-      });
+          geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+          properties: {
+            t: p.recordedAt,
+            s: p.stability,
+            progress: i / Math.max(1, ordered.length - 1),
+          },
+        })),
+      },
+    });
+    map.addLayer({
+      id: 'trail-points',
+      type: 'circle',
+      source: 'trail-points-src',
+      paint: {
+        'circle-radius': 4,
+        'circle-color': trailColor,
+        'circle-opacity': ['interpolate', ['linear'], ['get', 'progress'], 0, 0.3, 1, 1],
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#fff',
+      },
+    });
 
-      map.addSource('trail-points-src', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: ordered.map((r, i) => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [
-                Number(r.gps_lng ?? r.longitude),
-                Number(r.gps_lat ?? r.latitude),
-              ],
-            },
-            properties: {
-              t: r.recorded_at,
-              s: r.smoothed_stability ?? r.stability_score ?? null,
-              progress: i / Math.max(1, ordered.length - 1),
-            },
-          })),
-        },
-      });
-      map.addLayer({
-        id: 'trail-points',
-        type: 'circle',
-        source: 'trail-points-src',
-        paint: {
-          'circle-radius': 4,
-          'circle-color': trailColor,
-          'circle-opacity': ['interpolate', ['linear'], ['get', 'progress'], 0, 0.3, 1, 1],
-          'circle-stroke-width': 1,
-          'circle-stroke-color': '#fff',
-        },
-      });
-
-      const popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false,
-        offset: 8,
-      });
-      const onEnter = (e) => {
-        map.getCanvas().style.cursor = 'pointer';
-        const f = e.features?.[0];
-        if (!f) return;
-        const p = f.properties || {};
-        const html = `
-          <div style="font-family:Cairo,sans-serif;font-size:12px;color:#1a1a1a">
-            <div><b>${isAr ? 'الوقت' : 'Time'}:</b> ${relativeTime(p.t, isAr)}</div>
-            <div><b>${isAr ? 'الاستقرار' : 'Stability'}:</b> ${
-              p.s != null ? Math.round(Number(p.s)) + '%' : '—'
-            }</div>
-          </div>`;
-        popup.setLngLat(f.geometry.coordinates.slice()).setHTML(html).addTo(map);
-      };
-      const onLeave = () => {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-      };
-      map.on('mouseenter', 'trail-points', onEnter);
-      map.on('mouseleave', 'trail-points', onLeave);
-    })();
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 8,
+    });
+    const onEnter = (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+      const f = e.features?.[0];
+      if (!f) return;
+      const p = f.properties || {};
+      const html = `
+        <div style="font-family:Cairo,sans-serif;font-size:12px;color:#1a1a1a">
+          <div><b>${isAr ? 'الوقت' : 'Time'}:</b> ${relativeTime(p.t, isAr)}</div>
+          <div><b>${isAr ? 'الاستقرار' : 'Stability'}:</b> ${
+            p.s != null ? Math.round(Number(p.s)) + '%' : '—'
+          }</div>
+        </div>`;
+      popup.setLngLat(f.geometry.coordinates.slice()).setHTML(html).addTo(map);
+    };
+    const onLeave = () => {
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+    };
+    map.on('mouseenter', 'trail-points', onEnter);
+    map.on('mouseleave', 'trail-points', onLeave);
 
     return () => {
-      cancelled = true;
+      map.off('mouseenter', 'trail-points', onEnter);
+      map.off('mouseleave', 'trail-points', onLeave);
+      popup.remove();
     };
-  }, [selectedAssetId, mapReady, assets, isAr]);
+  }, [selectedAssetId, mapReady, liveTrail, assets, isAr]);
 
   // ── Reset to center ──────────────────────────────────────
   const handleReset = useCallback(() => {
