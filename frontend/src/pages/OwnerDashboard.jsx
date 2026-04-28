@@ -43,15 +43,19 @@ export default function OwnerDashboard() {
     if (fresh) setDangerAsset(fresh);
   }, [dangerAssets, dangerAsset]);
 
-  // Listen for cross-component danger events (from useNotifications)
+  // Listen for cross-component danger events (from useNotifications + useAssets)
   useEffect(() => {
     const onDanger = (e) => {
-      const assetId = e.detail?.asset_id;
-      const found = assets.find((a) => a.id === assetId);
+      const assetId = e.detail?.asset_id ?? e.detail?.id;
+      const found = assets.find((a) => a.id === assetId) || e.detail;
       if (found && !dismissedRef.current.has(found.id)) setDangerAsset(found);
     };
     window.addEventListener('danger-alert', onDanger);
-    return () => window.removeEventListener('danger-alert', onDanger);
+    window.addEventListener('asset-danger', onDanger);
+    return () => {
+      window.removeEventListener('danger-alert', onDanger);
+      window.removeEventListener('asset-danger', onDanger);
+    };
   }, [assets]);
 
   const closeDanger = () => {
