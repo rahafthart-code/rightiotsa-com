@@ -35,6 +35,7 @@ export default function PassportPage() {
   const [asset, setAsset] = useState(null);
   const [device, setDevice] = useState(null);
   const [readings, setReadings] = useState([]);
+  const [snapshots, setSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrUrl, setQrUrl] = useState('');
@@ -91,18 +92,30 @@ export default function PassportPage() {
           .order('recorded_at', { ascending: false })
           .limit(100);
 
+        // Hourly stability snapshots — last 30 days for the passport timeline
+        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: snapRows } = await supabase
+          .from('stability_snapshots')
+          .select('snapped_at, vital_score, env_score, final_index, status_flag')
+          .eq('asset_id', id)
+          .gte('snapped_at', since)
+          .order('snapped_at', { ascending: false })
+          .limit(720);
+
         if (cancelled) return;
         setAsset(assetRow);
         setDevice(deviceRow ?? null);
         setReadings(readingRows ?? []);
+        setSnapshots(snapRows ?? []);
         setFromCache(false);
-        writeCache(id, { asset: assetRow, device: deviceRow, readings: readingRows });
+        writeCache(id, { asset: assetRow, device: deviceRow, readings: readingRows, snapshots: snapRows });
       } catch (e) {
         const cached = readCache(id);
         if (cached?.payload) {
           setAsset(cached.payload.asset);
           setDevice(cached.payload.device);
           setReadings(cached.payload.readings || []);
+          setSnapshots(cached.payload.snapshots || []);
           setFromCache(true);
         } else {
           setError(e.message || String(e));
@@ -122,6 +135,9 @@ export default function PassportPage() {
       .channel(`passport-${id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings', filter: `asset_id=eq.${id}` }, (p) => {
         setReadings((prev) => [p.new, ...prev].slice(0, 100));
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stability_snapshots', filter: `asset_id=eq.${id}` }, (p) => {
+        setSnapshots((prev) => [p.new, ...prev].slice(0, 720));
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'devices', filter: `asset_id=eq.${id}` }, (p) => {
         setDevice((d) => ({ ...(d || {}), ...p.new }));
@@ -153,6 +169,18 @@ export default function PassportPage() {
 
   // Sparkline series (oldest → newest)
   const series = useMemo(() => readings.slice().reverse(), [readings]);
+  // Hourly stability snapshots (oldest → newest) — 30-day passport timeline
+  // Normalize field name to `stability_score` so ChartCard can read it directly.
+  const snapshotSeries = useMemo(
+    () => snapshots.slice().reverse().map((s) => ({
+      recorded_at: s.snapped_at,
+      stability_score: s.final_index,
+      vital_score: s.vital_score,
+      env_score: s.env_score,
+    })),
+    [snapshots]
+  );
+  const stabilityChartSeries = snapshotSeries.length > 0 ? snapshotSeries : series;
 
   const exportPDF = async () => {
     if (!cardRef.current) return;
@@ -336,7 +364,7 @@ export default function PassportPage() {
               <Empty isAr={isAr} text={isAr ? 'لا توجد قراءات بعد' : 'No readings yet'} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ChartCard title={isAr ? 'الاستقرار' : 'Stability'} series={series} field="stability_score" color="var(--color-royal-green)" suffix="" min={0} max={100} isAr={isAr} />
+                <ChartCard title={isAr ? 'الاستقرار (٣٠ يومًا)' : 'Stability (30d)'} series={stabilityChartSeries} field="stability_score" color="var(--color-royal-green)" suffix="" min={0} max={100} isAr={isAr} />
                 <ChartCard title={isAr ? 'الحرارة' : 'Temperature'} series={series} field="temperature" color="var(--color-desert-gold-dark)" suffix="°C" isAr={isAr} />
                 <ChartCard title={isAr ? 'البطارية' : 'Battery'} series={series} field="battery_level" color="#3b82f6" suffix="%" min={0} max={100} isAr={isAr} />
               </div>
