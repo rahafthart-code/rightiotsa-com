@@ -26,13 +26,27 @@ export default function DigitalPassport() {
     (async () => {
       try {
         setLoading(true);
+
+        // Verify the user is signed in — RLS only returns rows owned by them.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error(isAr ? 'يجب تسجيل الدخول لعرض جواز السفر' : 'Please sign in to view this passport');
+        }
+
         const { data: a, error: aErr } = await supabase
           .from('assets')
-          .select('id, name, species, image_url, photo_url, registration_no, serial_number, status, stability_index, is_insured, insured_value')
+          .select('id, owner_id, name, species, image_url, photo_url, registration_no, serial_number, status, stability_index, is_insured, insured_value')
           .eq('id', id)
           .maybeSingle();
         if (aErr) throw aErr;
-        if (!a) throw new Error(isAr ? 'الأصل غير موجود' : 'Asset not found');
+        // With RLS, if the row exists but doesn't belong to the user, `a` will be null.
+        // We can't distinguish "missing" from "forbidden" without a server check, so we
+        // surface a permission-style message that's accurate in both cases.
+        if (!a) {
+          throw new Error(isAr
+            ? 'ليس لديك صلاحية للوصول إلى هذا الأصل'
+            : "You don't have permission to access this asset");
+        }
 
         const { data: p } = await supabase
           .from('asset_passports')
@@ -44,7 +58,7 @@ export default function DigitalPassport() {
         setAsset(a);
         setPassport(p || {});
       } catch (e) {
-        setError(e.message || String(e));
+        if (!cancelled) setError(e.message || String(e));
       } finally {
         if (!cancelled) setLoading(false);
       }
