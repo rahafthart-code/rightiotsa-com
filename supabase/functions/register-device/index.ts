@@ -86,7 +86,8 @@ Deno.serve(async (req) => {
     }).select("id, device_serial, asset_id").single();
 
     if (insertErr) {
-      return new Response(JSON.stringify({ error: insertErr.message }), {
+      console.error("device insert error:", insertErr);
+      return new Response(JSON.stringify({ error: "Failed to register device" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
