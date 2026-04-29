@@ -46,13 +46,30 @@ window.smartAssetHandler = {
 console.log("Right InsurTech: IoT Logic Active");
     </script>
     <script>
-      if ("serviceWorker" in navigator) {
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+        var inIframe = false;
+        try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+        var host = window.location.hostname;
+        var isPreview =
+          host.indexOf("id-preview--") !== -1 ||
+          host.indexOf("lovableproject.com") !== -1 ||
+          host.indexOf("lovable.app") !== -1 ||
+          host === "localhost" ||
+          host === "127.0.0.1";
+        if (inIframe || isPreview) {
+          // Unregister any stale SW from earlier sessions
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+          }).catch(function () {});
+          return;
+        }
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" })
             .then(function (reg) { try { reg.update(); } catch (e) {} })
             .catch(function () {});
         });
-      }
+      })();
     </script>
   </body>
 </html>
