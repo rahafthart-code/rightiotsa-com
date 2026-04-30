@@ -294,6 +294,8 @@ function QuickNav({ onClick, icon: Icon, label }) {
     </button>
   );
 }
+
+function StatCard({ label, value, dotColor, pulse }) {
   return (
     <div
       className="rounded-xl p-4"
