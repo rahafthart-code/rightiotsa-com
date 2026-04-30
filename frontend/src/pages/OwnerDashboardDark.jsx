@@ -281,7 +281,19 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
   );
 }
 
-function StatCard({ label, value, dotColor, pulse }) {
+function QuickNav({ onClick, icon: Icon, label }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-xl text-[11px] font-bold transition-all hover:scale-[1.03]"
+      style={{ background: '#0a1020', border: `1px solid ${BORDER}`, color: GOLD }}
+    >
+      <Icon size={18} />
+      <span style={{ color: TEXT }}>{label}</span>
+    </button>
+  );
+}
   return (
     <div
       className="rounded-xl p-4"
