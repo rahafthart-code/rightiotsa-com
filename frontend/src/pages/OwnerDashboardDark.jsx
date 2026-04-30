@@ -200,6 +200,14 @@ export default function OwnerDashboardDark() {
                   />
                 </svg>
               </div>
+
+              {/* Quick navigation shortcuts */}
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <QuickNav onClick={() => navigate('/assets')} icon={Layers} label="الأصول" />
+                <QuickNav onClick={() => navigate('/stables')} icon={Cpu} label="عمليات IoT" />
+                <QuickNav onClick={() => navigate('/reports')} icon={FileText} label="التقارير" />
+                <QuickNav onClick={() => navigate('/notifications')} icon={Bell} label="الإشعارات" />
+              </div>
             </section>
 
             {/* Assets */}
