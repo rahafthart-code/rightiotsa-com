@@ -93,6 +93,7 @@ export type Database = {
           geofence_lat: number | null
           geofence_lng: number | null
           geofence_radius_km: number | null
+          health_score: number | null
           id: string
           image_url: string | null
           insurance_value: number | null
@@ -100,6 +101,7 @@ export type Database = {
           is_active: boolean | null
           is_insured: boolean | null
           is_locked: boolean
+          movement_index: number | null
           name: string
           notes: string | null
           owner_id: string
@@ -120,6 +122,7 @@ export type Database = {
           geofence_lat?: number | null
           geofence_lng?: number | null
           geofence_radius_km?: number | null
+          health_score?: number | null
           id?: string
           image_url?: string | null
           insurance_value?: number | null
@@ -127,6 +130,7 @@ export type Database = {
           is_active?: boolean | null
           is_insured?: boolean | null
           is_locked?: boolean
+          movement_index?: number | null
           name: string
           notes?: string | null
           owner_id: string
@@ -147,6 +151,7 @@ export type Database = {
           geofence_lat?: number | null
           geofence_lng?: number | null
           geofence_radius_km?: number | null
+          health_score?: number | null
           id?: string
           image_url?: string | null
           insurance_value?: number | null
@@ -154,6 +159,7 @@ export type Database = {
           is_active?: boolean | null
           is_insured?: boolean | null
           is_locked?: boolean
+          movement_index?: number | null
           name?: string
           notes?: string | null
           owner_id?: string
@@ -237,6 +243,42 @@ export type Database = {
           },
         ]
       }
+      iot_webhook_events: {
+        Row: {
+          asset_id: string | null
+          device_serial: string | null
+          error_message: string | null
+          id: string
+          ip_address: unknown
+          payload: Json
+          received_at: string
+          source: string
+          status: string
+        }
+        Insert: {
+          asset_id?: string | null
+          device_serial?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown
+          payload: Json
+          received_at?: string
+          source?: string
+          status?: string
+        }
+        Update: {
+          asset_id?: string | null
+          device_serial?: string | null
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown
+          payload?: Json
+          received_at?: string
+          source?: string
+          status?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           asset_id: string | null
@@ -283,6 +325,65 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          cart_id: string
+          created_at: string
+          currency: string
+          id: string
+          owner_id: string
+          payment_url: string | null
+          plan: string
+          provider: string
+          provider_tran_ref: string | null
+          status: string
+          subscription_id: string | null
+          updated_at: string
+          webhook_payload: Json | null
+        }
+        Insert: {
+          amount: number
+          cart_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id: string
+          payment_url?: string | null
+          plan: string
+          provider?: string
+          provider_tran_ref?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          webhook_payload?: Json | null
+        }
+        Update: {
+          amount?: number
+          cart_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          owner_id?: string
+          payment_url?: string | null
+          plan?: string
+          provider?: string
+          provider_tran_ref?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          webhook_payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -795,6 +896,7 @@ export type Database = {
         Args: { p_key: string; p_max: number; p_window: number }
         Returns: Json
       }
+      compute_health_score: { Args: { p_asset_id: string }; Returns: number }
       compute_stability: {
         Args: {
           p_asset_id: string
