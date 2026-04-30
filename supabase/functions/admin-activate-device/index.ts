@@ -1,11 +1,19 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { z } from 'https://esm.sh/zod@3.23.8';
 
+// L5: Security headers applied to every response.
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
+  'Cache-Control': 'no-store, no-cache, must-revalidate',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 };
 
 const BodySchema = z.object({

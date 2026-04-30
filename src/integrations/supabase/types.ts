@@ -99,6 +99,7 @@ export type Database = {
           insured_value: number | null
           is_active: boolean | null
           is_insured: boolean | null
+          is_locked: boolean
           name: string
           notes: string | null
           owner_id: string
@@ -125,6 +126,7 @@ export type Database = {
           insured_value?: number | null
           is_active?: boolean | null
           is_insured?: boolean | null
+          is_locked?: boolean
           name: string
           notes?: string | null
           owner_id: string
@@ -151,6 +153,7 @@ export type Database = {
           insured_value?: number | null
           is_active?: boolean | null
           is_insured?: boolean | null
+          is_locked?: boolean
           name?: string
           notes?: string | null
           owner_id?: string
@@ -320,6 +323,69 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string
+          id: string
+          key: string
+          window_end: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: string
+          key: string
+          window_end: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: string
+          key?: string
+          window_end?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          details: Json
+          endpoint: string | null
+          event_type: string
+          id: number
+          ip_address: unknown
+          resolved: boolean
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          endpoint?: string | null
+          event_type: string
+          id?: number
+          ip_address?: unknown
+          resolved?: boolean
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          endpoint?: string | null
+          event_type?: string
+          id?: number
+          ip_address?: unknown
+          resolved?: boolean
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -680,6 +746,16 @@ export type Database = {
         }
         Relationships: []
       }
+      security_dashboard: {
+        Row: {
+          event_count: number | null
+          event_type: string | null
+          hour: string | null
+          severity: string | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
       stable_stats: {
         Row: {
           avg_stability: number | null
@@ -715,6 +791,10 @@ export type Database = {
         Returns: Json
       }
       can_access_realtime_topic: { Args: { _topic: string }; Returns: boolean }
+      check_and_increment_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window: number }
+        Returns: Json
+      }
       compute_stability: {
         Args: {
           p_asset_id: string
@@ -753,7 +833,21 @@ export type Database = {
         Args: { lat1: number; lat2: number; lng1: number; lng2: number }
         Returns: number
       }
+      log_security_event: {
+        Args: {
+          p_details?: Json
+          p_endpoint?: string
+          p_severity?: string
+          p_type: string
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
       snapshot_all_assets: { Args: never; Returns: number }
+      validate_json_input: {
+        Args: { input: Json; max_size?: number }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "ceo" | "owner" | "vet" | "viewer"
