@@ -121,8 +121,9 @@ export default function OwnerDashboardDark() {
 
           <nav className="flex-1 p-3 space-y-1">
             <SideLink to="/dashboard" icon={LayoutDashboard} label="لوحة التحكم" end />
-            <SideLink to="/assets" icon={Layers} label="أصولي" />
-            <SideLink to="/reports" icon={FileText} label="المطالبات" />
+            <SideLink to="/assets" icon={Layers} label="إدارة الأصول" />
+            <SideLink to="/stables" icon={Cpu} label="مركز عمليات IoT" />
+            <SideLink to="/reports" icon={FileText} label="التقارير الصحية" />
             <SideLink to="/notifications" icon={Bell} label="الإشعارات" badge={unreadCount} />
             <SideLink to="/profile" icon={UserIcon} label="الملف" />
           </nav>
