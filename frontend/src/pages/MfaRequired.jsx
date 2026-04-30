@@ -37,7 +37,7 @@ export default function MfaRequired() {
           من إعدادات الحساب قبل الوصول إليها.
         </p>
         <button
-          onClick={() => navigate("/profile")}
+          onClick={() => navigate("/security/mfa-enroll")}
           style={{
             background: "#006c35",
             color: "#fff",
@@ -48,7 +48,7 @@ export default function MfaRequired() {
             cursor: "pointer",
           }}
         >
-          فتح إعدادات الحساب
+          تفعيل التحقق بخطوتين الآن
         </button>
       </div>
     </div>
