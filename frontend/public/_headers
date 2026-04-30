@@ -1,9 +1,4 @@
 /*
-  L5: HTTP security headers, served by the static host for every response.
-  This file is a Netlify/Lovable `_headers` manifest. Lovable's hosting
-  picks it up and applies these headers at the edge.
-*/
-/*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   X-XSS-Protection: 1; mode=block
