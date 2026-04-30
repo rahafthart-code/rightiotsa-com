@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
-  LogOut, Heart, Thermometer, MapPin, Plus,
+  LogOut, Heart, Thermometer, MapPin, Plus, Cpu,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
