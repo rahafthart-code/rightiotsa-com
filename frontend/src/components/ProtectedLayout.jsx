@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   X,
+  Cpu,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
@@ -38,7 +39,8 @@ export default function ProtectedLayout() {
 
   const items = [
     { to: '/dashboard', label: isAr ? 'لوحة التحكم' : 'Dashboard', icon: LayoutDashboard },
-    { to: '/assets', label: isAr ? 'الأصول' : 'Assets', icon: ListOrdered },
+    { to: '/assets', label: isAr ? 'إدارة الأصول' : 'Assets', icon: ListOrdered },
+    { to: '/stables', label: isAr ? 'مركز عمليات IoT' : 'IoT Operations', icon: Cpu },
     { to: '/reports', label: isAr ? 'التقارير الصحية' : 'Health Reports', icon: FileHeart },
     {
       to: '/notifications',

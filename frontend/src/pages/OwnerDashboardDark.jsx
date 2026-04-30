@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
-  LogOut, Heart, Thermometer, MapPin, Plus,
+  LogOut, Heart, Thermometer, MapPin, Plus, Cpu,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
@@ -121,8 +121,9 @@ export default function OwnerDashboardDark() {
 
           <nav className="flex-1 p-3 space-y-1">
             <SideLink to="/dashboard" icon={LayoutDashboard} label="لوحة التحكم" end />
-            <SideLink to="/assets" icon={Layers} label="أصولي" />
-            <SideLink to="/reports" icon={FileText} label="المطالبات" />
+            <SideLink to="/assets" icon={Layers} label="إدارة الأصول" />
+            <SideLink to="/stables" icon={Cpu} label="مركز عمليات IoT" />
+            <SideLink to="/reports" icon={FileText} label="التقارير الصحية" />
             <SideLink to="/notifications" icon={Bell} label="الإشعارات" badge={unreadCount} />
             <SideLink to="/profile" icon={UserIcon} label="الملف" />
           </nav>
@@ -199,6 +200,14 @@ export default function OwnerDashboardDark() {
                   />
                 </svg>
               </div>
+
+              {/* Quick navigation shortcuts */}
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <QuickNav onClick={() => navigate('/assets')} icon={Layers} label="الأصول" />
+                <QuickNav onClick={() => navigate('/stables')} icon={Cpu} label="عمليات IoT" />
+                <QuickNav onClick={() => navigate('/reports')} icon={FileText} label="التقارير" />
+                <QuickNav onClick={() => navigate('/notifications')} icon={Bell} label="الإشعارات" />
+              </div>
             </section>
 
             {/* Assets */}
@@ -269,6 +278,20 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
         </span>
       )}
     </NavLink>
+  );
+}
+
+function QuickNav({ onClick, icon: Icon, label }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-xl text-[11px] font-bold transition-all hover:scale-[1.03]"
+      style={{ background: '#0a1020', border: `1px solid ${BORDER}`, color: GOLD }}
+    >
+      <Icon size={18} />
+      <span style={{ color: TEXT }}>{label}</span>
+    </button>
   );
 }
 
