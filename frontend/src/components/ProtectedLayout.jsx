@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   X,
+  Cpu,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
