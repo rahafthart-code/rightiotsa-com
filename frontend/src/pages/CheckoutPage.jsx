@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import * as api from "../api";
+import { supabase } from "../lib/supabaseClient";
 import logoImage from "../assets/logo-transparent.png";
 
 export default function CheckoutPage() {
@@ -32,37 +33,24 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     setProcessing(true);
-    
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Create subscription
-      const subscription = await api.createSubscription(plan.plan_id);
-      
-      // Create invoice data
-      const invoice = {
-        invoiceNumber: `INV-${Date.now()}`,
-        date: new Date().toISOString(),
-        customerEmail: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).email : '',
-        planName: i18n.language === 'ar' ? plan.name_ar : plan.name_en,
-        subtotal: subtotal,
-        vat: vatAmount,
-        total: total,
-        subscriptionId: subscription.id
-      };
-      
-      setInvoiceData(invoice);
-      setSuccess(true);
-      
-      // Redirect to dashboard after 3 seconds
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000);
-      
+      const planKey = (plan.plan_id || plan.name_en || 'starter').toString().toLowerCase();
+      const billingCycle = plan.billing_cycle === 'yearly' ? 'yearly' : 'monthly';
+
+      const { data, error } = await supabase.functions.invoke('create-clickpay-payment', {
+        body: { plan: planKey, billing_cycle: billingCycle },
+      });
+
+      if (error) throw error;
+      if (!data?.payment_url) throw new Error('No payment URL returned');
+
+      // Redirect to ClickPay hosted page
+      window.location.href = data.payment_url;
     } catch (err) {
       console.error("Payment error:", err);
-      alert(i18n.language === 'ar' ? 'فشل الدفع. يرجى المحاولة مرة أخرى.' : 'Payment failed. Please try again.');
+      alert(i18n.language === 'ar'
+        ? 'تعذّر بدء الدفع. حاول مرة أخرى.'
+        : 'Could not start payment. Please try again.');
       setProcessing(false);
     }
   };

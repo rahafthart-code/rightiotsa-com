@@ -2,3 +2,12 @@ project_id = "ukpdgukfziwsotjaevbd"
 
 [functions.weekly-report]
 verify_jwt = false
+
+[functions.clickpay-webhook]
+verify_jwt = false
+
+[functions.volt-webhook]
+verify_jwt = false
+
+[functions.iot-ingest]
+verify_jwt = false

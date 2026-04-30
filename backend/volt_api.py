@@ -4,8 +4,13 @@ volt_api.py — Right InsurTech IoT Bridge
 يرسل قراءات الحساسات إلى Edge Function `iot-ingest` كل INTERVAL ثانية.
 
 Environment variables required:
-  SUPABASE_EDGE_URL   مثال: https://<project>.supabase.co/functions/v1/iot-ingest
-  DEVICE_API_KEY      المفتاح الخاص بهذا الجهاز (يُخزَّن hash منه في جدول devices)
+  SUPABASE_EDGE_URL   إما الإندبوينت لكل جهاز:
+                      https://<project>.supabase.co/functions/v1/iot-ingest
+                      أو بوابة VOLT الموحّدة بالمفتاح المشترك:
+                      https://<project>.supabase.co/functions/v1/volt-webhook
+  DEVICE_API_KEY      المفتاح الخاص بهذا الجهاز (لـ iot-ingest)
+  VOLT_API_KEY        المفتاح المشترك (لـ volt-webhook) — أحدهما مطلوب
+  DEVICE_SERIAL       الرقم التسلسلي للجهاز (مطلوب مع volt-webhook)
   READ_INTERVAL       (اختياري) المدة بين القراءات بالثواني، الافتراضي 30
 """
 import requests
@@ -19,12 +24,15 @@ from typing import Optional
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 # ─── إعدادات ──────────────────────────────────────────────
-EDGE_URL       = os.getenv('SUPABASE_EDGE_URL')      # .../functions/v1/iot-ingest
-DEVICE_API_KEY = os.getenv('DEVICE_API_KEY')         # خاص بهذا الجهاز
+# ─── إعدادات ──────────────────────────────────────────────
+EDGE_URL       = os.getenv('SUPABASE_EDGE_URL')      # iot-ingest أو volt-webhook
+DEVICE_API_KEY = os.getenv('DEVICE_API_KEY')         # مفتاح الجهاز الفردي
+VOLT_API_KEY   = os.getenv('VOLT_API_KEY')           # مفتاح بوابة VOLT المشترك
+DEVICE_SERIAL  = os.getenv('DEVICE_SERIAL', '')      # مطلوب لـ volt-webhook
 INTERVAL       = int(os.getenv('READ_INTERVAL', '30'))
 
-if not EDGE_URL or not DEVICE_API_KEY:
-    raise SystemExit('SUPABASE_EDGE_URL و DEVICE_API_KEY مطلوبان')
+if not EDGE_URL or not (DEVICE_API_KEY or VOLT_API_KEY):
+    raise SystemExit('SUPABASE_EDGE_URL وأحد المفتاحين (DEVICE_API_KEY أو VOLT_API_KEY) مطلوبان')
 
 
 @dataclass
@@ -68,15 +76,21 @@ def read_sensors() -> SensorReading:
 
 def send_reading(reading: SensorReading) -> Optional[dict]:
     try:
-        res = requests.post(
-            EDGE_URL,
-            json    = asdict(reading),
-            timeout = 10,
+        # اختر الترويسة بحسب الإندبوينت
+        if VOLT_API_KEY and 'volt-webhook' in (EDGE_URL or ''):
+            headers = {
+                'Content-Type':    'application/json',
+                'X-Volt-Api-Key':  VOLT_API_KEY,
+            }
+            payload = {'reading': {**asdict(reading), 'device_serial': DEVICE_SERIAL}}
+        else:
             headers = {
                 'Content-Type':      'application/json',
-                'X-Device-Api-Key':  DEVICE_API_KEY,
-            },
-        )
+                'X-Device-Api-Key':  DEVICE_API_KEY or '',
+            }
+            payload = asdict(reading)
+
+        res = requests.post(EDGE_URL, json=payload, timeout=10, headers=headers)
         res.raise_for_status()
         data = res.json()
         result = data.get('result') or {}

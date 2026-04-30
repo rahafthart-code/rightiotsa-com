@@ -40,6 +40,7 @@ const OwnerDashboardDark = lazy(() => import("./pages/OwnerDashboardDark"));
 const StableDashboard = lazy(() => import("./pages/StableDashboard"));
 const SecurityDashboard = lazy(() => import("./pages/SecurityDashboard"));
 const MfaRequired = lazy(() => import("./pages/MfaRequired"));
+const MfaEnrollPage = lazy(() => import("./pages/MfaEnrollPage"));
 const AuthGuard = lazy(() => import("./components/AuthGuard"));
 
 // Admin Panel
@@ -155,6 +156,7 @@ export default function App() {
             <Route path="/owner" element={<OwnerDashboard />} />
             <Route path="/ceo" element={<CEODashboard />} />
             <Route path="/security/mfa-required" element={<MfaRequired />} />
+            <Route path="/security/mfa-enroll" element={<MfaEnrollPage />} />
             <Route
               path="/security"
               element={
