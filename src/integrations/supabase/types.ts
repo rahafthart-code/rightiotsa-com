@@ -83,6 +83,13 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "asset_passports_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "public_asset_verify"
+            referencedColumns: ["id"]
+          },
         ]
       }
       assets: {
@@ -241,7 +248,47 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      edge_function_errors: {
+        Row: {
+          context: Json | null
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          function_name: string
+          id: number
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          function_name: string
+          id?: number
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          function_name?: string
+          id?: number
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       iot_webhook_events: {
         Row: {
@@ -325,6 +372,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
             referencedColumns: ["id"]
           },
         ]
@@ -557,6 +611,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "sensor_devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "sensor_devices_stable_id_fkey"
             columns: ["stable_id"]
             isOneToOne: false
@@ -654,6 +715,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "sensor_readings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "sensor_readings_device_id_fkey"
             columns: ["device_id"]
             isOneToOne: false
@@ -703,6 +771,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stability_snapshots_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
             referencedColumns: ["id"]
           },
         ]
@@ -908,6 +983,13 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "public_asset_verify"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles_safe: {
@@ -940,6 +1022,23 @@ export type Database = {
           last_seen_at?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      public_asset_verify: {
+        Row: {
+          birth_date: string | null
+          bloodline: string | null
+          expires_at: string | null
+          id: string | null
+          issued_at: string | null
+          issuing_authority: string | null
+          microchip_id: string | null
+          name: string | null
+          passport_no: string | null
+          registered_at: string | null
+          registration_no: string | null
+          species: string | null
         }
         Relationships: []
       }
