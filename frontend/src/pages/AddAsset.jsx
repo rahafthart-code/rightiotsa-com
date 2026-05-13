@@ -188,6 +188,46 @@ export default function AddAsset() {
   const Next = isAr ? ChevronLeft : ChevronRight;
   const Prev = isAr ? ChevronRight : ChevronLeft;
 
+  if (!limitsLoading && !canAddAsset) {
+    return (
+      <div className="px-4 sm:px-6 py-12 max-w-xl mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
+        <div
+          className="rounded-2xl p-6 text-center shadow-md"
+          style={{ background: '#fff', border: '1px solid rgba(197,165,90,0.4)' }}
+        >
+          <div className="text-5xl mb-3">🔒</div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#006c35' }}>
+            {isAr ? 'وصلت للحد الأقصى' : 'Plan limit reached'}
+          </h2>
+          <p className="text-sm mb-4" style={{ color: '#6b6b6b' }}>
+            {isAr ? LIMIT_MESSAGE_AR : LIMIT_MESSAGE_EN}
+          </p>
+          <p className="text-xs mb-5" style={{ color: '#8a6d2a' }}>
+            {isAr
+              ? `الأصول الحالية: ${assetsCount} / ${maxAssets}`
+              : `Current assets: ${assetsCount} / ${maxAssets}`}
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 rounded-lg text-sm font-bold"
+              style={{ background: 'rgba(0,108,53,0.08)', color: '#006c35' }}
+            >
+              {isAr ? 'رجوع' : 'Back'}
+            </button>
+            <button
+              onClick={() => navigate('/subscribe')}
+              className="px-5 py-2 rounded-lg text-sm font-bold text-white"
+              style={{ background: '#006c35' }}
+            >
+              {isAr ? 'ترقية الباقة' : 'Upgrade Plan'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 sm:px-6 py-6 max-w-2xl mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Progress */}
