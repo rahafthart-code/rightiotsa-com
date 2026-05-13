@@ -124,14 +124,17 @@ export default function ProtectedLayout() {
           <img src={logoImage} alt="Right" className="h-7 w-auto" />
           <span className="text-white text-sm font-bold">Right</span>
         </div>
-        <button
-          type="button"
-          onClick={toggleLanguage}
-          className="px-2 py-1 text-[11px] font-bold rounded-md"
-          style={{ background: 'var(--color-desert-gold, #c5a55a)', color: '#004d25' }}
-        >
-          {isAr ? 'EN' : 'عربي'}
-        </button>
+        <div className="flex items-center gap-1">
+          <BellButton />
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="px-2 py-1 text-[11px] font-bold rounded-md"
+            style={{ background: 'var(--color-desert-gold, #c5a55a)', color: '#004d25' }}
+          >
+            {isAr ? 'EN' : 'عربي'}
+          </button>
+        </div>
       </div>
 
       {/* ── Backdrop (mobile) ── */}
