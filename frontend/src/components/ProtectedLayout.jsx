@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
+import NotificationPanel from './NotificationPanel';
 import logoImage from '../assets/logo-transparent.png';
 
 /**
