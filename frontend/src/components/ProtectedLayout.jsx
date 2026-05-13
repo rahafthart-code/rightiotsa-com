@@ -250,10 +250,33 @@ export default function ProtectedLayout() {
 
       {/* ── Content ── */}
       <div className={contentPad}>
+        {/* Desktop floating header bell */}
+        <div
+          className={`hidden lg:flex fixed top-3 z-30 ${isAr ? 'left-4' : 'right-4'}`}
+        >
+          <div
+            className="rounded-full shadow-lg"
+            style={{
+              background:
+                'linear-gradient(135deg, var(--color-royal-green, #006c35), var(--color-royal-green-dark, #004d25))',
+              border: '1px solid var(--color-desert-gold, #c5a55a)',
+            }}
+          >
+            <BellButton />
+          </div>
+        </div>
         <main className="min-h-screen">
           <Outlet />
         </main>
       </div>
+
+      <NotificationPanel
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        notifications={notifications}
+        onMarkRead={markRead}
+        onMarkAllRead={markAllRead}
+      />
     </div>
   );
 }
