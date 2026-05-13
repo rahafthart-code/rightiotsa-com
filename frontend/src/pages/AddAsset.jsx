@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { usePlanLimits, LIMIT_MESSAGE_AR, LIMIT_MESSAGE_EN } from '../hooks/usePlanLimits';
+import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
 
 const STEPS = 4;
 
@@ -35,6 +36,7 @@ export default function AddAsset() {
   }
 
   const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets } = usePlanLimits(ownerId);
+  const { handleInsertError } = useSubscriptionGuard(ownerId);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -179,7 +181,11 @@ export default function AddAsset() {
       );
       navigate(`/asset/${asset.id}`, { replace: true });
     } catch (e) {
-      toast.error((isAr ? 'حدث خطأ أثناء الحفظ: ' : 'Save failed: ') + (e?.message || ''));
+      const friendly = handleInsertError(e);
+      toast.error((isAr ? 'حدث خطأ أثناء الحفظ: ' : 'Save failed: ') + friendly);
+      if (typeof e?.message === 'string' && e.message.includes('LIMIT_REACHED')) {
+        navigate('/subscribe?upgrade=true&reason=asset_limit');
+      }
     } finally {
       setLoading(false);
     }

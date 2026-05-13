@@ -8,6 +8,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useNotifications } from '../hooks/useNotifications';
 import { useLatestReading } from '../hooks/useLatestReading';
+import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
+import UsageBar from '../components/UsageBar';
 import logoImage from '../assets/logo-transparent.png';
 
 /* ─── Dark theme tokens (scoped) ─────────────────────── */
@@ -37,6 +39,7 @@ export default function OwnerDashboardDark() {
   const { assets, loading, portfolioIndex, dangerCount, warningCount, stableCount } =
     useAssets(ownerId);
   const { unreadCount } = useNotifications(ownerId);
+  const { usage, guardAddAsset } = useSubscriptionGuard(ownerId);
 
   // Track which asset ids just changed → trigger flash animation
   const [flashIds, setFlashIds] = useState(new Set());
@@ -210,12 +213,15 @@ export default function OwnerDashboardDark() {
               </div>
             </section>
 
+            {/* Plan usage */}
+            {usage && <UsageBar usage={usage} dark isAr />}
+
             {/* Assets */}
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base font-bold" style={{ color: GOLD }}>أصولي</h2>
                 <button
-                  onClick={() => navigate('/onboarding')}
+                  onClick={() => { if (guardAddAsset()) navigate('/onboarding'); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                   style={{ background: GOLD, color: '#1a1408' }}
                 >
