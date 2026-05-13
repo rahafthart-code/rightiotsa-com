@@ -324,12 +324,20 @@ export default function AddAsset() {
                   )}
                   <span className="text-sm font-bold">
                     {uploading
-                      ? (isAr ? 'جارٍ الرفع...' : 'Uploading...')
+                      ? (isAr ? `جارٍ الرفع... ${uploadPct}%` : `Uploading... ${uploadPct}%`)
                       : (isAr ? 'ارفع صورة الأصل' : 'Upload asset photo')}
                   </span>
                   <span className="text-[11px]" style={{ color: '#6b6b6b' }}>
-                    {isAr ? 'JPG/PNG حتى 8MB' : 'JPG/PNG up to 8MB'}
+                    {isAr ? 'JPG/PNG حتى 10MB' : 'JPG/PNG up to 10MB'}
                   </span>
+                  {uploading && (
+                    <div className="w-3/4 h-1.5 mt-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,108,53,0.15)' }}>
+                      <div
+                        className="h-full transition-all duration-200"
+                        style={{ width: `${uploadPct}%`, background: 'var(--color-desert-gold, #c5a55a)' }}
+                      />
+                    </div>
+                  )}
                 </button>
               )}
             </Field>
