@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
@@ -91,6 +91,32 @@ export default function SubscribePage() {
   const isAr = i18n.language === "ar";
   const [loadingId, setLoadingId] = useState(null);
   const [error, setError] = useState("");
+  const [currentSub, setCurrentSub] = useState(null);
+  const [subLoading, setSubLoading] = useState(true);
+
+  // Load the signed-in user's active subscription from the DB.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { if (!cancelled) setSubLoading(false); return; }
+        const { data } = await supabase
+          .from("subscriptions")
+          .select("plan,status,trial_ends_at,current_period_end,max_assets,max_stables,billing_cycle,price_sar")
+          .eq("owner_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!cancelled) setCurrentSub(data || null);
+      } catch (e) {
+        console.warn("Failed to load subscription");
+      } finally {
+        if (!cancelled) setSubLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   async function handleSubscribe(plan) {
     setError("");
@@ -135,6 +161,48 @@ export default function SubscribePage() {
           {error}
         </div>
       )}
+
+      {/* Current subscription banner from DB */}
+      {!subLoading && currentSub && (() => {
+        const trialMs = currentSub.trial_ends_at ? new Date(currentSub.trial_ends_at).getTime() - Date.now() : 0;
+        const periodMs = currentSub.current_period_end ? new Date(currentSub.current_period_end).getTime() - Date.now() : 0;
+        const daysLeft = Math.max(0, Math.ceil((currentSub.status === 'trial' ? trialMs : periodMs) / 86400000));
+        const isActive = currentSub.status === 'active';
+        const isTrial = currentSub.status === 'trial';
+        return (
+          <div
+            className="mb-6 rounded-xl px-5 py-4 flex flex-wrap items-center justify-between gap-3"
+            style={{
+              background: isActive ? 'rgba(0,108,53,0.08)' : isTrial ? 'rgba(197,165,90,0.14)' : '#fef2f2',
+              border: `1px solid ${isActive ? 'rgba(0,108,53,0.25)' : isTrial ? 'rgba(197,165,90,0.4)' : '#fecaca'}`,
+            }}
+          >
+            <div className="text-sm">
+              <strong style={{ color: '#006c35' }}>
+                {isAr ? 'باقتك الحالية:' : 'Your current plan:'}
+              </strong>{' '}
+              <span className="font-bold capitalize">{currentSub.plan}</span>
+              <span className="mx-2 opacity-50">·</span>
+              <span style={{ color: isActive ? '#006c35' : isTrial ? '#8a6d2a' : '#991b1b' }}>
+                {isTrial ? (isAr ? 'تجربة مجانية' : 'Free trial')
+                 : isActive ? (isAr ? 'مفعّلة' : 'Active')
+                 : (isAr ? currentSub.status : currentSub.status)}
+              </span>
+              {(isTrial || isActive) && daysLeft > 0 && (
+                <>
+                  <span className="mx-2 opacity-50">·</span>
+                  <span>{isAr ? `يتبقى ${daysLeft} يوماً` : `${daysLeft} days left`}</span>
+                </>
+              )}
+            </div>
+            <div className="text-xs" style={{ color: '#4a5d4a' }}>
+              {isAr
+                ? `حدّ الأصول: ${currentSub.max_assets ?? '—'} · حدّ الإسطبلات: ${currentSub.max_stables ?? '—'}`
+                : `Asset limit: ${currentSub.max_assets ?? '—'} · Stables: ${currentSub.max_stables ?? '—'}`}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="grid md:grid-cols-3 gap-6">
         {PLANS.map((plan) => {
@@ -190,16 +258,23 @@ export default function SubscribePage() {
                 ))}
               </ul>
 
-              <button
-                onClick={() => handleSubscribe(plan)}
-                disabled={loadingId === plan.id}
-                className="w-full py-3 rounded-lg font-bold text-white transition-opacity disabled:opacity-60"
-                style={{ background: plan.accent }}
-              >
-                {loadingId === plan.id
-                  ? (isAr ? "جارِ التحويل..." : "Redirecting...")
-                  : (isAr ? "اشترك الآن" : "Subscribe now")}
-              </button>
+              {(() => {
+                const isCurrent = currentSub?.plan === plan.id && (currentSub?.status === 'active' || currentSub?.status === 'trial');
+                return (
+                  <button
+                    onClick={() => !isCurrent && handleSubscribe(plan)}
+                    disabled={loadingId === plan.id || isCurrent}
+                    className="w-full py-3 rounded-lg font-bold text-white transition-opacity disabled:opacity-70"
+                    style={{ background: isCurrent ? '#7a8d7a' : plan.accent, cursor: isCurrent ? 'default' : 'pointer' }}
+                  >
+                    {isCurrent
+                      ? (isAr ? '✓ باقتك الحالية' : '✓ Your current plan')
+                      : loadingId === plan.id
+                        ? (isAr ? 'جارِ التحويل...' : 'Redirecting...')
+                        : (isAr ? 'اشترك الآن' : 'Subscribe now')}
+                  </button>
+                );
+              })()}
             </div>
           );
         })}
