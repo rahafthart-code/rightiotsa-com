@@ -1,11 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import logoImage from "../assets/logo-transparent.png";
+import PublicPageShell from "../components/PublicPageShell";
 
 export default function TermsConditionsPage() {
-  const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
 
   const sections = i18n.language === 'ar' ? [
     {
@@ -116,110 +115,60 @@ export default function TermsConditionsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src={logoImage} alt="Right Logo" className="h-10 w-auto" style={{ objectFit: 'contain', background: 'transparent' }} />
-          </div>
-          <button
-            onClick={() => navigate('/')}
-            className="text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-sm">{i18n.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}</span>
-          </button>
-        </div>
-      </header>
+    <PublicPageShell
+      title={isAr ? "الشروط والأحكام" : "Terms & Conditions"}
+      subtitle={isAr ? "الشروط القانونية لاستخدام منصة رايت" : "Legal terms for using Right platform"}
+      lastUpdated={isAr ? "آخر تحديث: 9 فبراير 2026" : "Last updated: February 9, 2026"}
+    >
+      <div
+        className="rounded-xl p-5 mb-6"
+        style={{ background: "#fffbeb", border: "1px solid #f0d894" }}
+      >
+        <h3 className="font-bold mb-1" style={{ color: "#a88932" }}>
+          {isAr ? "تنويه قانوني" : "Legal Notice"}
+        </h3>
+        <p className="text-sm" style={{ color: "#4a5d4a" }}>
+          {isAr
+            ? "يرجى قراءة هذه الشروط بعناية قبل استخدام الخدمة. استخدامك للمنصة يعني موافقتك الكاملة على جميع البنود."
+            : "Please read these terms carefully before using the service. Your use of the platform means your full acceptance of all terms."}
+        </p>
+      </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">
-            {i18n.language === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}
-          </h1>
-          <p className="text-slate-400 text-lg">
-            {i18n.language === 'ar' 
-              ? 'الشروط القانونية لاستخدام منصة رايت'
-              : 'Legal terms for using Right platform'
-            }
-          </p>
-          <p className="text-slate-500 text-sm mt-2">
-            {i18n.language === 'ar' ? 'آخر تحديث: 9 فبراير 2026' : 'Last updated: February 9, 2026'}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: "#ffffff", border: "1px solid #e6dcc8", boxShadow: "0 4px 20px rgba(0,108,53,0.06)" }}
+      >
+        <div className="px-6 sm:px-8 py-4" style={{ background: "#006c35" }}>
+          <p className="text-white text-sm">
+            {isAr ? "📜 الشروط والأحكام — منصة رايت للثروة الحيوانية" : "📜 Terms & Conditions — Right Livestock Platform"}
           </p>
         </div>
 
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 mb-8">
-          <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <h3 className="text-yellow-200 font-semibold mb-1">
-                {i18n.language === 'ar' ? 'تنويه قانوني' : 'Legal Notice'}
-              </h3>
-              <p className="text-yellow-300 text-sm">
-                {i18n.language === 'ar' 
-                  ? 'يرجى قراءة هذه الشروط بعناية قبل استخدام الخدمة. استخدامك للمنصة يعني موافقتك الكاملة على جميع البنود.'
-                  : 'Please read these terms carefully before using the service. Your use of the platform means your full acceptance of all terms.'
-                }
+        <div className="p-6 sm:p-8 space-y-6">
+          {sections.map((section, index) => (
+            <div key={index} className="pb-5 last:pb-0" style={{ borderBottom: "1px solid #e6dcc8" }}>
+              <h2 className="text-lg sm:text-xl font-bold mb-2" style={{ color: "#006c35" }}>
+                {section.title}
+              </h2>
+              <p className="text-sm sm:text-base leading-relaxed" style={{ color: "#1a2e1a" }}>
+                {section.content}
               </p>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-4">
-            <p className="text-white text-sm">
-              {i18n.language === 'ar' 
-                ? '📜 الشروط والأحكام - منصة رايت للثروة الحيوانية'
-                : '📜 Terms & Conditions - Right Livestock Platform'
-              }
-            </p>
-          </div>
-
-          <div className="p-8 space-y-8">
-            {sections.map((section, index) => (
-              <div key={index} className="border-b border-slate-700 last:border-0 pb-6 last:pb-0">
-                <h2 className="text-xl font-bold text-blue-400 mb-3">
-                  {section.title}
-                </h2>
-                <p className="text-slate-300 leading-relaxed">
-                  {section.content}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact Section */}
-        <div className="mt-8 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 text-center">
-          <h3 className="text-lg font-semibold text-emerald-200 mb-2">
-            {i18n.language === 'ar' ? 'بحاجة للمساعدة؟' : 'Need Help?'}
-          </h3>
-          <p className="text-emerald-300 text-sm mb-4">
-            {i18n.language === 'ar' 
-              ? 'فريق الدعم متاح على مدار الساعة للإجابة على أسئلتك'
-              : 'Support team is available 24/7 to answer your questions'
-            }
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <a 
-              href="mailto:support@right.app" 
-              className="text-emerald-400 hover:text-emerald-300 transition-colors text-sm"
-            >
-              📧 support@right.app
-            </a>
-            <span className="text-slate-600">|</span>
-            <button className="text-green-400 hover:text-green-300 transition-colors text-sm">
-              💬 {i18n.language === 'ar' ? 'واتساب (24/7)' : 'WhatsApp (24/7)'}
-            </button>
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+
+      <div
+        className="mt-8 rounded-xl p-6 text-center"
+        style={{ background: "#faf6ef", border: "1px dashed #c5a55a" }}
+      >
+        <h3 className="text-lg font-bold mb-2" style={{ color: "#006c35" }}>
+          {isAr ? "بحاجة للمساعدة؟" : "Need Help?"}
+        </h3>
+        <a href="mailto:support@right.app" className="font-bold" style={{ color: "#006c35" }}>
+          📧 support@right.app
+        </a>
+      </div>
+    </PublicPageShell>
   );
 }

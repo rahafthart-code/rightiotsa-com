@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import logoImage from "../assets/logo-transparent.png";
+import PublicPageShell from "../components/PublicPageShell";
 
 export default function FAQPage() {
-  const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const [openIndex, setOpenIndex] = useState(null);
 
   const faqs = i18n.language === 'ar' ? [
@@ -204,111 +203,76 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src={logoImage} alt="Right Logo" className="h-10 w-auto" style={{ objectFit: 'contain', background: 'transparent' }} />
-          </div>
-          <button
-            onClick={() => navigate('/')}
-            className="text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-2"
+    <PublicPageShell
+      title={isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
+      subtitle={isAr ? "إجابات سريعة على الأسئلة الأكثر شيوعاً" : "Quick answers to the most common questions"}
+    >
+      <div className="space-y-6">
+        {faqs.map((category, catIndex) => (
+          <div
+            key={catIndex}
+            className="rounded-2xl overflow-hidden"
+            style={{ background: "#ffffff", border: "1px solid #e6dcc8", boxShadow: "0 4px 20px rgba(0,108,53,0.06)" }}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="text-sm">{i18n.language === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">
-            {i18n.language === 'ar' ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
-          </h1>
-          <p className="text-slate-400 text-lg">
-            {i18n.language === 'ar' 
-              ? 'إجابات سريعة على الأسئلة الأكثر شيوعاً'
-              : 'Quick answers to the most common questions'
-            }
-          </p>
-        </div>
-
-        <div className="space-y-8">
-          {faqs.map((category, catIndex) => (
-            <div key={catIndex} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-3">
-                <h2 className="text-white font-bold text-lg">
-                  {category.category}
-                </h2>
-              </div>
-              
-              <div className="p-6 space-y-3">
-                {category.questions.map((faq, qIndex) => {
-                  const index = `${catIndex}-${qIndex}`;
-                  const isOpen = openIndex === index;
-                  
-                  return (
-                    <div key={qIndex} className="border border-slate-700 rounded-lg overflow-hidden">
-                      <button
-                        onClick={() => toggleQuestion(catIndex, qIndex)}
-                        className="w-full px-6 py-4 flex items-center justify-between bg-slate-900/50 hover:bg-slate-900/80 transition-colors"
-                      >
-                        <span className="text-left text-slate-100 font-medium pr-4">
-                          {faq.question}
-                        </span>
-                        <svg 
-                          className={`w-5 h-5 text-purple-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      
-                      {isOpen && (
-                        <div className="px-6 py-4 bg-slate-950/50 border-t border-slate-700">
-                          <p className="text-slate-300 leading-relaxed">
-                            {faq.answer}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="px-6 py-3" style={{ background: "#006c35" }}>
+              <h2 className="text-white font-bold text-lg">{category.category}</h2>
             </div>
-          ))}
-        </div>
 
-        {/* Still have questions? */}
-        <div className="mt-12 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/30 rounded-xl p-8 text-center">
-          <h3 className="text-2xl font-bold text-slate-100 mb-3">
-            {i18n.language === 'ar' ? 'لم تجد إجابة لسؤالك؟' : "Didn't find an answer?"}
-          </h3>
-          <p className="text-slate-300 mb-6">
-            {i18n.language === 'ar' 
-              ? 'فريق الدعم متاح على مدار الساعة لمساعدتك'
-              : 'Our support team is available 24/7 to help you'
-            }
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <a 
-              href="mailto:support@right.app" 
-              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors font-medium"
-            >
-              📧 {i18n.language === 'ar' ? 'راسلنا' : 'Email Us'}
-            </a>
-            <button className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium">
-              💬 {i18n.language === 'ar' ? 'واتساب' : 'WhatsApp'}
-            </button>
+            <div className="p-4 sm:p-6 space-y-3">
+              {category.questions.map((faq, qIndex) => {
+                const index = `${catIndex}-${qIndex}`;
+                const isOpen = openIndex === index;
+                return (
+                  <div key={qIndex} className="rounded-lg overflow-hidden" style={{ border: "1px solid #e6dcc8" }}>
+                    <button
+                      onClick={() => toggleQuestion(catIndex, qIndex)}
+                      className="w-full px-5 py-3 flex items-center justify-between transition-colors"
+                      style={{ background: "#faf6ef" }}
+                    >
+                      <span className="font-bold text-start" style={{ color: "#006c35" }}>
+                        {faq.question}
+                      </span>
+                      <span
+                        className="flex-shrink-0 transition-transform text-lg font-bold"
+                        style={{ color: "#c5a55a", transform: isOpen ? "rotate(180deg)" : "none" }}
+                      >
+                        ▾
+                      </span>
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-5 py-4" style={{ background: "#ffffff", borderTop: "1px solid #e6dcc8" }}>
+                        <p className="leading-relaxed text-sm sm:text-base" style={{ color: "#1a2e1a" }}>
+                          {faq.answer}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
-    </div>
+
+      <div
+        className="mt-10 rounded-xl p-6 text-center"
+        style={{ background: "#faf6ef", border: "1px dashed #c5a55a" }}
+      >
+        <h3 className="text-xl font-bold mb-2" style={{ color: "#006c35" }}>
+          {isAr ? "لم تجد إجابة لسؤالك؟" : "Didn't find an answer?"}
+        </h3>
+        <p className="text-sm mb-4" style={{ color: "#4a5d4a" }}>
+          {isAr ? "فريق الدعم متاح على مدار الساعة لمساعدتك" : "Our support team is available 24/7 to help you"}
+        </p>
+        <a
+          href="mailto:support@right.app"
+          className="inline-block px-5 py-2.5 rounded-lg font-bold text-white transition-colors"
+          style={{ background: "#006c35" }}
+        >
+          📧 {isAr ? "راسلنا" : "Email Us"}
+        </a>
+      </div>
+    </PublicPageShell>
   );
 }
