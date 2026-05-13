@@ -118,7 +118,7 @@ export default function LiveVitalsChart({ assetId, reading: readingProp, height 
             className="inline-flex items-center gap-1 font-bold"
             style={{ color: "var(--color-danger, #dc2626)" }}
           >
-            <Heart size={12} key={pulseTick} className="animate-ping-slow" />
+            <Heart size={12} key={pulseTick} className="animate-pulse" fill="currentColor" />
             {lastHr} {isAr ? "ن/د" : "bpm"}
           </span>
           <span
