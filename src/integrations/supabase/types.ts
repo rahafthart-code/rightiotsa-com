@@ -336,10 +336,12 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          metadata: Json | null
           owner_id: string
           payment_url: string | null
           plan: string
           provider: string
+          provider_payment_id: string | null
           provider_tran_ref: string | null
           status: string
           subscription_id: string | null
@@ -352,10 +354,12 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          metadata?: Json | null
           owner_id: string
           payment_url?: string | null
           plan: string
           provider?: string
+          provider_payment_id?: string | null
           provider_tran_ref?: string | null
           status?: string
           subscription_id?: string | null
@@ -368,10 +372,12 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          metadata?: Json | null
           owner_id?: string
           payment_url?: string | null
           plan?: string
           provider?: string
+          provider_payment_id?: string | null
           provider_tran_ref?: string | null
           status?: string
           subscription_id?: string | null

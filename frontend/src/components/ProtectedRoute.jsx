@@ -1,25 +1,27 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useSubscription } from '../hooks/useSubscription';
 import { ensureMockUser } from '../utils/mockData';
 
 /**
- * Auth guard. Uses Supabase session via useAuth().
- * Falls back to demo mock user (preview mode) so the dashboard
- * stays accessible without a real login during development.
+ * Auth + subscription guard.
+ *  - Requires a real Supabase session.
+ *  - Requires an active or trial-with-future-end subscription, otherwise → /subscribe.
  */
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { isActive, loading: subLoading } = useSubscription();
 
   // Clear any legacy mock token so /dashboard truly requires auth.
   ensureMockUser();
 
-  if (loading) {
+  if (authLoading || (user && subLoading)) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: 'var(--color-bg-primary, #faf7f0)' }}
+        style={{ background: 'var(--color-bg-primary, #F5F5DC)' }}
       >
         <div
           className="animate-spin h-10 w-10 rounded-full border-4 border-t-transparent"
@@ -30,7 +32,15 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/landing" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Allow access to /subscribe and /payment/success even without an active subscription
+  const path = location.pathname;
+  const isSubscribeFlow = path.startsWith('/subscribe') || path.startsWith('/payment');
+
+  if (!isActive && !isSubscribeFlow) {
+    return <Navigate to="/subscribe" state={{ from: location, reason: 'inactive_subscription' }} replace />;
   }
 
   return children;

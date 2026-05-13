@@ -17,6 +17,9 @@ import SecurityDashboard from "./pages/SecurityDashboard";
 import MfaEnrollPage from "./pages/MfaEnrollPage";
 import MfaRequired from "./pages/MfaRequired";
 import AuthGuard from "./components/AuthGuard";
+import GeofenceBreachToast from "./components/GeofenceBreachToast";
+import SubscribePage from "./pages/SubscribePage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
 // Lazy-load every page so the initial bundle stays small.
 const LandingPage = lazy(() => import("./pages/LandingPage"));
@@ -68,9 +71,9 @@ function useLocalAuth() {
   }
 }
 
+// AdminRoute: thin wrapper around AuthGuard requiring the 'admin' role.
 function AdminRoute({ children }) {
-  ensureMockUser();
-  return children;
+  return <AuthGuard allowedRoles={["admin"]}>{children}</AuthGuard>;
 }
 
 function AppShell({ children }) {
@@ -134,6 +137,8 @@ export default function App() {
           <Route path="/terms" element={<TermsConditionsPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/subscribe" element={<SubscribePage />} />
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/guest/:token" element={<GuestView />} />
           <Route path="/passport/:id" element={<PassportPage />} />
           <Route path="/digital-passport/:id" element={<DigitalPassport />} />
@@ -186,6 +191,7 @@ export default function App() {
       </Suspense>
       <WhatsAppWidget />
       <PushOptInBanner />
+      <GeofenceBreachToast />
     </RootErrorBoundary>
   );
 }
