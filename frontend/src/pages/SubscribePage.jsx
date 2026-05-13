@@ -258,16 +258,23 @@ export default function SubscribePage() {
                 ))}
               </ul>
 
-              <button
-                onClick={() => handleSubscribe(plan)}
-                disabled={loadingId === plan.id}
-                className="w-full py-3 rounded-lg font-bold text-white transition-opacity disabled:opacity-60"
-                style={{ background: plan.accent }}
-              >
-                {loadingId === plan.id
-                  ? (isAr ? "جارِ التحويل..." : "Redirecting...")
-                  : (isAr ? "اشترك الآن" : "Subscribe now")}
-              </button>
+              {(() => {
+                const isCurrent = currentSub?.plan === plan.id && (currentSub?.status === 'active' || currentSub?.status === 'trial');
+                return (
+                  <button
+                    onClick={() => !isCurrent && handleSubscribe(plan)}
+                    disabled={loadingId === plan.id || isCurrent}
+                    className="w-full py-3 rounded-lg font-bold text-white transition-opacity disabled:opacity-70"
+                    style={{ background: isCurrent ? '#7a8d7a' : plan.accent, cursor: isCurrent ? 'default' : 'pointer' }}
+                  >
+                    {isCurrent
+                      ? (isAr ? '✓ باقتك الحالية' : '✓ Your current plan')
+                      : loadingId === plan.id
+                        ? (isAr ? 'جارِ التحويل...' : 'Redirecting...')
+                        : (isAr ? 'اشترك الآن' : 'Subscribe now')}
+                  </button>
+                );
+              })()}
             </div>
           );
         })}
