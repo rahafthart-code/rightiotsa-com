@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import * as api from "../api";
+import { supabase } from "../lib/supabaseClient";
 import logoImage from "../assets/logo-transparent.png";
 import TermsModal from "../components/TermsModal";
 import OrderDeviceModal from "../components/OrderDeviceModal";
@@ -16,7 +17,19 @@ export default function LandingPage() {
   const [showTerms, setShowTerms] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const isLoggedIn = !!localStorage.getItem('access_token');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Real Supabase session check (no more mock-token shortcut).
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!cancelled) setIsLoggedIn(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => { cancelled = true; subscription.unsubscribe(); };
+  }, []);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'ar' ? 'en' : 'ar';

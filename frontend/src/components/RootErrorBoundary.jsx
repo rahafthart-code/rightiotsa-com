@@ -1,8 +1,13 @@
 import React from 'react';
+import { toast } from 'sonner';
 
 /**
- * Root error boundary — replaces the white crash screen with a
- * gold "حدث خطأ" card and a retry button.
+ * Silent root error boundary.
+ *
+ * Per product requirement: do NOT show a full "Unexpected error" page.
+ * Instead, surface the error as a non-blocking toast and render a minimal
+ * cream-themed inline notice with a "Back to home" link, so the user keeps
+ * browsing the site.
  */
 export default class RootErrorBoundary extends React.Component {
   constructor(props) {
@@ -17,12 +22,18 @@ export default class RootErrorBoundary extends React.Component {
   componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
     console.error('[RootErrorBoundary]', error, info);
+    try {
+      toast.error('حدث خلل بسيط — تم تجاهله، يمكنك متابعة التصفح');
+    } catch {
+      /* toast unavailable — ignore */
+    }
   }
 
-  handleRetry = () => {
+  handleHome = () => {
     this.setState({ hasError: false, error: null });
-    // Soft reload to recover lazy chunks etc.
-    if (typeof window !== 'undefined') window.location.reload();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/landing';
+    }
   };
 
   render() {
@@ -32,49 +43,29 @@ export default class RootErrorBoundary extends React.Component {
       <div
         dir="rtl"
         className="min-h-screen flex items-center justify-center px-4"
-        style={{ background: '#090d17', color: '#fff', fontFamily: "'Cairo', sans-serif" }}
+        style={{
+          background: '#F5F5DC',
+          color: '#006c35',
+          fontFamily: "'Cairo', 'Tajawal', sans-serif",
+        }}
       >
         <div
-          className="w-full max-w-md rounded-2xl p-8 text-center shadow-2xl"
+          className="w-full max-w-md rounded-2xl p-6 text-center"
           style={{
-            background: 'linear-gradient(135deg, #1a1f2e 0%, #0f1320 100%)',
-            border: '2px solid #c5a55a',
-            boxShadow: '0 20px 60px rgba(197,165,90,0.25)',
+            background: '#ffffff',
+            border: '1px solid #e6dcc8',
+            boxShadow: '0 6px 20px rgba(0,108,53,0.08)',
           }}
         >
-          <div
-            className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center text-3xl"
-            style={{ background: 'rgba(197,165,90,0.15)', border: '1px solid #c5a55a' }}
-          >
-            ⚠️
-          </div>
-          <h1
-            className="text-2xl font-extrabold mb-2"
-            style={{ color: '#c5a55a', fontFamily: "'Amiri', 'Playfair Display', serif" }}
-          >
-            حدث خطأ
-          </h1>
-          <p className="text-sm opacity-80 mb-6 leading-relaxed">
-            عذراً، حدث خطأ غير متوقع أثناء تشغيل التطبيق. يمكنك المحاولة مرة أخرى.
+          <p className="text-sm mb-4 leading-relaxed" style={{ color: '#4a5d4a' }}>
+            تعذّر تحميل هذا الجزء من الصفحة. يمكنك العودة للصفحة الرئيسية ومتابعة التصفح بشكل طبيعي.
           </p>
-          {this.state.error?.message && (
-            <pre
-              className="text-[11px] text-left rtl:text-right mb-6 p-3 rounded-lg overflow-auto max-h-24 opacity-60"
-              style={{ background: 'rgba(0,0,0,0.4)', color: '#c5a55a', direction: 'ltr' }}
-            >
-              {String(this.state.error.message)}
-            </pre>
-          )}
           <button
-            onClick={this.handleRetry}
-            className="w-full py-3 rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            style={{
-              background: 'linear-gradient(135deg, #c5a55a 0%, #b8924a 100%)',
-              color: '#090d17',
-              boxShadow: '0 6px 20px rgba(197,165,90,0.4)',
-            }}
+            onClick={this.handleHome}
+            className="px-5 py-2.5 rounded-xl font-bold transition-transform hover:scale-[1.02]"
+            style={{ background: '#006c35', color: '#ffffff' }}
           >
-            إعادة المحاولة
+            العودة للرئيسية
           </button>
         </div>
       </div>
