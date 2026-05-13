@@ -8,6 +8,8 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { useLatestReading } from '../hooks/useLatestReading';
 import logoImage from '../assets/logo-transparent.png';
+import { exportAssetPassportPDF } from '../utils/passportPdf';
+import { toast } from 'sonner';
 
 /**
  * Asset Passport — identity, live vitals, and 30-day stability history chart.
@@ -24,8 +26,23 @@ export default function AssetPassport() {
   const [snapshots, setSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const reading = useLatestReading(id);
+
+  const handleExportPDF = async () => {
+    if (!asset) return;
+    setExporting(true);
+    try {
+      await exportAssetPassportPDF({ asset, passport });
+      toast.success(isAr ? 'تم تصدير الجواز الرقمي' : 'Digital passport exported');
+    } catch (e) {
+      console.error(e);
+      toast.error(isAr ? 'تعذّر تصدير الملف' : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -167,16 +184,29 @@ export default function AssetPassport() {
               </div>
             </div>
           </div>
-          <span
-            className="px-3 py-1 rounded-full text-[11px] font-bold text-white"
-            style={{ background: statusColor }}
-          >
-            {asset.status === 'danger'
-              ? (isAr ? 'خطر' : 'Danger')
-              : asset.status === 'warning'
-              ? (isAr ? 'تحذير' : 'Warning')
-              : (isAr ? 'مستقر' : 'Stable')}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportPDF}
+              disabled={exporting}
+              className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition disabled:opacity-60"
+              style={{ background: '#c5a55a', border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              {exporting
+                ? (isAr ? '...جارٍ التصدير' : 'Exporting...')
+                : (isAr ? '⬇ تصدير الجواز الرقمي (PDF)' : '⬇ Export Digital Passport')}
+            </button>
+            <span
+              className="px-3 py-1 rounded-full text-[11px] font-bold text-white"
+              style={{ background: statusColor }}
+            >
+              {asset.status === 'danger'
+                ? (isAr ? 'خطر' : 'Danger')
+                : asset.status === 'warning'
+                ? (isAr ? 'تحذير' : 'Warning')
+                : (isAr ? 'مستقر' : 'Stable')}
+            </span>
+          </div>
         </div>
       </header>
 

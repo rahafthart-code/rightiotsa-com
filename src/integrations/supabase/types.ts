@@ -243,6 +243,39 @@ export type Database = {
           },
         ]
       }
+      edge_function_errors: {
+        Row: {
+          context: Json | null
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          function_name: string
+          id: number
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          function_name: string
+          id?: number
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          function_name?: string
+          id?: number
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       iot_webhook_events: {
         Row: {
           asset_id: string | null
@@ -1018,6 +1051,23 @@ export type Database = {
           env_pct: number
           stability: number
           vital_pct: number
+        }[]
+      }
+      get_public_asset_verify: {
+        Args: { _asset_id: string }
+        Returns: {
+          birth_date: string
+          bloodline: string
+          expires_at: string
+          id: string
+          issued_at: string
+          issuing_authority: string
+          microchip_id: string
+          name: string
+          passport_no: string
+          registered_at: string
+          registration_no: string
+          species: string
         }[]
       }
       has_role: {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Users, Cpu, CreditCard, BarChart3, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { Users, Cpu, CreditCard, BarChart3, Settings, LogOut, ShieldAlert, Activity } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import logoImage from '../assets/logo-transparent.png';
 import {
@@ -12,6 +12,7 @@ const NAV = [
   { to: '/admin/customers', label: 'العملاء', icon: Users },
   { to: '/admin/devices', label: 'الأجهزة', icon: Cpu },
   { to: '/admin/subscriptions', label: 'الاشتراكات', icon: CreditCard },
+  { to: '/admin/system', label: 'حالة النظام', icon: Activity },
   { to: '/admin/reports', label: 'التقارير', icon: BarChart3 },
   { to: '/admin/settings', label: 'الإعدادات', icon: Settings },
 ];

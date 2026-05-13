@@ -55,6 +55,8 @@ const AdminCustomersPage = lazy(() => import("./admin/pages/CustomersPage"));
 const AdminDevicesPage = lazy(() => import("./admin/pages/DevicesPage"));
 const AdminSubscriptionsPage = lazy(() => import("./admin/pages/SubscriptionsPage"));
 const AdminPlaceholderPage = lazy(() => import("./admin/pages/PlaceholderPage"));
+const AdminSystemHealthPage = lazy(() => import("./admin/pages/SystemHealthPage"));
+const VerifyAssetPage = lazy(() => import("./pages/VerifyAssetPage"));
 
 // Preview/demo mode: seed a mock session so the dashboard remains accessible
 // without a real login during development. Real auth still works via /login.
@@ -142,6 +144,7 @@ export default function App() {
           <Route path="/guest/:token" element={<GuestView />} />
           <Route path="/passport/:id" element={<PassportPage />} />
           <Route path="/digital-passport/:id" element={<DigitalPassport />} />
+          <Route path="/verify/:id" element={<VerifyAssetPage />} />
 
           {/* /dashboard uses its own dark layout (with embedded sidebar) */}
           <Route path="/dashboard" element={<ProtectedRoute><OwnerDashboardDark /></ProtectedRoute>} />
@@ -182,6 +185,7 @@ export default function App() {
             <Route path="customers" element={<AdminCustomersPage />} />
             <Route path="devices" element={<AdminDevicesPage />} />
             <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+            <Route path="system" element={<AdminSystemHealthPage />} />
             <Route path="reports" element={<AdminPlaceholderPage title="التقارير" subtitle="تقارير تفصيلية للعملاء والاشتراكات والأجهزة." />} />
             <Route path="settings" element={<AdminPlaceholderPage title="الإعدادات" subtitle="إعدادات لوحة الإدارة." />} />
           </Route>
