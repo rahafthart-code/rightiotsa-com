@@ -12,9 +12,8 @@ export default function ProtectedRoute({ children }) {
   const location = useLocation();
   const { user, loading } = useAuth();
 
-  // Demo mode fallback: if Supabase has no session, accept the mock user.
+  // Clear any legacy mock token so /dashboard truly requires auth.
   ensureMockUser();
-  const hasMockUser = !!localStorage.getItem('user');
 
   if (loading) {
     return (
@@ -30,8 +29,8 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!user && !hasMockUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!user) {
+    return <Navigate to="/landing" state={{ from: location }} replace />;
   }
 
   return children;

@@ -63,9 +63,8 @@ export default function AuthGuard({
     error: null,
   });
 
-  // Demo fallback so previews still work without a real session.
+  // Clear any legacy mock token; real Supabase session is required.
   ensureMockUser();
-  const hasMockUser = !!localStorage.getItem("user");
 
   useEffect(() => {
     let cancelled = false;
@@ -143,11 +142,6 @@ export default function AuthGuard({
       const ok = state.roles.some((r) => allowedRoles.includes(r));
       if (!ok) return <Navigate to="/dashboard" replace />;
     }
-    return children;
-  }
-
-  // Demo / preview fallback (no MFA / no real role enforcement).
-  if (hasMockUser && !requireMfa && !allowedRoles) {
     return children;
   }
 

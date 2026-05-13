@@ -96,14 +96,21 @@ export const MOCK_PLANS = [
   },
 ];
 
+// Auth bypass disabled: /dashboard now requires a real Supabase session.
+// We also clear any previously-seeded mock token so old previews don't auto-login.
 export function ensureMockUser() {
-  if (!localStorage.getItem("user")) {
-    localStorage.setItem("user", JSON.stringify(MOCK_USER));
-  }
-  if (!localStorage.getItem("access_token")) {
-    localStorage.setItem("access_token", "mock-preview-token");
-  }
-  if (!localStorage.getItem("dataAgreementAccepted")) {
-    localStorage.setItem("dataAgreementAccepted", "true");
+  try {
+    const u = localStorage.getItem("user");
+    if (u) {
+      const parsed = JSON.parse(u);
+      if (parsed?.email === MOCK_USER.email) {
+        localStorage.removeItem("user");
+      }
+    }
+    if (localStorage.getItem("access_token") === "mock-preview-token") {
+      localStorage.removeItem("access_token");
+    }
+  } catch {
+    // ignore
   }
 }
