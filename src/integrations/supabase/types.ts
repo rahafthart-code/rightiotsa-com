@@ -83,13 +83,6 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "asset_passports_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: true
-            referencedRelation: "public_asset_verify"
-            referencedColumns: ["id"]
-          },
         ]
       }
       assets: {
@@ -248,13 +241,6 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "devices_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
-            referencedColumns: ["id"]
-          },
         ]
       }
       edge_function_errors: {
@@ -372,13 +358,6 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notifications_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
             referencedColumns: ["id"]
           },
         ]
@@ -611,13 +590,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sensor_devices_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "sensor_devices_stable_id_fkey"
             columns: ["stable_id"]
             isOneToOne: false
@@ -715,13 +687,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sensor_readings_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "sensor_readings_device_id_fkey"
             columns: ["device_id"]
             isOneToOne: false
@@ -771,13 +736,6 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "stability_snapshots_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
             referencedColumns: ["id"]
           },
         ]
@@ -983,13 +941,6 @@ export type Database = {
             referencedRelation: "assets"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "devices_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "public_asset_verify"
-            referencedColumns: ["id"]
-          },
         ]
       }
       profiles_safe: {
@@ -1022,23 +973,6 @@ export type Database = {
           last_seen_at?: string | null
           updated_at?: string | null
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      public_asset_verify: {
-        Row: {
-          birth_date: string | null
-          bloodline: string | null
-          expires_at: string | null
-          id: string | null
-          issued_at: string | null
-          issuing_authority: string | null
-          microchip_id: string | null
-          name: string | null
-          passport_no: string | null
-          registered_at: string | null
-          registration_no: string | null
-          species: string | null
         }
         Relationships: []
       }
@@ -1117,6 +1051,23 @@ export type Database = {
           env_pct: number
           stability: number
           vital_pct: number
+        }[]
+      }
+      get_public_asset_verify: {
+        Args: { _asset_id: string }
+        Returns: {
+          birth_date: string
+          bloodline: string
+          expires_at: string
+          id: string
+          issued_at: string
+          issuing_authority: string
+          microchip_id: string
+          name: string
+          passport_no: string
+          registered_at: string
+          registration_no: string
+          species: string
         }[]
       }
       has_role: {
