@@ -181,7 +181,11 @@ export default function AddAsset() {
       );
       navigate(`/asset/${asset.id}`, { replace: true });
     } catch (e) {
-      toast.error((isAr ? 'حدث خطأ أثناء الحفظ: ' : 'Save failed: ') + (e?.message || ''));
+      const friendly = handleInsertError(e);
+      toast.error((isAr ? 'حدث خطأ أثناء الحفظ: ' : 'Save failed: ') + friendly);
+      if (typeof e?.message === 'string' && e.message.includes('LIMIT_REACHED')) {
+        navigate('/subscribe?upgrade=true&reason=asset_limit');
+      }
     } finally {
       setLoading(false);
     }
