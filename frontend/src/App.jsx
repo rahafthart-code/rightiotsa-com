@@ -91,7 +91,7 @@ function AppShell({ children }) {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+    <div className="min-h-screen bg-[#F5F5DC] text-[#006c35] font-cairo" style={{ background: "#F5F5DC", color: "#006c35", fontFamily: "Cairo, Tajawal, sans-serif" }}>
       <header className="sticky top-0 z-20 shadow-sm" style={{ background: "var(--color-royal-green)", borderBottom: "3px solid var(--color-desert-gold)" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/login")}>
