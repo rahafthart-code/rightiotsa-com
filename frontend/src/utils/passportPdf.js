@@ -61,7 +61,7 @@ export async function exportAssetPassportPDF({ asset, passport }) {
     fetchOwner(asset.owner_id),
     fetchLatestVitals(asset.id),
     fetchSubscription(asset.owner_id),
-    QRCode.toDataURL(`${VERIFY_BASE}/${asset.id}`, { width: 240, margin: 1 }),
+    QRCode.toDataURL(`${VERIFY_BASE}/${asset.id}`, { width: 600, margin: 1, errorCorrectionLevel: "H" }),
     loadImageDataUrl(asset.image_url),
   ]);
 
