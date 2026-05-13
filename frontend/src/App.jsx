@@ -112,8 +112,8 @@ function AppShell({ children }) {
 }
 
 function RootRedirect() {
-  const { isAuthenticated } = useLocalAuth();
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
+  // Always show the landing page first when opening the site root.
+  return <Navigate to="/landing" replace />;
 }
 
 export default function App() {
@@ -181,7 +181,7 @@ export default function App() {
             <Route path="settings" element={<AdminPlaceholderPage title="الإعدادات" subtitle="إعدادات لوحة الإدارة." />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
       </Suspense>
       <WhatsAppWidget />
