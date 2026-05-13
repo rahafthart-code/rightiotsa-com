@@ -109,8 +109,8 @@ export default function SubscribePage() {
         window.location.href = data.payment_url;
       } else if (data?.requires_setup) {
         setError(isAr
-          ? "بوابة الدفع لم يتم إعدادها بعد. تواصل مع الدعم."
-          : "Payment provider is not configured yet. Please contact support.");
+          ? "بوابة الدفع (Edfapay) قيد الربط النهائي وستتاح قريباً. تواصل معنا عبر الواتساب لتفعيل اشتراكك يدوياً."
+          : "Edfapay gateway is being finalized and will be available shortly. Contact us on WhatsApp to activate your subscription manually.");
       } else {
         throw new Error(data?.error || "Unknown error");
       }
@@ -207,8 +207,8 @@ export default function SubscribePage() {
 
       <p className="text-center mt-8 text-sm" style={{ color: "#7a8d7a" }}>
         {isAr
-          ? "جميع الأسعار شاملة الضريبة. الدفع مؤمَّن بواسطة Moyasar."
-          : "All prices include VAT. Payments secured by Moyasar."}
+          ? "جميع الأسعار شاملة الضريبة. الدفع مؤمَّن عبر بوابة Edfapay (قريباً)."
+          : "All prices include VAT. Secured payments via Edfapay (coming soon)."}
       </p>
     </PublicPageShell>
   );
