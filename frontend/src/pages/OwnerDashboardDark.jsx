@@ -39,6 +39,7 @@ export default function OwnerDashboardDark() {
   const { assets, loading, portfolioIndex, dangerCount, warningCount, stableCount } =
     useAssets(ownerId);
   const { unreadCount } = useNotifications(ownerId);
+  const { usage, guardAddAsset } = useSubscriptionGuard(ownerId);
 
   // Track which asset ids just changed → trigger flash animation
   const [flashIds, setFlashIds] = useState(new Set());
