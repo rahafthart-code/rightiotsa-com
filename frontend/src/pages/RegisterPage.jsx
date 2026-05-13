@@ -253,7 +253,7 @@ export default function RegisterPage() {
 
           {/* Step 1: Registration Form */}
           {step === "register" && (
-            <form onSubmit={handleRequestOtp} className="space-y-5">
+            <form onSubmit={handleRequestOtp} className="std-form space-y-5">
               {/* Full Name */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -495,7 +495,7 @@ export default function RegisterPage() {
 
           {/* Step 2: Verification */}
           {step === "verify" && (
-            <form onSubmit={handleVerifyOtp} className="space-y-5">
+            <form onSubmit={handleVerifyOtp} className="std-form space-y-5">
               {/* Code Sent Message */}
               <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 mb-6">
                 <p className="text-sm text-emerald-300 text-center">

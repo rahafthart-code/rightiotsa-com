@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationPanel from './NotificationPanel';
+import GlobalDangerOverlay from './GlobalDangerOverlay';
 import logoImage from '../assets/logo-transparent.png';
 
 /**
@@ -277,6 +278,9 @@ export default function ProtectedLayout() {
         onMarkRead={markRead}
         onMarkAllRead={markAllRead}
       />
+
+      {/* Global full-screen danger overlay (any route) */}
+      <GlobalDangerOverlay />
     </div>
   );
 }

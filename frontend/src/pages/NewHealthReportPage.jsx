@@ -78,7 +78,7 @@ export default function NewHealthReportPage() {
 
       <form
         onSubmit={handleSave}
-        className="rounded-2xl p-5 space-y-4 shadow-sm"
+        className="std-form rounded-2xl p-5 space-y-4 shadow-sm"
         style={{ background: '#fff', border: '1px solid rgba(197,165,90,0.3)' }}
       >
         <Field label={isAr ? 'الأصل' : 'Asset'}>

@@ -211,3 +211,78 @@ input[type="range"]::-moz-range-thumb {
 .animate-pulse-ring {
   animation: pulse-ring 1.5s ease-in-out infinite;
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Standard Form (per ui_screens spec) — Saudi Royal Green theme.
+   Wrap any form in `.std-form` to apply consistent input styling.
+   Inputs inside auto-pick the standard style.
+   ───────────────────────────────────────────────────────────────── */
+.std-form {
+  --sf-bg: #ffffff;
+  --sf-border: rgba(0, 108, 53, 0.18);
+  --sf-border-focus: var(--color-royal-green, #006c35);
+  --sf-text: #1a1a1a;
+  --sf-muted: #6b6b6b;
+  --sf-gold: var(--color-desert-gold, #c5a55a);
+  font-family: var(--font-sans, 'Cairo', 'Tajawal', sans-serif);
+}
+.std-form .std-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.std-form .std-label {
+  font-size: 12px; font-weight: 700; color: var(--color-royal-green, #006c35);
+  letter-spacing: 0.2px;
+}
+.std-form .std-hint { font-size: 11px; color: var(--sf-muted); }
+.std-form input[type="text"],
+.std-form input[type="email"],
+.std-form input[type="tel"],
+.std-form input[type="password"],
+.std-form input[type="number"],
+.std-form input[type="search"],
+.std-form input[type="url"],
+.std-form input[type="date"],
+.std-form select,
+.std-form textarea,
+.std-form .std-input {
+  width: 100%;
+  background: var(--sf-bg);
+  color: var(--sf-text);
+  border: 1px solid var(--sf-border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.std-form input::placeholder,
+.std-form textarea::placeholder { color: var(--sf-muted); opacity: 0.85; }
+.std-form input:focus,
+.std-form select:focus,
+.std-form textarea:focus,
+.std-form .std-input:focus {
+  border-color: var(--sf-border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 108, 53, 0.12);
+}
+.std-form .std-error { font-size: 11px; color: #b91c1c; margin-top: 4px; }
+.std-form .std-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 18px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  border: none; transition: transform 0.1s, opacity 0.15s, background 0.15s;
+}
+.std-form .std-btn-primary {
+  background: linear-gradient(135deg, var(--color-royal-green, #006c35), var(--color-royal-green-dark, #004d25));
+  color: #fff;
+}
+.std-form .std-btn-primary:hover { opacity: 0.92; }
+.std-form .std-btn-gold {
+  background: var(--sf-gold); color: #2a1f00;
+}
+.std-form .std-btn-ghost {
+  background: transparent; color: var(--color-royal-green, #006c35);
+  border: 1px solid var(--sf-border);
+}
+.std-form .std-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+[dir="rtl"] .std-form input,
+[dir="rtl"] .std-form textarea,
+[dir="rtl"] .std-form select { text-align: right; }

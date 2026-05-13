@@ -36,6 +36,7 @@ export default function AddAsset() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadPct, setUploadPct] = useState(0);
   const [testStatus, setTestStatus] = useState('idle'); // idle | testing | success | fail
   const fileInputRef = useRef(null);
 
@@ -57,11 +58,11 @@ export default function AddAsset() {
     (step === 3) || // sensor optional
     step === 4;
 
-  /* ── Step 2: photo upload to asset-images bucket (original + thumbnail) ── */
+  /* ── Step 2: photo upload to Cloudinary (auto w_400,c_fill thumbnail) ── */
   const handlePhoto = async (file) => {
     if (!file || !ownerId) return;
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error(isAr ? 'الحد الأقصى 8 ميجابايت' : 'Max file size is 8MB');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(isAr ? 'الحد الأقصى 10 ميجابايت' : 'Max file size is 10MB');
       return;
     }
     if (!/^image\//.test(file.type)) {
@@ -69,40 +70,21 @@ export default function AddAsset() {
       return;
     }
     setUploading(true);
+    setUploadPct(0);
     try {
-      const { makeThumbnail } = await import('../utils/imageResize');
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const path = `${ownerId}/${stamp}.${ext}`;
-      const thumbPath = `${ownerId}/thumbs/${stamp}.jpg`;
-
-      const { error: upErr } = await supabase.storage
-        .from('asset-images')
-        .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-      if (upErr) throw upErr;
-      const { data: { publicUrl } } = supabase.storage
-        .from('asset-images').getPublicUrl(path);
-
-      // Generate + upload 400px thumbnail (best-effort, never blocks save)
-      let thumbUrl = null;
-      try {
-        const thumbBlob = await makeThumbnail(file, { maxWidth: 400, quality: 0.78 });
-        if (thumbBlob) {
-          const { error: tErr } = await supabase.storage
-            .from('asset-images')
-            .upload(thumbPath, thumbBlob, { cacheControl: '86400', upsert: false, contentType: 'image/jpeg' });
-          if (!tErr) {
-            thumbUrl = supabase.storage.from('asset-images').getPublicUrl(thumbPath).data.publicUrl;
-          }
-        }
-      } catch { /* fallback to full image */ }
-
-      set({ photo_url: publicUrl, thumb_url: thumbUrl || publicUrl });
+      const { uploadToCloudinary } = await import('../lib/cloudinary');
+      const result = await uploadToCloudinary(file, (pct) => setUploadPct(pct));
+      set({
+        photo_url: result.url,
+        thumb_url: result.thumbnailUrl,
+        cloudinary_id: result.publicId,
+      });
       toast.success(isAr ? 'تم رفع الصورة' : 'Photo uploaded');
     } catch (e) {
       toast.error((isAr ? 'فشل رفع الصورة: ' : 'Photo upload failed: ') + (e?.message || ''));
     } finally {
       setUploading(false);
+      setUploadPct(0);
     }
   };
 
@@ -342,12 +324,20 @@ export default function AddAsset() {
                   )}
                   <span className="text-sm font-bold">
                     {uploading
-                      ? (isAr ? 'جارٍ الرفع...' : 'Uploading...')
+                      ? (isAr ? `جارٍ الرفع... ${uploadPct}%` : `Uploading... ${uploadPct}%`)
                       : (isAr ? 'ارفع صورة الأصل' : 'Upload asset photo')}
                   </span>
                   <span className="text-[11px]" style={{ color: '#6b6b6b' }}>
-                    {isAr ? 'JPG/PNG حتى 8MB' : 'JPG/PNG up to 8MB'}
+                    {isAr ? 'JPG/PNG حتى 10MB' : 'JPG/PNG up to 10MB'}
                   </span>
+                  {uploading && (
+                    <div className="w-3/4 h-1.5 mt-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,108,53,0.15)' }}>
+                      <div
+                        className="h-full transition-all duration-200"
+                        style={{ width: `${uploadPct}%`, background: 'var(--color-desert-gold, #c5a55a)' }}
+                      />
+                    </div>
+                  )}
                 </button>
               )}
             </Field>
