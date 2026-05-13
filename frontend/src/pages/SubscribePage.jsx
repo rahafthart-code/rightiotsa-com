@@ -162,6 +162,48 @@ export default function SubscribePage() {
         </div>
       )}
 
+      {/* Current subscription banner from DB */}
+      {!subLoading && currentSub && (() => {
+        const trialMs = currentSub.trial_ends_at ? new Date(currentSub.trial_ends_at).getTime() - Date.now() : 0;
+        const periodMs = currentSub.current_period_end ? new Date(currentSub.current_period_end).getTime() - Date.now() : 0;
+        const daysLeft = Math.max(0, Math.ceil((currentSub.status === 'trial' ? trialMs : periodMs) / 86400000));
+        const isActive = currentSub.status === 'active';
+        const isTrial = currentSub.status === 'trial';
+        return (
+          <div
+            className="mb-6 rounded-xl px-5 py-4 flex flex-wrap items-center justify-between gap-3"
+            style={{
+              background: isActive ? 'rgba(0,108,53,0.08)' : isTrial ? 'rgba(197,165,90,0.14)' : '#fef2f2',
+              border: `1px solid ${isActive ? 'rgba(0,108,53,0.25)' : isTrial ? 'rgba(197,165,90,0.4)' : '#fecaca'}`,
+            }}
+          >
+            <div className="text-sm">
+              <strong style={{ color: '#006c35' }}>
+                {isAr ? 'باقتك الحالية:' : 'Your current plan:'}
+              </strong>{' '}
+              <span className="font-bold capitalize">{currentSub.plan}</span>
+              <span className="mx-2 opacity-50">·</span>
+              <span style={{ color: isActive ? '#006c35' : isTrial ? '#8a6d2a' : '#991b1b' }}>
+                {isTrial ? (isAr ? 'تجربة مجانية' : 'Free trial')
+                 : isActive ? (isAr ? 'مفعّلة' : 'Active')
+                 : (isAr ? currentSub.status : currentSub.status)}
+              </span>
+              {(isTrial || isActive) && daysLeft > 0 && (
+                <>
+                  <span className="mx-2 opacity-50">·</span>
+                  <span>{isAr ? `يتبقى ${daysLeft} يوماً` : `${daysLeft} days left`}</span>
+                </>
+              )}
+            </div>
+            <div className="text-xs" style={{ color: '#4a5d4a' }}>
+              {isAr
+                ? `حدّ الأصول: ${currentSub.max_assets ?? '—'} · حدّ الإسطبلات: ${currentSub.max_stables ?? '—'}`
+                : `Asset limit: ${currentSub.max_assets ?? '—'} · Stables: ${currentSub.max_stables ?? '—'}`}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="grid md:grid-cols-3 gap-6">
         {PLANS.map((plan) => {
           const isPopular = plan.badge?.startsWith("ar:");
