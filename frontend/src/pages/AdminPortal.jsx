@@ -110,7 +110,7 @@ export default function AdminPortal() {
           <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wide mb-3">
             {t('addNewUser')}
           </h2>
-          <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
+          <form onSubmit={handleCreateUser} className="std-form space-y-3 text-xs">
             <div>
               <label className="block mb-1 text-slate-300">{t('fullName')}</label>
               <input
@@ -166,7 +166,7 @@ export default function AdminPortal() {
           <h2 className="text-xs font-semibold text-slate-200 uppercase tracking-wide mb-3">
             {t('registerDeviceAnimal')}
           </h2>
-          <form onSubmit={handleRegisterDevice} className="space-y-3 text-xs">
+          <form onSubmit={handleRegisterDevice} className="std-form space-y-3 text-xs">
             <div>
               <label className="block mb-1 text-slate-300">{t('ownerEmail')}</label>
               <input

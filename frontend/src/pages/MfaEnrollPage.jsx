@@ -115,7 +115,7 @@ export default function MfaEnrollPage() {
               </div>
             )}
 
-            <form onSubmit={verify} className="space-y-3">
+            <form onSubmit={verify} className="std-form space-y-3">
               <input
                 type="text" inputMode="numeric" maxLength={6}
                 value={code}

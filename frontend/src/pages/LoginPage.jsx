@@ -219,7 +219,7 @@ export default function LoginPage() {
         )}
 
         {step === "phone" && (
-          <form onSubmit={handleRequestOtp} className="space-y-4">
+          <form onSubmit={handleRequestOtp} className="std-form space-y-4">
             <label className="block text-sm font-bold" style={{ color: "#006c35" }}>
               {isAr ? "رقم الجوال" : "Mobile number"}
             </label>
