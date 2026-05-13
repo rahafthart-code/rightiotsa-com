@@ -11,13 +11,19 @@ import PageSkeleton from "./components/PageSkeleton";
 import ConnectionStatusBanner from "./components/ConnectionStatusBanner";
 import { ensureMockUser } from "./utils/mockData";
 
+// Direct imports for critical / recently-added pages to guarantee they land in the main bundle.
+import CheckoutPage from "./pages/CheckoutPage";
+import SecurityDashboard from "./pages/SecurityDashboard";
+import MfaEnrollPage from "./pages/MfaEnrollPage";
+import MfaRequired from "./pages/MfaRequired";
+import AuthGuard from "./components/AuthGuard";
+
 // Lazy-load every page so the initial bundle stays small.
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AdminPortal = lazy(() => import("./pages/AdminPortal"));
-const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
