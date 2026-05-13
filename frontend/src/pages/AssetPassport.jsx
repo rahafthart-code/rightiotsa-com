@@ -8,6 +8,8 @@ import {
 import { supabase } from '../lib/supabaseClient';
 import { useLatestReading } from '../hooks/useLatestReading';
 import logoImage from '../assets/logo-transparent.png';
+import { exportAssetPassportPDF } from '../utils/passportPdf';
+import { toast } from 'sonner';
 
 /**
  * Asset Passport — identity, live vitals, and 30-day stability history chart.
