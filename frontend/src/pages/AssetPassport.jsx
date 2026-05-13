@@ -184,16 +184,29 @@ export default function AssetPassport() {
               </div>
             </div>
           </div>
-          <span
-            className="px-3 py-1 rounded-full text-[11px] font-bold text-white"
-            style={{ background: statusColor }}
-          >
-            {asset.status === 'danger'
-              ? (isAr ? 'خطر' : 'Danger')
-              : asset.status === 'warning'
-              ? (isAr ? 'تحذير' : 'Warning')
-              : (isAr ? 'مستقر' : 'Stable')}
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleExportPDF}
+              disabled={exporting}
+              className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-white transition disabled:opacity-60"
+              style={{ background: '#c5a55a', border: '1px solid rgba(255,255,255,0.25)' }}
+            >
+              {exporting
+                ? (isAr ? '...جارٍ التصدير' : 'Exporting...')
+                : (isAr ? '⬇ تصدير الجواز الرقمي (PDF)' : '⬇ Export Digital Passport')}
+            </button>
+            <span
+              className="px-3 py-1 rounded-full text-[11px] font-bold text-white"
+              style={{ background: statusColor }}
+            >
+              {asset.status === 'danger'
+                ? (isAr ? 'خطر' : 'Danger')
+                : asset.status === 'warning'
+                ? (isAr ? 'تحذير' : 'Warning')
+                : (isAr ? 'مستقر' : 'Stable')}
+            </span>
+          </div>
         </div>
       </header>
 
