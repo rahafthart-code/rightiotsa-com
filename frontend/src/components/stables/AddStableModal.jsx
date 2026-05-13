@@ -44,6 +44,38 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
     if (!name.trim()) return;
     setSaving(true);
     setError(null);
+
+    // Plan-limit guard: refuse if owner has hit max_stables
+    try {
+      if (ownerId) {
+        const [subRes, countRes] = await Promise.all([
+          supabase
+            .from('subscriptions')
+            .select('max_stables')
+            .eq('owner_id', ownerId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from('stables')
+            .select('id', { count: 'exact', head: true })
+            .eq('owner_id', ownerId)
+            .eq('is_active', true),
+        ]);
+        const max = subRes.data?.max_stables ?? 1;
+        const current = countRes.count ?? 0;
+        if (current >= max) {
+          setSaving(false);
+          setError(
+            isAr
+              ? 'لقد وصلت للحد الأقصى المسموح به في باقتك، يرجى الترقية لإضافة المزيد'
+              : 'You have reached your plan limit. Please upgrade to add more.'
+          );
+          return;
+        }
+      }
+    } catch (_) { /* non-fatal — fall through to insert */ }
+
     const payload = {
       name: name.trim(),
       icon,
