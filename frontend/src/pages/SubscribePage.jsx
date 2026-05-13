@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabaseClient";
@@ -91,6 +91,32 @@ export default function SubscribePage() {
   const isAr = i18n.language === "ar";
   const [loadingId, setLoadingId] = useState(null);
   const [error, setError] = useState("");
+  const [currentSub, setCurrentSub] = useState(null);
+  const [subLoading, setSubLoading] = useState(true);
+
+  // Load the signed-in user's active subscription from the DB.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { if (!cancelled) setSubLoading(false); return; }
+        const { data } = await supabase
+          .from("subscriptions")
+          .select("plan,status,trial_ends_at,current_period_end,max_assets,max_stables,billing_cycle,price_sar")
+          .eq("owner_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!cancelled) setCurrentSub(data || null);
+      } catch (e) {
+        console.warn("Failed to load subscription");
+      } finally {
+        if (!cancelled) setSubLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   async function handleSubscribe(plan) {
     setError("");
