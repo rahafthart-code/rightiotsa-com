@@ -36,6 +36,7 @@ export default function AddAsset() {
   }
 
   const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets } = usePlanLimits(ownerId);
+  const { handleInsertError } = useSubscriptionGuard(ownerId);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
