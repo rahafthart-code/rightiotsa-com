@@ -213,12 +213,15 @@ export default function OwnerDashboardDark() {
               </div>
             </section>
 
+            {/* Plan usage */}
+            {usage && <UsageBar usage={usage} dark isAr />}
+
             {/* Assets */}
             <section>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base font-bold" style={{ color: GOLD }}>أصولي</h2>
                 <button
-                  onClick={() => navigate('/onboarding')}
+                  onClick={() => { if (guardAddAsset()) navigate('/onboarding'); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                   style={{ background: GOLD, color: '#1a1408' }}
                 >
