@@ -654,6 +654,13 @@ export type Database = {
             referencedRelation: "devices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sensor_readings_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       stability_snapshots: {
@@ -846,6 +853,56 @@ export type Database = {
           trial_ends_at: string | null
         }
         Relationships: []
+      }
+      devices_safe: {
+        Row: {
+          asset_id: string | null
+          battery_level: number | null
+          created_at: string | null
+          device_serial: string | null
+          id: string | null
+          is_active: boolean | null
+          last_seen_at: string | null
+          network_type: string | null
+          owner_id: string | null
+          signal_strength: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          battery_level?: number | null
+          created_at?: string | null
+          device_serial?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_seen_at?: string | null
+          network_type?: string | null
+          owner_id?: string | null
+          signal_strength?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          battery_level?: number | null
+          created_at?: string | null
+          device_serial?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_seen_at?: string | null
+          network_type?: string | null
+          owner_id?: string | null
+          signal_strength?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles_safe: {
         Row: {
