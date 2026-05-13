@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
+import NotificationPanel from './NotificationPanel';
 import logoImage from '../assets/logo-transparent.png';
 
 /**
@@ -33,9 +34,29 @@ export default function ProtectedLayout() {
       if (raw) ownerId = JSON.parse(raw).id ?? '';
     } catch {}
   }
-  const { unreadCount } = useNotifications(ownerId);
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications(ownerId);
 
   const [open, setOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const BellButton = ({ className = '' }) => (
+    <button
+      type="button"
+      onClick={() => setNotifOpen(true)}
+      aria-label={isAr ? 'الإشعارات' : 'Notifications'}
+      className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-white hover:bg-white/10 ${className}`}
+    >
+      <Bell size={18} />
+      {unreadCount > 0 && (
+        <span
+          className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+          style={{ background: 'var(--color-desert-gold, #c5a55a)', color: '#004d25' }}
+        >
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </span>
+      )}
+    </button>
+  );
 
   const items = [
     { to: '/dashboard', label: isAr ? 'لوحة التحكم' : 'Dashboard', icon: LayoutDashboard },
@@ -103,14 +124,17 @@ export default function ProtectedLayout() {
           <img src={logoImage} alt="Right" className="h-7 w-auto" />
           <span className="text-white text-sm font-bold">Right</span>
         </div>
-        <button
-          type="button"
-          onClick={toggleLanguage}
-          className="px-2 py-1 text-[11px] font-bold rounded-md"
-          style={{ background: 'var(--color-desert-gold, #c5a55a)', color: '#004d25' }}
-        >
-          {isAr ? 'EN' : 'عربي'}
-        </button>
+        <div className="flex items-center gap-1">
+          <BellButton />
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="px-2 py-1 text-[11px] font-bold rounded-md"
+            style={{ background: 'var(--color-desert-gold, #c5a55a)', color: '#004d25' }}
+          >
+            {isAr ? 'EN' : 'عربي'}
+          </button>
+        </div>
       </div>
 
       {/* ── Backdrop (mobile) ── */}
@@ -226,10 +250,33 @@ export default function ProtectedLayout() {
 
       {/* ── Content ── */}
       <div className={contentPad}>
+        {/* Desktop floating header bell */}
+        <div
+          className={`hidden lg:flex fixed top-3 z-30 ${isAr ? 'left-4' : 'right-4'}`}
+        >
+          <div
+            className="rounded-full shadow-lg"
+            style={{
+              background:
+                'linear-gradient(135deg, var(--color-royal-green, #006c35), var(--color-royal-green-dark, #004d25))',
+              border: '1px solid var(--color-desert-gold, #c5a55a)',
+            }}
+          >
+            <BellButton />
+          </div>
+        </div>
         <main className="min-h-screen">
           <Outlet />
         </main>
       </div>
+
+      <NotificationPanel
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        notifications={notifications}
+        onMarkRead={markRead}
+        onMarkAllRead={markAllRead}
+      />
     </div>
   );
 }
