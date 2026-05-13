@@ -3,6 +3,7 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { supabase } from "../lib/supabaseClient";
+import logoImage from "../assets/logo-transparent.png";
 
 const VERIFY_BASE = "https://rightiotsa.com/verify";
 
