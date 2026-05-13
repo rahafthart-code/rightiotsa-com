@@ -123,7 +123,14 @@ export default function AuthGuard({
 
   // Real Supabase session preferred.
   if (state.session) {
-    if (requireMfa && state.aal !== "aal2") {
+    // Always allow access to MFA enrollment / required pages — otherwise
+    // an MFA-gated route would create an infinite redirect loop for users
+    // who haven't enrolled yet.
+    const isMfaSetupRoute =
+      location.pathname.startsWith("/security/mfa-enroll") ||
+      location.pathname.startsWith("/security/mfa-required");
+
+    if (requireMfa && state.aal !== "aal2" && !isMfaSetupRoute) {
       return (
         <Navigate
           to="/security/mfa-required"
