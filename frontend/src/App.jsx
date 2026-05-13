@@ -44,10 +44,6 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const OwnerDashboardDark = lazy(() => import("./pages/OwnerDashboardDark"));
 const StableDashboard = lazy(() => import("./pages/StableDashboard"));
-const SecurityDashboard = lazy(() => import("./pages/SecurityDashboard"));
-const MfaRequired = lazy(() => import("./pages/MfaRequired"));
-const MfaEnrollPage = lazy(() => import("./pages/MfaEnrollPage"));
-const AuthGuard = lazy(() => import("./components/AuthGuard"));
 
 // Admin Panel
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
