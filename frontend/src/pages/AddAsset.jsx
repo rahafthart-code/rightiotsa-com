@@ -8,6 +8,7 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
+import { usePlanLimits, LIMIT_MESSAGE_AR, LIMIT_MESSAGE_EN } from '../hooks/usePlanLimits';
 
 const STEPS = 4;
 
