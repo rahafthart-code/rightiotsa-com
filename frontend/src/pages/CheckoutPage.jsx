@@ -38,18 +38,18 @@ export default function CheckoutPage() {
     setProcessing(true);
     setError("");
     try {
-      const planKey = (plan.plan_id || plan.name_en || "starter").toString().toLowerCase();
-      const billingCycle = plan.billing_cycle === "yearly" ? "yearly" : "monthly";
-
-      const { data, error } = await supabase.functions.invoke("create-clickpay-payment", {
-        body: { plan: planKey, billing_cycle: billingCycle },
-      });
-      if (error) throw error;
-      if (!data?.payment_url) throw new Error("No payment URL returned");
-      window.location.href = data.payment_url;
+      // Edfapay integration will be wired up once merchant credentials are provided.
+      // For now we surface a friendly message and route the user back to the dashboard.
+      await new Promise((r) => setTimeout(r, 800));
+      setError(
+        isAr
+          ? "بوابة Edfapay قيد الربط النهائي. سيتم تفعيل الدفع الفعلي قريباً."
+          : "Edfapay gateway is being finalized. Live payments will be enabled shortly."
+      );
     } catch (err) {
       console.error("Payment error:", err);
       setError(isAr ? "تعذّر بدء الدفع. حاول مرة أخرى." : "Could not start payment. Please try again.");
+    } finally {
       setProcessing(false);
     }
   };
