@@ -847,6 +847,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_safe: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          daily_digest_enabled: boolean | null
+          full_name: string | null
+          id: string | null
+          last_seen_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          daily_digest_enabled?: boolean | null
+          full_name?: string | null
+          id?: string | null
+          last_seen_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          daily_digest_enabled?: boolean | null
+          full_name?: string | null
+          id?: string | null
+          last_seen_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_dashboard: {
         Row: {
           event_count: number | null
