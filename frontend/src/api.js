@@ -120,7 +120,12 @@ export async function devTestLogin() {
 // ========== SUBSCRIPTION API ==========
 
 export async function getSubscriptionPlans() {
-  return withMockFallback(() => apiClient.get("/subscription/plans"), MOCK_PLANS);
+  const data = await withMockFallback(() => apiClient.get("/subscription/plans"), MOCK_PLANS);
+  // Defensive: always return an array so callers can safely .map()
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.plans)) return data.plans;
+  if (Array.isArray(data?.data)) return data.data;
+  return MOCK_PLANS;
 }
 
 export async function createSubscription(planId) {

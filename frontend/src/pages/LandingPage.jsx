@@ -35,9 +35,10 @@ export default function LandingPage() {
       try {
         setLoading(true);
         const data = await api.getSubscriptionPlans();
-        setPlans(data);
+        setPlans(Array.isArray(data) ? data : (data?.plans || data?.data || []));
       } catch (err) {
         console.error("Error fetching plans:", err);
+        setPlans([]);
       } finally {
         setLoading(false);
       }
@@ -203,20 +204,20 @@ export default function LandingPage() {
           </div>
 
           {loading && (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 mx-auto mb-4" style={{ borderBottom: '2px solid var(--color-royal-green)' }}></div>
-              <p style={{ color: 'var(--color-text-muted)' }}>{isAr ? 'جاري تحميل الباقات...' : 'Loading plans...'}</p>
+            <div className="text-center py-12 rounded-2xl" style={{ background: '#F5F5DC', border: '1px dashed #8B0000', fontFamily: 'Cairo, Tajawal, sans-serif' }}>
+              <div className="animate-spin rounded-full h-12 w-12 mx-auto mb-4" style={{ borderBottom: '3px solid #8B0000', borderRight: '3px solid #006c35' }}></div>
+              <p className="font-bold" style={{ color: '#8B0000' }}>{isAr ? 'جارٍ تحميل الباقات...' : 'Loading plans...'}</p>
             </div>
           )}
 
-          {!loading && plans.length === 0 && (
-            <div className="text-center py-12" style={{ color: 'var(--color-text-muted)' }}>
-              <p>{isAr ? 'لا توجد باقات متاحة حالياً' : 'No plans available at the moment'}</p>
+          {!loading && (!Array.isArray(plans) || plans.length === 0) && (
+            <div className="text-center py-12 rounded-2xl" style={{ background: '#F5F5DC', color: '#8B0000', border: '1px dashed #8B0000', fontFamily: 'Cairo, Tajawal, sans-serif' }}>
+              <p className="font-bold">{isAr ? 'لا توجد باقات متاحة حالياً' : 'No plans available at the moment'}</p>
             </div>
           )}
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-            {plans.map((plan) => (
+            {(plans || [])?.map?.((plan) => (
               <div key={plan.plan_id} className="rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
                 <div className="p-6 sm:p-8">
                   <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
