@@ -57,7 +57,7 @@ export default function AddAsset() {
     (step === 3) || // sensor optional
     step === 4;
 
-  /* ── Step 2: photo upload to asset-images bucket ── */
+  /* ── Step 2: photo upload to asset-images bucket (original + thumbnail) ── */
   const handlePhoto = async (file) => {
     if (!file || !ownerId) return;
     if (file.size > 8 * 1024 * 1024) {
@@ -70,15 +70,34 @@ export default function AddAsset() {
     }
     setUploading(true);
     try {
+      const { makeThumbnail } = await import('../utils/imageResize');
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const path = `${ownerId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const path = `${ownerId}/${stamp}.${ext}`;
+      const thumbPath = `${ownerId}/thumbs/${stamp}.jpg`;
+
       const { error: upErr } = await supabase.storage
         .from('asset-images')
         .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage
         .from('asset-images').getPublicUrl(path);
-      set({ photo_url: publicUrl });
+
+      // Generate + upload 400px thumbnail (best-effort, never blocks save)
+      let thumbUrl = null;
+      try {
+        const thumbBlob = await makeThumbnail(file, { maxWidth: 400, quality: 0.78 });
+        if (thumbBlob) {
+          const { error: tErr } = await supabase.storage
+            .from('asset-images')
+            .upload(thumbPath, thumbBlob, { cacheControl: '86400', upsert: false, contentType: 'image/jpeg' });
+          if (!tErr) {
+            thumbUrl = supabase.storage.from('asset-images').getPublicUrl(thumbPath).data.publicUrl;
+          }
+        }
+      } catch { /* fallback to full image */ }
+
+      set({ photo_url: publicUrl, thumb_url: thumbUrl || publicUrl });
       toast.success(isAr ? 'تم رفع الصورة' : 'Photo uploaded');
     } catch (e) {
       toast.error((isAr ? 'فشل رفع الصورة: ' : 'Photo upload failed: ') + (e?.message || ''));

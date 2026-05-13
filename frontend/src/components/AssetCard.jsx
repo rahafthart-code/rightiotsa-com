@@ -45,12 +45,15 @@ function AssetCard({ asset, onClick, stable }) {
       }}
     >
       <div className="aspect-[4/3] bg-slate-800 relative overflow-hidden">
-        {asset.image_url ? (
+        {(asset.thumb_url || asset.image_url) ? (
           <img
-            src={asset.image_url}
+            src={asset.thumb_url || asset.image_url}
             alt={asset.name}
             className="w-full h-full object-cover"
             loading="lazy"
+            decoding="async"
+            width="400"
+            height="300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl">
