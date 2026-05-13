@@ -3,6 +3,7 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { supabase } from "../lib/supabaseClient";
+import logoImage from "../assets/logo-transparent.png";
 
 const VERIFY_BASE = "https://rightiotsa.com/verify";
 
@@ -60,7 +61,7 @@ export async function exportAssetPassportPDF({ asset, passport }) {
     fetchOwner(asset.owner_id),
     fetchLatestVitals(asset.id),
     fetchSubscription(asset.owner_id),
-    QRCode.toDataURL(`${VERIFY_BASE}/${asset.id}`, { width: 240, margin: 1 }),
+    QRCode.toDataURL(`${VERIFY_BASE}/${asset.id}`, { width: 600, margin: 1, errorCorrectionLevel: "H" }),
     loadImageDataUrl(asset.image_url),
   ]);
 
@@ -70,18 +71,24 @@ export async function exportAssetPassportPDF({ asset, passport }) {
 
   // ==== Header band (Saudi Royal Green) ====
   doc.setFillColor(0, 108, 53);
-  doc.rect(0, 0, pageW, 28, "F");
+  doc.rect(0, 0, pageW, 30, "F");
   doc.setFillColor(197, 165, 90);
-  doc.rect(0, 28, pageW, 1.6, "F");
+  doc.rect(0, 30, pageW, 1.6, "F");
+
+  // Embed real Right IoT logo (top-left)
+  try {
+    const logoData = await loadImageDataUrl(logoImage);
+    if (logoData) doc.addImage(logoData, "PNG", margin, 5, 20, 20);
+  } catch { /* fallback to text only */ }
 
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("Right IoT  -  Digital Passport", margin, 13);
+  doc.setFontSize(17);
+  doc.text("Right IoT — Digital Passport", margin + 24, 14);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(244, 228, 188);
-  doc.text("Kingdom of Saudi Arabia  |  rightiotsa.com", margin, 20);
+  doc.text("Kingdom of Saudi Arabia  |  rightiotsa.com", margin + 24, 20);
   doc.setFontSize(8);
   doc.text(
     `Issued: ${new Date().toLocaleString("en-GB")}`,

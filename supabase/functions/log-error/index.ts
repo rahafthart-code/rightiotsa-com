@@ -1,6 +1,5 @@
-// Centralized backend error log endpoint.
-// Inserts into edge_function_errors and emits a critical security_event
-// when the same function errors >5 times in 15 minutes.
+// Centralized backend error log. Inserts into edge_function_errors and on a
+// burst (>5 in 15 min) raises a critical security_event AND emails the admin.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -35,7 +34,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Trim very large payloads
     const trimmed = (s?: string, n = 4000) => (s ? s.slice(0, n) : s);
 
     await supabase.from("edge_function_errors").insert({
@@ -62,6 +60,46 @@ Deno.serve(async (req) => {
         p_endpoint: body.function_name,
         p_details: { count, window_minutes: 15 },
       });
+
+      // Email admin (rate-limited: only fire if last alert >30 min ago)
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      const ALERT_TO = Deno.env.get("ALERT_EMAIL_TO");
+      const ALERT_FROM = Deno.env.get("ALERT_EMAIL_FROM") ?? "alerts@rightiotsa.com";
+
+      if (RESEND_API_KEY && ALERT_TO) {
+        const halfHourAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+        const { data: recentAlerts } = await supabase
+          .from("security_events")
+          .select("id")
+          .eq("event_type", "edge_function_error_burst")
+          .eq("endpoint", body.function_name)
+          .gte("created_at", halfHourAgo)
+          .limit(2);
+
+        if ((recentAlerts?.length ?? 0) <= 1) {
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${RESEND_API_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: `Right IoT Alerts <${ALERT_FROM}>`,
+                to: [ALERT_TO],
+                subject: `🚨 Edge Function error burst: ${body.function_name}`,
+                html: `
+                  <h2 style="color:#b91c1c">Edge Function error burst detected</h2>
+                  <p><b>Function:</b> ${body.function_name}</p>
+                  <p><b>Errors in last 15 min:</b> ${count}</p>
+                  <p><b>Latest error:</b><br/><code>${(body.error_message || "").slice(0, 400)}</code></p>
+                  <p style="color:#666;font-size:12px">${new Date().toISOString()}</p>
+                `,
+              }),
+            });
+          } catch { /* swallow */ }
+        }
+      }
     }
 
     return new Response(JSON.stringify({ ok: true }), {
