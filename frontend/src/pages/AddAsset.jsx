@@ -34,6 +34,7 @@ export default function AddAsset() {
     try { ownerId = JSON.parse(localStorage.getItem('user') || '{}').id ?? ''; } catch {}
   }
 
+  const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets } = usePlanLimits(ownerId);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
