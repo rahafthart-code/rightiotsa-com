@@ -181,7 +181,7 @@ export default function App() {
             <Route path="settings" element={<AdminPlaceholderPage title="الإعدادات" subtitle="إعدادات لوحة الإدارة." />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
       </Suspense>
       <WhatsAppWidget />
