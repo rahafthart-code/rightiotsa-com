@@ -131,6 +131,11 @@ export default function AddAsset() {
       toast.error(isAr ? 'الرجاء تسجيل الدخول' : 'Please sign in');
       return;
     }
+    if (!canAddAsset) {
+      toast.error(isAr ? LIMIT_MESSAGE_AR : LIMIT_MESSAGE_EN);
+      navigate('/subscribe');
+      return;
+    }
     setLoading(true);
     try {
       const insertPayload = {
