@@ -113,6 +113,7 @@ export type Database = {
           stability_index: number | null
           stable_id: string | null
           status: string
+          thumb_url: string | null
           updated_at: string
         }
         Insert: {
@@ -142,6 +143,7 @@ export type Database = {
           stability_index?: number | null
           stable_id?: string | null
           status?: string
+          thumb_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -171,6 +173,7 @@ export type Database = {
           stability_index?: number | null
           stable_id?: string | null
           status?: string
+          thumb_url?: string | null
           updated_at?: string
         }
         Relationships: [
