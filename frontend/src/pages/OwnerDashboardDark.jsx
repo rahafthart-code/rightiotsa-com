@@ -8,6 +8,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useNotifications } from '../hooks/useNotifications';
 import { useLatestReading } from '../hooks/useLatestReading';
+import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
+import UsageBar from '../components/UsageBar';
 import logoImage from '../assets/logo-transparent.png';
 
 /* ─── Dark theme tokens (scoped) ─────────────────────── */
