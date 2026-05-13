@@ -11,13 +11,19 @@ import PageSkeleton from "./components/PageSkeleton";
 import ConnectionStatusBanner from "./components/ConnectionStatusBanner";
 import { ensureMockUser } from "./utils/mockData";
 
+// Direct imports for critical / recently-added pages to guarantee they land in the main bundle.
+import CheckoutPage from "./pages/CheckoutPage";
+import SecurityDashboard from "./pages/SecurityDashboard";
+import MfaEnrollPage from "./pages/MfaEnrollPage";
+import MfaRequired from "./pages/MfaRequired";
+import AuthGuard from "./components/AuthGuard";
+
 // Lazy-load every page so the initial bundle stays small.
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AdminPortal = lazy(() => import("./pages/AdminPortal"));
-const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
@@ -38,10 +44,6 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const OwnerDashboardDark = lazy(() => import("./pages/OwnerDashboardDark"));
 const StableDashboard = lazy(() => import("./pages/StableDashboard"));
-const SecurityDashboard = lazy(() => import("./pages/SecurityDashboard"));
-const MfaRequired = lazy(() => import("./pages/MfaRequired"));
-const MfaEnrollPage = lazy(() => import("./pages/MfaEnrollPage"));
-const AuthGuard = lazy(() => import("./components/AuthGuard"));
 
 // Admin Panel
 const AdminGuard = lazy(() => import("./admin/AdminGuard"));
@@ -89,7 +91,7 @@ function AppShell({ children }) {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-bg-primary)", color: "var(--color-text-primary)" }}>
+    <div className="min-h-screen bg-[#F5F5DC] text-[#006c35] font-cairo" style={{ background: "#F5F5DC", color: "#006c35", fontFamily: "Cairo, Tajawal, sans-serif" }}>
       <header className="sticky top-0 z-20 shadow-sm" style={{ background: "var(--color-royal-green)", borderBottom: "3px solid var(--color-desert-gold)" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(isAuthenticated ? "/dashboard" : "/login")}>
