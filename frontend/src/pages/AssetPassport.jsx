@@ -26,8 +26,23 @@ export default function AssetPassport() {
   const [snapshots, setSnapshots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const reading = useLatestReading(id);
+
+  const handleExportPDF = async () => {
+    if (!asset) return;
+    setExporting(true);
+    try {
+      await exportAssetPassportPDF({ asset, passport });
+      toast.success(isAr ? 'تم تصدير الجواز الرقمي' : 'Digital passport exported');
+    } catch (e) {
+      console.error(e);
+      toast.error(isAr ? 'تعذّر تصدير الملف' : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
