@@ -72,6 +72,42 @@ export function useAssets(ownerId, filter = {}) {
       .on(
         'postgres_changes',
         {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'sensor_readings',
+        },
+        (payload) => {
+          const r = payload.new;
+          if (!r?.asset_id) return;
+          setAssets((prev) => {
+            // Only update if this asset belongs to the current owner's list
+            if (!prev.some((a) => a.id === r.asset_id)) return prev;
+            return prev.map((a) =>
+              a.id === r.asset_id
+                ? {
+                    ...a,
+                    stability_index:
+                      r.smoothed_stability ?? r.stability_score ?? a.stability_index,
+                    latest_reading: {
+                      heart_rate: r.heart_rate,
+                      temperature: r.temperature,
+                      respiration_rate: r.respiration_rate,
+                      is_in_zone: r.is_in_zone,
+                      latitude: r.latitude,
+                      longitude: r.longitude,
+                      recorded_at: r.recorded_at,
+                    },
+                  }
+                : a
+            );
+          });
+          setFlashId(r.asset_id);
+          setTimeout(() => setFlashId(null), 400);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
           event: '*',
           schema: 'public',
           table: 'assets',
