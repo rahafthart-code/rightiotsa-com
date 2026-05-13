@@ -391,7 +391,7 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
         <CircularGauge value={pct} color={color} />
       </div>
 
-      <div className="px-4 pb-3 grid grid-cols-3 gap-2 text-[11px]">
+      <div className="px-4 pb-3 grid grid-cols-4 gap-2 text-[11px]">
         <ReadingChip
           icon={<Heart size={12} style={{ color: RED }} />}
           value={reading?.heart_rate != null ? `${Math.round(reading.heart_rate)}` : '—'}
@@ -411,6 +411,12 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
           }
           value={reading?.is_in_zone === false ? 'خارج' : 'داخل'}
           unit="النطاق"
+          textIcon
+        />
+        <ReadingChip
+          icon={<span className="inline-block w-2 h-2 rounded-full" style={{ background: GOLD }} />}
+          value={asset.health_score != null ? Math.round(Number(asset.health_score)) : '—'}
+          unit="صحة"
           textIcon
         />
       </div>

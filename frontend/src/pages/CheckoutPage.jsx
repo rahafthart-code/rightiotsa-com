@@ -139,8 +139,11 @@ export default function CheckoutPage() {
               style={{ background: CREAM_SOFT, border: `1px solid ${ROYAL_GREEN}33`, color: "#444" }}
             >
               {isAr
-                ? "سيتم تحويلك إلى صفحة الدفع الآمنة الخاصة بـ ClickPay لإتمام العملية ببطاقة Mada / Visa / Mastercard أو Apple Pay."
-                : "You will be redirected to ClickPay's secure page to complete with Mada / Visa / Mastercard or Apple Pay."}
+                ? "سيتم تحويلك إلى صفحة الدفع الآمنة الخاصة بـ Edfapay لإتمام العملية ببطاقة Mada / Visa / Mastercard أو Apple Pay."
+                : "You will be redirected to Edfapay's secure page to complete with Mada / Visa / Mastercard or Apple Pay."}
+              <div className="mt-2 inline-flex items-center gap-2 px-2 py-1 rounded-md text-[11px] font-bold" style={{ background: '#fff', color: ROYAL_GREEN_DARK, border: `1px solid ${GOLD}55` }}>
+                <span style={{ color: GOLD }}>●</span> Edfapay
+              </div>
             </div>
 
             {error && (
