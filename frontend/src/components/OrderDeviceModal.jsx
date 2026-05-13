@@ -41,8 +41,6 @@ export default function OrderDeviceModal({ isOpen, onClose }) {
     e.preventDefault();
     // Mock submission (in production, send to backend). Do not log PII.
     setSubmitted(true);
-    void 0;
-    setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       setFormData({
