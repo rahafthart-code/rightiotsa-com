@@ -155,6 +155,7 @@ export default function AddAsset() {
         name: formData.name.trim(),
         photo_url: formData.photo_url || null,
         image_url: formData.photo_url || null, // keep both columns in sync
+        thumb_url: formData.thumb_url || formData.photo_url || null,
         registration_no: formData.registration_no || null,
         sensor_device_id: formData.sensor_device_id || null,
         is_active: true,
