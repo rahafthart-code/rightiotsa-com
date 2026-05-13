@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import logoImage from "../assets/logo-transparent.png";
+import PublicPageShell from "../components/PublicPageShell";
 
 export default function FAQPage() {
-  const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   const [openIndex, setOpenIndex] = useState(null);
 
   const faqs = i18n.language === 'ar' ? [
