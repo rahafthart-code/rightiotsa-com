@@ -245,8 +245,9 @@ export default function LandingPage() {
             {isAr ? 'اختر الباقة المناسبة لنوع ثروتك الحيوانية' : 'Choose the right plan for your livestock type'}
           </p>
           <div className="flex justify-center mb-12">
-            <button onClick={() => setShowOrderModal(true)} className="px-6 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 text-white" style={{ background: 'var(--color-royal-green)' }}>
-              {isAr ? '📦 اطلب أجهزة التتبع' : '📦 Order Tracking Devices'}
+            <button onClick={() => setShowOrderModal(true)} className="inline-flex items-center gap-2 px-6 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 text-white" style={{ background: 'var(--color-royal-green)' }}>
+              <Package size={18} />
+              {isAr ? 'اطلب أجهزة التتبع' : 'Order Tracking Devices'}
             </button>
           </div>
 
