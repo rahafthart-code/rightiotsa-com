@@ -213,10 +213,11 @@ export default function LoginPage() {
 
         {lockMs > 0 && (
           <div
-            className="mb-4 rounded-lg px-3 py-2 text-sm text-center"
+            className="mb-4 rounded-lg px-3 py-2 text-sm text-center inline-flex items-center justify-center gap-2 w-full"
             style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" }}
           >
-            🔒 {isAr ? `محظور مؤقتاً — حاول بعد ${lockMinutes} دقيقة` : `Locked — try again in ${lockMinutes} min`}
+            <Lock size={14} />
+            {isAr ? `محظور مؤقتاً — حاول بعد ${lockMinutes} دقيقة` : `Locked — try again in ${lockMinutes} min`}
           </div>
         )}
 
