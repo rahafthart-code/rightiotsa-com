@@ -1,11 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {
+  ShieldCheck, MapPin, Activity, Bell, Package, FileText,
+  CheckCircle2, Mail, PlayCircle, Bird, Crown,
+} from "lucide-react";
 import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
+import { enableDemoMode } from "../utils/mockData";
 import logoImage from "../assets/logo-transparent.png";
 import TermsModal from "../components/TermsModal";
 import OrderDeviceModal from "../components/OrderDeviceModal";
+
+// Inline camel/horse glyphs (not in lucide); kept minimal & monochrome.
+const CamelIcon = ({ size = 28, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 46c2-2 4-2 6 0 2 2 4 2 6 0V32c0-6 4-10 10-10 4 0 6 2 8 6 2-8 6-12 12-12 4 0 6 2 6 6 0 4-2 8-6 10v14c2 2 4 2 6 0" />
+    <circle cx="50" cy="20" r="1.5" fill={color} />
+  </svg>
+);
+const HorseIcon = ({ size = 28, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 50V36c0-8 6-14 14-14h6l8-10v10c4 2 8 6 8 12v16" />
+    <path d="M22 50v-8M42 50v-8" />
+    <circle cx="44" cy="20" r="1.5" fill={color} />
+  </svg>
+);
+
 
 export default function LandingPage() {
   const navigate = useNavigate();
