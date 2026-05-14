@@ -173,9 +173,9 @@ export default function Dashboard() {
               </div>
               <div className="text-lg font-bold mt-1">
                 {dangerCount > 0
-                  ? (isAr ? '⚠️ تنبيه فوري مطلوب' : '⚠️ Immediate attention required')
+                  ? (isAr ? 'تنبيه فوري مطلوب' : 'Immediate attention required')
                   : warningCount > 0
-                  ? (isAr ? '👀 مراقبة متيقظة' : '👀 Monitor closely')
+                  ? (isAr ? 'مراقبة متيقظة' : 'Monitor closely')
                   : (isAr ? 'جميع الأصول مستقرة' : 'All assets stable')}
               </div>
               <div className="text-xs mt-1 opacity-80">
