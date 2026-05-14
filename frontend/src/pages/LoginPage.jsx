@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Lock, PlayCircle } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { enableDemoMode } from "../utils/mockData";
 import logoImage from "../assets/logo-transparent.png";
 
 // Saudi mobile login: +966 prefix is fixed; user enters 9 digits starting with 5.
