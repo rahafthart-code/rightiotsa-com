@@ -277,7 +277,7 @@ export default function LandingPage() {
                   <ul className="space-y-3 mb-8">
                     {((isAr ? plan.features_ar : plan.features_en) || plan.features || []).map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                        <span style={{ color: 'var(--color-royal-green)' }}>✓</span>
+                        <CheckCircle2 size={16} style={{ color: 'var(--color-royal-green)', flexShrink: 0, marginTop: 2 }} />
                         {feature}
                       </li>
                     ))}
