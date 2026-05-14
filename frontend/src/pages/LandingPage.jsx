@@ -123,6 +123,15 @@ export default function LandingPage() {
               </button>
             ) : (
               <>
+                <button
+                  onClick={() => { enableDemoMode(); navigate('/dashboard'); }}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg text-white transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(197,165,90,0.5)' }}
+                  title={isAr ? 'دخول تجريبي بدون OTP' : 'Demo login (no OTP)'}
+                >
+                  <PlayCircle size={14} />
+                  {isAr ? 'دخول تجريبي' : 'Demo Login'}
+                </button>
                 <button onClick={() => navigate('/register')} className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg text-white transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
                   {isAr ? 'إنشاء حساب' : 'Sign Up'}
                 </button>
