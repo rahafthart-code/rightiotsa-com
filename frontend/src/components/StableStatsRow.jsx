@@ -105,12 +105,12 @@ export default function StableStatsRow({ ownerId }) {
                   </div>
                   {s.location_name && (
                     <div className="text-[11px]" style={{ color: '#6b6b6b' }}>
-                      📍 {s.location_name}
+                      {s.location_name}
                     </div>
                   )}
                 </div>
                 <span className="text-xl">
-                  {s.icon === 'farm' ? '🌾' : s.icon === 'ranch' ? '🐎' : s.icon === 'desert' ? '🏜️' : '🏛️'}
+                  {s.icon === 'farm' ? '🌾' : s.icon === 'ranch' ? '•' : s.icon === 'desert' ? '🏜️' : '🏛️'}
                 </span>
               </div>
 

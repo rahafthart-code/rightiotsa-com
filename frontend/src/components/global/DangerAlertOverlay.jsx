@@ -44,9 +44,9 @@ export default function DangerAlertOverlay({
   const stability = Math.round(Number(asset.stability_index ?? 0));
   const photo = asset.photo_url || asset.image_url;
   const speciesEmoji =
-    asset.species === 'Horse' ? '🐎'
-    : asset.species === 'Falcon' ? '🦅'
-    : '🐪';
+    asset.species === 'Horse' ? '•'
+    : asset.species === 'Falcon' ? '•'
+    : '•';
 
   const lat = reading?.latitude ?? reading?.gps_lat;
   const lng = reading?.longitude ?? reading?.gps_lng;

@@ -456,9 +456,9 @@ export default function RegisterPage() {
                   className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 >
                   <option value="">{i18n.language === 'ar' ? 'اختر نوع الأصول' : 'Select Asset Type'}</option>
-                  <option value="camel">🐪 {i18n.language === 'ar' ? 'إبل' : 'Camels'}</option>
-                  <option value="horse">🐴 {i18n.language === 'ar' ? 'خيل' : 'Horses'}</option>
-                  <option value="falcon">🦅 {i18n.language === 'ar' ? 'صقور' : 'Falcons'}</option>
+                  <option value="camel">• {i18n.language === 'ar' ? 'إبل' : 'Camels'}</option>
+                  <option value="horse">• {i18n.language === 'ar' ? 'خيل' : 'Horses'}</option>
+                  <option value="falcon">• {i18n.language === 'ar' ? 'صقور' : 'Falcons'}</option>
                   <option value="mixed">{i18n.language === 'ar' ? 'متعدد (إبل وخيل وصقور)' : 'Mixed (All Types)'}</option>
                 </select>
                 <p className="mt-2 text-xs text-slate-500">

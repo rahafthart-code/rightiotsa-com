@@ -13,7 +13,7 @@ function timeAgo(iso, isAr) {
 const ICONS = {
   danger_alert: '🚨',
   warning_alert: '⚠️',
-  zone_breach: '📍',
+  zone_breach: '',
   re_engagement: '🌟',
 };
 
@@ -42,7 +42,7 @@ export default function NotificationPanel({ open, onClose, notifications, onMark
       >
         <header className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
           <h2 className="text-base font-bold text-slate-100">
-            🔔 {isAr ? 'الإشعارات' : 'Notifications'}
+            {isAr ? 'الإشعارات' : 'Notifications'}
           </h2>
           <div className="flex items-center gap-2">
             {notifications.some((n) => !n.is_read) && (
@@ -81,7 +81,7 @@ export default function NotificationPanel({ open, onClose, notifications, onMark
                   }`}
                 >
                   <div className="flex gap-3">
-                    <div className="text-2xl shrink-0">{ICONS[n.type] || '🔔'}</div>
+                    <div className="text-2xl shrink-0">{ICONS[n.type] || ''}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-sm font-semibold text-slate-100 truncate">{n.title}</h3>

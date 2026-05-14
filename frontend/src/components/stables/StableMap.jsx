@@ -42,9 +42,9 @@ function statusColor(status) {
 
 function speciesEmoji(species) {
   const s = (species || '').toLowerCase();
-  if (s.includes('horse') || s.includes('خيل') || s.includes('حصان')) return '🐎';
-  if (s.includes('falcon') || s.includes('صقر')) return '🦅';
-  return '🐪';
+  if (s.includes('horse') || s.includes('خيل') || s.includes('حصان')) return '•';
+  if (s.includes('falcon') || s.includes('صقر')) return '•';
+  return '•';
 }
 
 function relativeTime(iso, isAr) {

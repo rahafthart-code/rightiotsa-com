@@ -11,9 +11,9 @@ import { useAuth } from '../hooks/useAuth';
  * ────────────────────────────────────────────────────────── */
 
 const SPECIES = [
-  { value: 'Horse',  emoji: '🐎', label: 'خيل' },
-  { value: 'Camel',  emoji: '🐪', label: 'إبل' },
-  { value: 'Falcon', emoji: '🦅', label: 'صقر' },
+  { value: 'Horse',  emoji: '•', label: 'خيل' },
+  { value: 'Camel',  emoji: '•', label: 'إبل' },
+  { value: 'Falcon', emoji: '•', label: 'صقر' },
 ];
 
 const CLOUDINARY_CLOUD = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;

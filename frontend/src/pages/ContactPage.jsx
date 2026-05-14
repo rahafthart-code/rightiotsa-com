@@ -96,7 +96,7 @@ export default function ContactPage() {
           <a href="mailto:support@right.app" className="text-sm" style={{ color: "#1a2e1a" }}>support@right.app</a>
         </div>
         <div>
-          <div className="text-sm font-bold mb-1" style={{ color: "#006c35" }}>📍 {isAr ? "المكتب" : "Office"}</div>
+          <div className="text-sm font-bold mb-1" style={{ color: "#006c35" }}>{isAr ? "المكتب" : "Office"}</div>
           <div className="text-sm" style={{ color: "#1a2e1a" }}>{isAr ? "الرياض، السعودية" : "Riyadh, Saudi Arabia"}</div>
         </div>
         <div>

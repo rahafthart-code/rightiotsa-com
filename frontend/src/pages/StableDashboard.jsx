@@ -150,7 +150,7 @@ export default function StableDashboard() {
               className="text-center py-12 rounded-2xl"
               style={{ background: '#fff', border: '1px dashed rgba(29,158,117,0.3)' }}
             >
-              <div className="text-5xl mb-2">🐪</div>
+              <div className="text-5xl mb-2">•</div>
               <p className="text-sm" style={{ color: '#6b6b6b' }}>
                 {selectedStable === 'all'
                   ? (isAr ? 'لا توجد أصول مسجلة بعد' : 'No assets registered yet')

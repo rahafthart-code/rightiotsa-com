@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Lock, PlayCircle } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import { enableDemoMode } from "../utils/mockData";
 import logoImage from "../assets/logo-transparent.png";
 
 // Saudi mobile login: +966 prefix is fixed; user enters 9 digits starting with 5.
@@ -211,10 +213,11 @@ export default function LoginPage() {
 
         {lockMs > 0 && (
           <div
-            className="mb-4 rounded-lg px-3 py-2 text-sm text-center"
+            className="mb-4 rounded-lg px-3 py-2 text-sm text-center inline-flex items-center justify-center gap-2 w-full"
             style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" }}
           >
-            🔒 {isAr ? `محظور مؤقتاً — حاول بعد ${lockMinutes} دقيقة` : `Locked — try again in ${lockMinutes} min`}
+            <Lock size={14} />
+            {isAr ? `محظور مؤقتاً — حاول بعد ${lockMinutes} دقيقة` : `Locked — try again in ${lockMinutes} min`}
           </div>
         )}
 
@@ -325,6 +328,29 @@ export default function LoginPage() {
             </div>
           </div>
         )}
+
+        {/* ── Demo / bypass login ─────────────────────── */}
+        <div className="mt-5 pt-5" style={{ borderTop: "1px dashed #d8c89b" }}>
+          <button
+            type="button"
+            onClick={() => { enableDemoMode(); navigate("/dashboard", { replace: true }); }}
+            className="w-full py-3 rounded-lg font-bold inline-flex items-center justify-center gap-2 transition-transform hover:scale-[1.01]"
+            style={{
+              background: "#fbf7ec",
+              color: "#006c35",
+              border: "1.5px solid #c5a55a",
+            }}
+            title={isAr ? "دخول تجريبي بدون OTP" : "Demo login without OTP"}
+          >
+            <PlayCircle size={18} />
+            {isAr ? "دخول تجريبي (بدون OTP)" : "Demo Login (skip OTP)"}
+          </button>
+          <p className="text-[11px] text-center mt-2" style={{ color: "#7a8d7a" }}>
+            {isAr
+              ? "للاستعراض الفوري للوحة التحكم وقراءات IoT والخرائط."
+              : "Instant access to the dashboard, IoT readings, and maps."}
+          </p>
+        </div>
 
         <div className="text-center mt-6 text-xs" style={{ color: "#7a8d7a" }}>
           {isAr ? "بالمتابعة فإنك توافق على " : "By continuing you agree to our "}

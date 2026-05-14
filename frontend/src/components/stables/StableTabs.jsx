@@ -39,7 +39,7 @@ export default function StableTabs({
         const active = selectedId === s.id;
         const accent = s.color || '#1D9E75';
         const icon = s.icon === 'farm' ? '🌾'
-          : s.icon === 'ranch' ? '🐎'
+          : s.icon === 'ranch' ? '•'
           : s.icon === 'desert' ? '⛺'
           : '🌴';
         return (

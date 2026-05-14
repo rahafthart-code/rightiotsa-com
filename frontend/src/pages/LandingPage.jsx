@@ -1,11 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {
+  ShieldCheck, MapPin, Activity, Bell, Package, FileText,
+  CheckCircle2, Mail, PlayCircle, Bird, Crown,
+} from "lucide-react";
 import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
+import { enableDemoMode } from "../utils/mockData";
 import logoImage from "../assets/logo-transparent.png";
 import TermsModal from "../components/TermsModal";
 import OrderDeviceModal from "../components/OrderDeviceModal";
+
+// Inline camel/horse glyphs (not in lucide); kept minimal & monochrome.
+const CamelIcon = ({ size = 28, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 46c2-2 4-2 6 0 2 2 4 2 6 0V32c0-6 4-10 10-10 4 0 6 2 8 6 2-8 6-12 12-12 4 0 6 2 6 6 0 4-2 8-6 10v14c2 2 4 2 6 0" />
+    <circle cx="50" cy="20" r="1.5" fill={color} />
+  </svg>
+);
+const HorseIcon = ({ size = 28, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 50V36c0-8 6-14 14-14h6l8-10v10c4 2 8 6 8 12v16" />
+    <path d="M22 50v-8M42 50v-8" />
+    <circle cx="44" cy="20" r="1.5" fill={color} />
+  </svg>
+);
+
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -102,6 +123,15 @@ export default function LandingPage() {
               </button>
             ) : (
               <>
+                <button
+                  onClick={() => { enableDemoMode(); navigate('/dashboard'); }}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg text-white transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(197,165,90,0.5)' }}
+                  title={isAr ? 'دخول تجريبي بدون OTP' : 'Demo login (no OTP)'}
+                >
+                  <PlayCircle size={14} />
+                  {isAr ? 'دخول تجريبي' : 'Demo Login'}
+                </button>
                 <button onClick={() => navigate('/register')} className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-lg text-white transition-colors" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
                   {isAr ? 'إنشاء حساب' : 'Sign Up'}
                 </button>
@@ -122,7 +152,8 @@ export default function LandingPage() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M30 5L55 30L30 55L5 30Z\' fill=\'none\' stroke=\'%23c5a55a\' stroke-width=\'0.5\'/%3E%3C/svg%3E")', backgroundSize: '60px 60px' }} />
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold" style={{ background: 'rgba(197,165,90,0.2)', color: 'var(--color-desert-gold-light)', border: '1px solid rgba(197,165,90,0.3)' }}>
-            🐪 🐴 🦅 {isAr ? 'منصة موثوقة لتتبع الأصول' : 'Trusted Asset Tracking Platform'}
+            <Crown size={14} style={{ color: 'var(--color-desert-gold-light)' }} />
+            {isAr ? 'منصة موثوقة لتتبع الأصول' : 'Trusted Asset Tracking Platform'}
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
             {isAr ? (
@@ -137,8 +168,9 @@ export default function LandingPage() {
               : 'Proactive monitoring and instant alerts for data-driven decisions to ensure the safety of your assets.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => setShowOrderModal(true)} className="px-8 py-4 font-bold text-base sm:text-lg rounded-xl shadow-xl transition-all transform hover:scale-105" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
-              📋 {isAr ? 'اطلب عرضًا مخصصًا' : 'Request Custom Quote'}
+            <button onClick={() => setShowOrderModal(true)} className="inline-flex items-center justify-center gap-2 px-8 py-4 font-bold text-base sm:text-lg rounded-xl shadow-xl transition-all transform hover:scale-105" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
+              <FileText size={20} />
+              {isAr ? 'اطلب عرضًا مخصصًا' : 'Request Custom Quote'}
             </button>
             <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 font-semibold rounded-xl transition-all" style={{ border: '2px solid rgba(197,165,90,0.5)', color: 'var(--color-desert-gold-light)' }}>
               {isAr ? 'عرض الباقات' : 'View Plans'}
@@ -158,13 +190,13 @@ export default function LandingPage() {
           </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { icon: '📍', titleAr: 'تتبع جغرافي لحظي', titleEn: 'Real-time GPS Tracking', descAr: 'راقب موقع حيواناتك في الوقت الفعلي مع خرائط تفاعلية عالية الدقة', descEn: "Monitor your animals' location in real-time with high-precision interactive maps", accent: 'var(--color-royal-green)' },
-              { icon: '🌡️', titleAr: 'مراقبة الحرارة والنشاط', titleEn: 'Temperature & Activity', descAr: 'احصل على تقارير صحية وتنبيهات فورية لأي تغيرات غير طبيعية', descEn: 'Get health reports and instant alerts for any abnormal changes', accent: 'var(--color-desert-gold-dark)' },
-              { icon: '🔔', titleAr: 'تنبيهات السياج الجغرافي', titleEn: 'Geofence Alerts', descAr: 'تنبيهات فورية عند خروج الحيوان من المنطقة الآمنة', descEn: 'Instant alerts when an animal leaves the designated safe zone', accent: 'var(--color-royal-green)' },
+              { Icon: MapPin, titleAr: 'تتبع جغرافي لحظي', titleEn: 'Real-time GPS Tracking', descAr: 'راقب موقع حيواناتك في الوقت الفعلي مع خرائط تفاعلية عالية الدقة', descEn: "Monitor your animals' location in real-time with high-precision interactive maps", accent: 'var(--color-royal-green)' },
+              { Icon: Activity, titleAr: 'مراقبة الحرارة والنشاط', titleEn: 'Temperature & Activity', descAr: 'احصل على تقارير صحية وتنبيهات فورية لأي تغيرات غير طبيعية', descEn: 'Get health reports and instant alerts for any abnormal changes', accent: 'var(--color-desert-gold-dark)' },
+              { Icon: Bell, titleAr: 'تنبيهات السياج الجغرافي', titleEn: 'Geofence Alerts', descAr: 'تنبيهات فورية عند خروج الحيوان من المنطقة الآمنة', descEn: 'Instant alerts when an animal leaves the designated safe zone', accent: 'var(--color-royal-green)' },
             ].map((f, i) => (
               <div key={i} className="rounded-2xl p-6 sm:p-8 transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 text-2xl" style={{ background: `${f.accent}15` }}>
-                  {f.icon}
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: `${f.accent}15`, color: f.accent }}>
+                  <f.Icon size={26} />
                 </div>
                 <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
                   {isAr ? f.titleAr : f.titleEn}
@@ -186,12 +218,14 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto">
             {[
-              { emoji: '🐪', labelAr: 'الإبل', labelEn: 'Camels' },
-              { emoji: '🐴', labelAr: 'الخيل', labelEn: 'Horses' },
-              { emoji: '🦅', labelAr: 'الصقور', labelEn: 'Falcons' },
+              { Icon: CamelIcon, labelAr: 'الإبل', labelEn: 'Camels' },
+              { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
+              { Icon: Bird,      labelAr: 'الصقور', labelEn: 'Falcons' },
             ].map((s, i) => (
               <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)' }}>
-                <div className="text-4xl sm:text-5xl mb-3">{s.emoji}</div>
+                <div className="mb-3 flex items-center justify-center" style={{ color: 'var(--color-royal-green)' }}>
+                  <s.Icon size={48} color="currentColor" />
+                </div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: 'var(--color-royal-green)' }}>
                   {isAr ? s.labelAr : s.labelEn}
                 </div>
@@ -211,8 +245,9 @@ export default function LandingPage() {
             {isAr ? 'اختر الباقة المناسبة لنوع ثروتك الحيوانية' : 'Choose the right plan for your livestock type'}
           </p>
           <div className="flex justify-center mb-12">
-            <button onClick={() => setShowOrderModal(true)} className="px-6 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 text-white" style={{ background: 'var(--color-royal-green)' }}>
-              {isAr ? '📦 اطلب أجهزة التتبع' : '📦 Order Tracking Devices'}
+            <button onClick={() => setShowOrderModal(true)} className="inline-flex items-center gap-2 px-6 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 text-white" style={{ background: 'var(--color-royal-green)' }}>
+              <Package size={18} />
+              {isAr ? 'اطلب أجهزة التتبع' : 'Order Tracking Devices'}
             </button>
           </div>
 
@@ -242,7 +277,7 @@ export default function LandingPage() {
                   <ul className="space-y-3 mb-8">
                     {((isAr ? plan.features_ar : plan.features_en) || plan.features || []).map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                        <span style={{ color: 'var(--color-royal-green)' }}>✓</span>
+                        <CheckCircle2 size={16} style={{ color: 'var(--color-royal-green)', flexShrink: 0, marginTop: 2 }} />
                         {feature}
                       </li>
                     ))}
@@ -285,7 +320,7 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold mb-4 text-white">{isAr ? 'تواصل' : 'Contact'}</h3>
               <div className="space-y-2 text-sm">
-                <a href="mailto:support@right.app" className="block opacity-80 hover:opacity-100 transition-opacity">✉ support@right.app</a>
+                <a href="mailto:support@right.app" className="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity"><Mail size={14} /> support@right.app</a>
                 <p className="opacity-60 text-xs">{isAr ? 'الرياض، المملكة العربية السعودية' : 'Riyadh, Saudi Arabia'}</p>
               </div>
             </div>

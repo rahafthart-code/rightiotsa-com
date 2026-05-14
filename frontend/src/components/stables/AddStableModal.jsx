@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 const ICONS = [
   { id: 'stable', emoji: '🌴', labelAr: 'عزبة', labelEn: 'Stable' },
   { id: 'farm', emoji: '🌾', labelAr: 'مزرعة', labelEn: 'Farm' },
-  { id: 'ranch', emoji: '🐎', labelAr: 'إسطبل', labelEn: 'Ranch' },
+  { id: 'ranch', emoji: '•', labelAr: 'إسطبل', labelEn: 'Ranch' },
   { id: 'desert', emoji: '⛺', labelAr: 'مخيم', labelEn: 'Desert' },
 ];
 

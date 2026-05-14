@@ -95,8 +95,8 @@ export default function PrivacyPolicyPage() {
         <div className="px-6 sm:px-8 py-4" style={{ background: "#006c35" }}>
           <p className="text-white text-sm">
             {isAr
-              ? "🔒 منصة رايت ملتزمة بأعلى معايير أمان البيانات وحماية الخصوصية"
-              : "🔒 Right platform is committed to the highest data security and privacy protection standards"}
+              ? "منصة رايت ملتزمة بأعلى معايير أمان البيانات وحماية الخصوصية"
+              : "Right platform is committed to the highest data security and privacy protection standards"}
           </p>
         </div>
 

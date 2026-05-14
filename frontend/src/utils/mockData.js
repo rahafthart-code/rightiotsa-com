@@ -96,10 +96,14 @@ export const MOCK_PLANS = [
   },
 ];
 
-// Auth bypass disabled: /dashboard now requires a real Supabase session.
-// We also clear any previously-seeded mock token so old previews don't auto-login.
+export const DEMO_FLAG = "demo_mode";
+
+// When demo mode is OFF, clear any previously-seeded mock user so /dashboard
+// truly requires a real Supabase session. When demo mode is ON (user clicked
+// "Demo Login"), keep the mock user in localStorage so guards can bypass.
 export function ensureMockUser() {
   try {
+    if (localStorage.getItem(DEMO_FLAG) === "1") return;
     const u = localStorage.getItem("user");
     if (u) {
       const parsed = JSON.parse(u);
@@ -110,6 +114,36 @@ export function ensureMockUser() {
     if (localStorage.getItem("access_token") === "mock-preview-token") {
       localStorage.removeItem("access_token");
     }
+  } catch {
+    // ignore
+  }
+}
+
+// Activate demo / bypass mode: seed mock user + access token and flip flag.
+// All protected guards short-circuit when demo_mode === "1".
+export function enableDemoMode() {
+  try {
+    localStorage.setItem(DEMO_FLAG, "1");
+    localStorage.setItem("user", JSON.stringify(MOCK_USER));
+    localStorage.setItem("access_token", "mock-preview-token");
+  } catch {
+    // ignore
+  }
+}
+
+export function isDemoMode() {
+  try {
+    return localStorage.getItem(DEMO_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function disableDemoMode() {
+  try {
+    localStorage.removeItem(DEMO_FLAG);
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
   } catch {
     // ignore
   }

@@ -115,9 +115,9 @@ export default function SensorHealthPanel({ ownerId, stableId, isAr }) {
                   : '#6b7280';
                 const asset = d.assets || {};
                 const photo = asset.image_url || asset.photo_url;
-                const speciesIcon = asset.species === 'Horse' ? '🐎'
-                  : asset.species === 'Falcon' ? '🦅'
-                  : asset.species === 'Camel' ? '🐪'
+                const speciesIcon = asset.species === 'Horse' ? '•'
+                  : asset.species === 'Falcon' ? '•'
+                  : asset.species === 'Camel' ? '•'
                   : '📡';
 
                 return (

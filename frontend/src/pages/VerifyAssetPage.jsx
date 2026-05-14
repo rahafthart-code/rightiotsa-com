@@ -75,7 +75,7 @@ export default function VerifyAssetPage() {
                 className="rounded-xl p-4 mb-5 text-center"
                 style={{ background: "rgba(0,108,53,0.08)", border: "1px solid rgba(0,108,53,0.25)" }}
               >
-                <div className="text-2xl mb-1">✅</div>
+                <div className="text-2xl mb-1"></div>
                 <div className="text-sm font-bold" style={{ color: "#006c35" }}>
                   وثيقة موثّقة من Right IoT
                 </div>

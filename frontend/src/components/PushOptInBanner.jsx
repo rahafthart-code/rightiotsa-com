@@ -67,7 +67,7 @@ export default function PushOptInBanner() {
     >
       <div className="p-4">
         <div className="flex items-start gap-3">
-          <div className="text-2xl" aria-hidden>🔔</div>
+          <div className="text-2xl" aria-hidden></div>
           <div className="flex-1">
             <div className="font-bold text-sm">
               {isAr ? 'فعّل تنبيهات الاستقرار' : 'Enable stability alerts'}
