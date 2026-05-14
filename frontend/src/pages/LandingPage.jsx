@@ -320,7 +320,7 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold mb-4 text-white">{isAr ? 'تواصل' : 'Contact'}</h3>
               <div className="space-y-2 text-sm">
-                <a href="mailto:support@right.app" className="block opacity-80 hover:opacity-100 transition-opacity">✉ support@right.app</a>
+                <a href="mailto:support@right.app" className="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity"><Mail size={14} /> support@right.app</a>
                 <p className="opacity-60 text-xs">{isAr ? 'الرياض، المملكة العربية السعودية' : 'Riyadh, Saudi Arabia'}</p>
               </div>
             </div>
