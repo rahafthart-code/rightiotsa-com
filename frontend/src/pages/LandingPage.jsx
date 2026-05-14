@@ -218,12 +218,14 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto">
             {[
-              { emoji: '🐪', labelAr: 'الإبل', labelEn: 'Camels' },
-              { emoji: '🐴', labelAr: 'الخيل', labelEn: 'Horses' },
-              { emoji: '🦅', labelAr: 'الصقور', labelEn: 'Falcons' },
+              { Icon: CamelIcon, labelAr: 'الإبل', labelEn: 'Camels' },
+              { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
+              { Icon: Bird,      labelAr: 'الصقور', labelEn: 'Falcons' },
             ].map((s, i) => (
               <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)' }}>
-                <div className="text-4xl sm:text-5xl mb-3">{s.emoji}</div>
+                <div className="mb-3 flex items-center justify-center" style={{ color: 'var(--color-royal-green)' }}>
+                  <s.Icon size={48} color="currentColor" />
+                </div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: 'var(--color-royal-green)' }}>
                   {isAr ? s.labelAr : s.labelEn}
                 </div>
