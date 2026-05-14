@@ -57,7 +57,7 @@ function AssetCard({ asset, onClick, stable }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl">
-            {asset.species === 'Horse' ? '🐎' : asset.species === 'Falcon' ? '🦅' : '🐪'}
+            {asset.species === 'Horse' ? '•' : asset.species === 'Falcon' ? '•' : '•'}
           </div>
         )}
         <div
@@ -76,7 +76,7 @@ function AssetCard({ asset, onClick, stable }) {
             }}
             title={isAr ? stable.name : stable.name_en || stable.name}
           >
-            <span>{stable.icon === 'farm' ? '🌾' : stable.icon === 'ranch' ? '🐎' : stable.icon === 'desert' ? '⛺' : '🌴'}</span>
+            <span>{stable.icon === 'farm' ? '🌾' : stable.icon === 'ranch' ? '•' : stable.icon === 'desert' ? '⛺' : '🌴'}</span>
             <span className="truncate">{isAr ? stable.name : stable.name_en || stable.name}</span>
           </div>
         )}

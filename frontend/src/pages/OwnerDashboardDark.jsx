@@ -360,8 +360,8 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
   const isWarning = asset.status === 'warning';
   const color = statusColor(asset.status);
   const pct = Math.round(Number(asset.stability_index ?? 100));
-  const speciesEmoji = asset.species === 'Horse' ? '🐎'
-    : asset.species === 'Falcon' ? '🦅' : '🐪';
+  const speciesEmoji = asset.species === 'Horse' ? '•'
+    : asset.species === 'Falcon' ? '•' : '•';
   const speciesLabel = asset.species === 'Horse' ? 'خيل'
     : asset.species === 'Falcon' ? 'صقر' : 'إبل';
 
@@ -507,7 +507,7 @@ function EmptyState({ onAdd }) {
       className="rounded-2xl py-16 px-6 flex flex-col items-center text-center"
       style={{ background: PANEL, border: `1px dashed ${GOLD}66` }}
     >
-      <div className="text-6xl mb-3">🐎</div>
+      <div className="text-6xl mb-3">•</div>
       <h3 className="text-lg font-bold mb-2" style={{ color: GOLD }}>
         أضف أصلك الأول
       </h3>

@@ -48,9 +48,9 @@ export default function DangerOverlay({
   const stability = Math.round(Number(asset.stability_index ?? 0));
   const photo = asset.photo_url || asset.image_url;
   const speciesEmoji =
-    asset.species === 'Horse' ? '🐎'
-    : asset.species === 'Falcon' ? '🦅'
-    : '🐪';
+    asset.species === 'Horse' ? '•'
+    : asset.species === 'Falcon' ? '•'
+    : '•';
 
   // Build the "last 3 readings" list. If caller didn't pass any,
   // fall back to the single live reading.

@@ -694,7 +694,7 @@ export default function UnifiedDashboard() {
               {/* Sensor Cards Row */}
               <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <SensorCard
-                  icon="🌡️"
+                  icon=""
                   label={isAr ? 'درجة الحرارة' : 'Temperature'}
                   value={healthData?.temperature ?? latestTelemetry?.temperature ?? '34.0'}
                   unit="°C"
@@ -729,7 +729,7 @@ export default function UnifiedDashboard() {
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-sm sm:text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                    📍 {isAr ? 'التتبع المباشر' : 'Live Tracking'}
+                    {isAr ? 'التتبع المباشر' : 'Live Tracking'}
                   </h2>
                   {latestTelemetry && MAPBOX_TOKEN && (
                     <button
@@ -768,7 +768,7 @@ export default function UnifiedDashboard() {
                 </div>
                 {latestTelemetry && (
                   <div className="mt-2 flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-                    <span>📍 {latestTelemetry.lat.toFixed(5)}, {latestTelemetry.lng.toFixed(5)}</span>
+                    <span>{latestTelemetry.lat.toFixed(5)}, {latestTelemetry.lng.toFixed(5)}</span>
                     <span>🕐 {new Date(latestTelemetry.timestamp).toLocaleString()}</span>
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full inline-block" style={{ background: 'var(--color-royal-green)' }} />
@@ -784,7 +784,7 @@ export default function UnifiedDashboard() {
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-sm sm:text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                    📋 {isAr ? 'سجل الحركة (24 ساعة)' : 'Movement History (24h)'}
+                    {isAr ? 'سجل الحركة (24 ساعة)' : 'Movement History (24h)'}
                   </h2>
                   <button
                     onClick={() => {

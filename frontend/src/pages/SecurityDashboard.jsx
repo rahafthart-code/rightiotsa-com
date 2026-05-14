@@ -63,7 +63,7 @@ export default function SecurityDashboard() {
 
       {!loading && !error && rows.length === 0 && (
         <div style={{ background: "#E1F5EE", color: "#085041", padding: 16, borderRadius: 8, borderRight: "2px solid #1D9E75" }}>
-          ✅ لا توجد أحداث أمنية مسجلة في آخر 7 أيام.
+          لا توجد أحداث أمنية مسجلة في آخر 7 أيام.
         </div>
       )}
 

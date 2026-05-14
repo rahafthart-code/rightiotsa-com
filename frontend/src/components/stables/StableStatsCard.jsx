@@ -46,7 +46,7 @@ export default function StableStatsCard({ stable, stat, isAr }) {
         <div className="flex items-center gap-2">
           <span className="text-2xl">
             {stable.icon === 'farm' ? '🌾'
-              : stable.icon === 'ranch' ? '🐎'
+              : stable.icon === 'ranch' ? '•'
               : stable.icon === 'desert' ? '⛺'
               : '🌴'}
           </span>
@@ -55,7 +55,7 @@ export default function StableStatsCard({ stable, stat, isAr }) {
               {isAr ? stable.name : stable.name_en || stable.name}
             </h2>
             {stable.location_name && (
-              <div className="text-xs" style={{ color: '#6b6b6b' }}>📍 {stable.location_name}</div>
+              <div className="text-xs" style={{ color: '#6b6b6b' }}>{stable.location_name}</div>
             )}
           </div>
         </div>

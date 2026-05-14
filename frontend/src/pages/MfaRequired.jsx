@@ -28,7 +28,7 @@ export default function MfaRequired() {
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: 32, marginBottom: 12 }}>🔐</div>
+        <div style={{ fontSize: 32, marginBottom: 12 }}></div>
         <h1 style={{ fontSize: 18, color: "#791F1F", marginBottom: 8 }}>
           مطلوب تفعيل التحقق بخطوتين
         </h1>

@@ -48,7 +48,7 @@ export default function PaymentSuccessPage() {
         )}
         {status === "success" && (
           <>
-            <div className="text-6xl mb-3">✅</div>
+            <div className="text-6xl mb-3"></div>
             <h2 className="text-2xl font-extrabold" style={{ color: "#006c35" }}>
               {isAr ? "تم الدفع بنجاح" : "Payment successful"}
             </h2>

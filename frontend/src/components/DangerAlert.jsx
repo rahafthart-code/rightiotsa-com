@@ -51,7 +51,7 @@ export default function DangerAlert({ asset, onClose }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-7xl">
-              {asset.species === 'Horse' ? '🐎' : asset.species === 'Falcon' ? '🦅' : '🐪'}
+              {asset.species === 'Horse' ? '•' : asset.species === 'Falcon' ? '•' : '•'}
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />

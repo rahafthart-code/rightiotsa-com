@@ -149,7 +149,7 @@ export default function OwnerDashboard() {
           </div>
         ) : assets.length === 0 ? (
           <div className="text-center py-16 rounded-2xl border border-slate-800 bg-slate-900/40">
-            <div className="text-5xl mb-3">🐪</div>
+            <div className="text-5xl mb-3">•</div>
             <p className="text-slate-400 text-sm">
               {isAr ? 'لا توجد أصول مسجلة بعد' : 'No assets registered yet'}
             </p>

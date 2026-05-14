@@ -138,9 +138,9 @@ export default function AssetPassport() {
     : '#006c35';
 
   const speciesEmoji =
-    asset.species === 'Horse' ? '🐎'
-    : asset.species === 'Falcon' ? '🦅'
-    : '🐪';
+    asset.species === 'Horse' ? '•'
+    : asset.species === 'Falcon' ? '•'
+    : '•';
 
   return (
     <div

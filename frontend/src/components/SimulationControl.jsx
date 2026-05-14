@@ -117,7 +117,7 @@ export default function SimulationControl() {
             onClick={requestNotificationPermission}
             className="w-full px-4 py-2 border border-slate-600 hover:border-blue-500 text-slate-300 hover:text-blue-300 text-sm rounded-lg transition-all"
           >
-            {i18n.language === 'ar' ? '🔔 تفعيل إشعارات المتصفح' : '🔔 Enable Browser Notifications'}
+            {i18n.language === 'ar' ? 'تفعيل إشعارات المتصفح' : 'Enable Browser Notifications'}
           </button>
         )}
       </div>

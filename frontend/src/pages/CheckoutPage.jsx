@@ -166,7 +166,7 @@ export default function CheckoutPage() {
             >
               {processing
                 ? (isAr ? "جارٍ التحويل…" : "Redirecting…")
-                : (isAr ? `🔒 ادفع ${total.toFixed(2)} ر.س` : `🔒 Pay ${total.toFixed(2)} SAR`)}
+                : (isAr ? `ادفع ${total.toFixed(2)} ر.س` : `Pay ${total.toFixed(2)} SAR`)}
             </button>
 
             <div

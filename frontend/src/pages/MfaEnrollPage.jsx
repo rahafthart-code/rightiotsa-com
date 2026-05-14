@@ -76,7 +76,7 @@ export default function MfaEnrollPage() {
       <div className="w-full max-w-md rounded-2xl border p-6 shadow-lg"
            style={{ background: "white", borderColor: "var(--color-border-tertiary, #e5e7eb)" }}>
         <h1 className="text-xl font-bold mb-1" style={{ color: "#006c35" }}>
-          {isAr ? "🔐 تفعيل المصادقة الثنائية" : "🔐 Enable Two-Factor Authentication"}
+          {isAr ? "تفعيل المصادقة الثنائية" : "Enable Two-Factor Authentication"}
         </h1>
         <p className="text-sm mb-4 text-slate-600">
           {isAr
@@ -92,7 +92,7 @@ export default function MfaEnrollPage() {
 
         {done ? (
           <div className="text-center py-6">
-            <div className="text-3xl mb-2">✅</div>
+            <div className="text-3xl mb-2"></div>
             <p className="font-medium" style={{ color: "#006c35" }}>
               {isAr ? "تم تفعيل المصادقة الثنائية بنجاح" : "MFA enabled successfully"}
             </p>

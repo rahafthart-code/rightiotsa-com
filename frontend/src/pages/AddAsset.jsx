@@ -14,9 +14,9 @@ import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
 const STEPS = 4;
 
 const SPECIES = [
-  { value: 'horse',  emoji: '🐎', ar: 'حصان', en: 'Horse' },
-  { value: 'camel',  emoji: '🐪', ar: 'جمل',  en: 'Camel' },
-  { value: 'falcon', emoji: '🦅', ar: 'صقر',  en: 'Falcon' },
+  { value: 'horse',  emoji: '•', ar: 'حصان', en: 'Horse' },
+  { value: 'camel',  emoji: '•', ar: 'جمل',  en: 'Camel' },
+  { value: 'falcon', emoji: '•', ar: 'صقر',  en: 'Falcon' },
 ];
 
 // Map UI species → DB enum (assets.species). We try canonical capitalised
@@ -201,7 +201,7 @@ export default function AddAsset() {
           className="rounded-2xl p-6 text-center shadow-md"
           style={{ background: '#fff', border: '1px solid rgba(197,165,90,0.4)' }}
         >
-          <div className="text-5xl mb-3">🔒</div>
+          <div className="text-5xl mb-3"></div>
           <h2 className="text-xl font-bold mb-2" style={{ color: '#006c35' }}>
             {isAr ? 'وصلت للحد الأقصى' : 'Plan limit reached'}
           </h2>

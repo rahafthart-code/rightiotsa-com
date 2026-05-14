@@ -307,7 +307,7 @@ export default function PassportPage() {
                   <img src={asset.image_url} alt={asset.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-5xl">
-                    {asset.species === 'horse' ? '🐎' : asset.species === 'falcon' ? '🦅' : '🐪'}
+                    {asset.species === 'horse' ? '•' : asset.species === 'falcon' ? '•' : '•'}
                   </div>
                 )}
               </div>

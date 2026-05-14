@@ -115,7 +115,7 @@ export default function GeofenceEditor({
           className="mt-2 text-[10px] font-mono"
           style={{ color: "var(--color-text-muted)" }}
         >
-          📍 {centerLat.toFixed(5)}, {centerLng.toFixed(5)}
+          {centerLat.toFixed(5)}, {centerLng.toFixed(5)}
         </div>
       )}
     </div>

@@ -8,7 +8,7 @@ import { useNotifications } from '../hooks/useNotifications';
 const ICONS = {
   danger_alert: '🚨',
   warning_alert: '⚠️',
-  zone_breach: '📍',
+  zone_breach: '',
   re_engagement: '🌟',
   health_report: '🩺',
 };
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
                 className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
                 style={{ background: 'rgba(197,165,90,0.18)' }}
               >
-                {ICONS[n.type] || '🔔'}
+                {ICONS[n.type] || ''}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

@@ -49,7 +49,7 @@ export default function GuestView() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--color-bg-primary)' }}>
         <div className="text-center max-w-sm">
-          <div className="text-5xl mb-3">🔒</div>
+          <div className="text-5xl mb-3"></div>
           <h1 className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {isAr ? 'رابط غير صالح' : 'Invalid link'}
           </h1>
@@ -78,7 +78,7 @@ export default function GuestView() {
     );
   }
 
-  const speciesEmoji = { Camel: '🐪', Horse: '🐴', Falcon: '🦅' }[payload.s] || '📍';
+  const speciesEmoji = { Camel: '•', Horse: '•', Falcon: '•' }[payload.s] || '';
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--color-bg-primary)' }}>
@@ -144,7 +144,7 @@ export default function GuestView() {
             <div ref={mapContainerRef} className="h-80 sm:h-[420px] w-full" />
           )}
           <div className="px-4 py-3 text-[11px] flex flex-wrap gap-3 border-t" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
-            <span>📍 {payload.lat?.toFixed(5)}, {payload.lng?.toFixed(5)}</span>
+            <span>{payload.lat?.toFixed(5)}, {payload.lng?.toFixed(5)}</span>
             {payload.ts && <span>🕐 {new Date(payload.ts).toLocaleString(isAr ? 'ar-SA' : 'en')}</span>}
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function GuestView() {
             className="inline-block px-5 py-2.5 text-sm font-bold rounded-xl"
             style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}
           >
-            {isAr ? '🐪 تتبع قطيعك مع رايت' : '🐪 Track your own herd'}
+            {isAr ? '• تتبع قطيعك مع رايت' : '• Track your own herd'}
           </Link>
         </div>
       </main>

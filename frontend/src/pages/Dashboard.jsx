@@ -176,7 +176,7 @@ export default function Dashboard() {
                   ? (isAr ? '⚠️ تنبيه فوري مطلوب' : '⚠️ Immediate attention required')
                   : warningCount > 0
                   ? (isAr ? '👀 مراقبة متيقظة' : '👀 Monitor closely')
-                  : (isAr ? '✅ جميع الأصول مستقرة' : '✅ All assets stable')}
+                  : (isAr ? 'جميع الأصول مستقرة' : 'All assets stable')}
               </div>
               <div className="text-xs mt-1 opacity-80">
                 {isAr
@@ -219,7 +219,7 @@ export default function Dashboard() {
                 border: '1px dashed rgba(0,108,53,0.3)',
               }}
             >
-              <div className="text-5xl mb-3">🐪</div>
+              <div className="text-5xl mb-3">•</div>
               <p style={{ color: '#6b6b6b' }} className="text-sm">
                 {isAr ? 'لا توجد أصول مسجلة بعد' : 'No assets registered yet'}
               </p>

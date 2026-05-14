@@ -110,7 +110,7 @@ export default function AssetsListPage() {
           className="text-center py-16 rounded-2xl"
           style={{ background: '#fff', border: '1px dashed rgba(0,108,53,0.3)' }}
         >
-          <div className="text-5xl mb-3">🐪</div>
+          <div className="text-5xl mb-3">•</div>
           <p style={{ color: '#6b6b6b' }} className="text-sm">
             {stableFilter === 'all'
               ? (isAr ? 'لا توجد أصول مسجلة بعد' : 'No assets registered yet')
