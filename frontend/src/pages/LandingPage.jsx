@@ -168,8 +168,9 @@ export default function LandingPage() {
               : 'Proactive monitoring and instant alerts for data-driven decisions to ensure the safety of your assets.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => setShowOrderModal(true)} className="px-8 py-4 font-bold text-base sm:text-lg rounded-xl shadow-xl transition-all transform hover:scale-105" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
-              📋 {isAr ? 'اطلب عرضًا مخصصًا' : 'Request Custom Quote'}
+            <button onClick={() => setShowOrderModal(true)} className="inline-flex items-center justify-center gap-2 px-8 py-4 font-bold text-base sm:text-lg rounded-xl shadow-xl transition-all transform hover:scale-105" style={{ background: 'var(--color-desert-gold)', color: 'var(--color-royal-green-dark)' }}>
+              <FileText size={20} />
+              {isAr ? 'اطلب عرضًا مخصصًا' : 'Request Custom Quote'}
             </button>
             <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 font-semibold rounded-xl transition-all" style={{ border: '2px solid rgba(197,165,90,0.5)', color: 'var(--color-desert-gold-light)' }}>
               {isAr ? 'عرض الباقات' : 'View Plans'}
