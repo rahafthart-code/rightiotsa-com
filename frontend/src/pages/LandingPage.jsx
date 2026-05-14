@@ -190,13 +190,13 @@ export default function LandingPage() {
           </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { icon: '📍', titleAr: 'تتبع جغرافي لحظي', titleEn: 'Real-time GPS Tracking', descAr: 'راقب موقع حيواناتك في الوقت الفعلي مع خرائط تفاعلية عالية الدقة', descEn: "Monitor your animals' location in real-time with high-precision interactive maps", accent: 'var(--color-royal-green)' },
-              { icon: '🌡️', titleAr: 'مراقبة الحرارة والنشاط', titleEn: 'Temperature & Activity', descAr: 'احصل على تقارير صحية وتنبيهات فورية لأي تغيرات غير طبيعية', descEn: 'Get health reports and instant alerts for any abnormal changes', accent: 'var(--color-desert-gold-dark)' },
-              { icon: '🔔', titleAr: 'تنبيهات السياج الجغرافي', titleEn: 'Geofence Alerts', descAr: 'تنبيهات فورية عند خروج الحيوان من المنطقة الآمنة', descEn: 'Instant alerts when an animal leaves the designated safe zone', accent: 'var(--color-royal-green)' },
+              { Icon: MapPin, titleAr: 'تتبع جغرافي لحظي', titleEn: 'Real-time GPS Tracking', descAr: 'راقب موقع حيواناتك في الوقت الفعلي مع خرائط تفاعلية عالية الدقة', descEn: "Monitor your animals' location in real-time with high-precision interactive maps", accent: 'var(--color-royal-green)' },
+              { Icon: Activity, titleAr: 'مراقبة الحرارة والنشاط', titleEn: 'Temperature & Activity', descAr: 'احصل على تقارير صحية وتنبيهات فورية لأي تغيرات غير طبيعية', descEn: 'Get health reports and instant alerts for any abnormal changes', accent: 'var(--color-desert-gold-dark)' },
+              { Icon: Bell, titleAr: 'تنبيهات السياج الجغرافي', titleEn: 'Geofence Alerts', descAr: 'تنبيهات فورية عند خروج الحيوان من المنطقة الآمنة', descEn: 'Instant alerts when an animal leaves the designated safe zone', accent: 'var(--color-royal-green)' },
             ].map((f, i) => (
               <div key={i} className="rounded-2xl p-6 sm:p-8 transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 text-2xl" style={{ background: `${f.accent}15` }}>
-                  {f.icon}
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: `${f.accent}15`, color: f.accent }}>
+                  <f.Icon size={26} />
                 </div>
                 <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
                   {isAr ? f.titleAr : f.titleEn}
