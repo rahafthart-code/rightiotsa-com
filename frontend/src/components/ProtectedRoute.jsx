@@ -2,15 +2,19 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
-import { ensureMockUser } from '../utils/mockData';
+import { ensureMockUser, isDemoMode } from '../utils/mockData';
 
 /**
  * Auth + subscription guard.
- *  - Requires a real Supabase session.
- *  - Requires an active or trial-with-future-end subscription, otherwise → /subscribe.
+ *  - Demo mode (localStorage demo_mode=1) bypasses all checks for inspection.
+ *  - Otherwise requires a real Supabase session + active/trial subscription.
  */
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
+
+  // Demo / bypass mode short-circuit — full access for inspection.
+  if (isDemoMode()) return children;
+
   const { user, loading: authLoading } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
 
@@ -35,7 +39,6 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Allow access to /subscribe and /payment/success even without an active subscription
   const path = location.pathname;
   const isSubscribeFlow = path.startsWith('/subscribe') || path.startsWith('/payment');
 
@@ -45,3 +48,4 @@ export default function ProtectedRoute({ children }) {
 
   return children;
 }
+
