@@ -152,7 +152,8 @@ export default function LandingPage() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M30 5L55 30L30 55L5 30Z\' fill=\'none\' stroke=\'%23c5a55a\' stroke-width=\'0.5\'/%3E%3C/svg%3E")', backgroundSize: '60px 60px' }} />
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-semibold" style={{ background: 'rgba(197,165,90,0.2)', color: 'var(--color-desert-gold-light)', border: '1px solid rgba(197,165,90,0.3)' }}>
-            🐪 🐴 🦅 {isAr ? 'منصة موثوقة لتتبع الأصول' : 'Trusted Asset Tracking Platform'}
+            <Crown size={14} style={{ color: 'var(--color-desert-gold-light)' }} />
+            {isAr ? 'منصة موثوقة لتتبع الأصول' : 'Trusted Asset Tracking Platform'}
           </div>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
             {isAr ? (
