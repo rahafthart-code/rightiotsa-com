@@ -272,7 +272,7 @@ export default function LandingPage() {
             {[
               { Icon: CamelIcon, labelAr: 'الإبل', labelEn: 'Camels' },
               { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
-              { Icon: Bird,      labelAr: 'الصقور', labelEn: 'Falcons' },
+              { Icon: FalconIcon, labelAr: 'الصقور', labelEn: 'Falcons' },
             ].map((s, i) => (
               <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)' }}>
                 <div className="mb-3 flex items-center justify-center" style={{ color: 'var(--color-royal-green)' }}>
