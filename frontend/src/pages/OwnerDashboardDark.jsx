@@ -155,13 +155,13 @@ export default function OwnerDashboardDark() {
               onClick={() => navigate('/notifications')}
               aria-label="الإشعارات"
               className="relative w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-              style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+              style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
             >
               <Bell size={18} style={{ color: GOLD }} />
               {unreadCount > 0 && (
                 <span
                   className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
-                  style={{ background: GOLD, color: '#1a1408' }}
+                  style={{ background: GOLD, color: ON_GOLD }}
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
@@ -226,7 +226,7 @@ export default function OwnerDashboardDark() {
                 <button
                   onClick={() => { if (guardAddAsset()) navigate('/onboarding'); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                  style={{ background: GOLD, color: '#1a1408' }}
+                  style={{ background: GOLD, color: ON_GOLD }}
                 >
                   <Plus size={14} /> أصل جديد
                 </button>
@@ -281,7 +281,7 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
       {typeof badge === 'number' && badge > 0 && (
         <span
           className="min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
-          style={{ background: GOLD, color: '#1a1408' }}
+          style={{ background: GOLD, color: ON_GOLD }}
         >
           {badge > 99 ? '99+' : badge}
         </span>
@@ -296,7 +296,7 @@ function QuickNav({ onClick, icon: Icon, label }) {
       type="button"
       onClick={onClick}
       className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-xl text-[11px] font-bold transition-all hover:scale-[1.03]"
-      style={{ background: '#0a1020', border: `1px solid ${BORDER}`, color: GOLD }}
+      style={{ background: CHIP_BG, border: `1px solid ${BORDER}`, color: GOLD }}
     >
       <Icon size={18} />
       <span style={{ color: TEXT }}>{label}</span>
@@ -379,7 +379,7 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
       <div className="p-4 flex items-center gap-3">
         <div
           className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0"
-          style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+          style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
         >
           {asset.image_url || asset.photo_url ? (
             <img src={asset.image_url || asset.photo_url} alt={asset.name}
@@ -493,7 +493,7 @@ function ReadingChip({ icon, value, unit }) {
   return (
     <div
       className="rounded-lg px-2 py-1.5 flex items-center gap-1.5"
-      style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+      style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
     >
       {icon}
       <div className="leading-tight">
@@ -520,7 +520,7 @@ function EmptyState({ onAdd }) {
       <button
         onClick={onAdd}
         className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
-        style={{ background: GOLD, color: '#1a1408',
+        style={{ background: GOLD, color: ON_GOLD,
                  boxShadow: `0 4px 18px ${GOLD}55` }}
       >
         + أضف أصلاً
