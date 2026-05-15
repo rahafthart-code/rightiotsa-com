@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertTriangle } from 'lucide-react';
 
 /**
  * UsageBar — compact plan-usage card with progress bars + upgrade CTA when near cap.
@@ -81,10 +82,11 @@ export default function UsageBar({ usage, dark = false, isAr = true }) {
       {pct >= 90 && (
         <button
           onClick={() => navigate('/subscribe?upgrade=true&reason=asset_limit')}
-          className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-colors"
+          className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-colors inline-flex items-center justify-center gap-2"
           style={{ background: color, color: '#fff' }}
         >
-          ⚠️ {isAr ? 'اقتربت من الحد — ترقية الباقة الآن' : 'Near limit — upgrade plan now'}
+          <AlertTriangle size={14} />
+          {isAr ? 'اقتربت من الحد — ترقية الباقة الآن' : 'Near limit — upgrade plan now'}
         </button>
       )}
     </section>

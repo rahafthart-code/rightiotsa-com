@@ -218,7 +218,7 @@ export default function OwnerDashboardDark() {
             </section>
 
             {/* Plan usage */}
-            {usage && <UsageBar usage={usage} dark isAr />}
+            {usage && <UsageBar usage={usage} isAr />}
 
             {/* Assets */}
             <section>
