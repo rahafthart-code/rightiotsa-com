@@ -272,9 +272,10 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
       end={end}
       className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors"
       style={({ isActive }) => ({
-        background: isActive ? GOLD_BG : 'transparent',
-        color: isActive ? GOLD : MUTED,
-        borderInlineStart: `2px solid ${isActive ? GOLD : 'transparent'}`,
+        background: isActive ? GREEN_SOFT : 'transparent',
+        color: isActive ? GREEN : '#3a4a3a',
+        fontWeight: isActive ? 800 : 600,
+        borderInlineStart: `3px solid ${isActive ? GOLD : 'transparent'}`,
       })}
     >
       <Icon size={16} />
