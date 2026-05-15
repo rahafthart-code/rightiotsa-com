@@ -270,13 +270,21 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-3xl mx-auto">
             {[
-              { Icon: CamelIcon, labelAr: 'الإبل', labelEn: 'Camels' },
-              { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
-              { Icon: FalconIcon, labelAr: 'الصقور', labelEn: 'Falcons' },
+              { img: speciesCamel,  labelAr: 'الإبل',   labelEn: 'Camels'  },
+              { img: speciesHorse,  labelAr: 'الخيل',   labelEn: 'Horses'  },
+              { img: speciesFalcon, labelAr: 'الصقور',  labelEn: 'Falcons' },
             ].map((s, i) => (
-              <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--color-bg-card)', border: '2px solid #c5a55a' }}>
-                <div className="mb-4 flex items-center justify-center" style={{ color: '#006c35' }}>
-                  <s.Icon size={88} color="#006c35" />
+              <div key={i} className="rounded-2xl p-4 sm:p-6 text-center transition-all hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--color-bg-card)', border: '2px solid #c5a55a' }}>
+                <div className="mb-3 flex items-center justify-center h-32 sm:h-40">
+                  <img
+                    src={s.img}
+                    alt={isAr ? s.labelAr : s.labelEn}
+                    loading="lazy"
+                    width={160}
+                    height={160}
+                    className="max-h-full w-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 4px 10px rgba(0,108,53,0.18))' }}
+                  />
                 </div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: 'var(--color-royal-green)' }}>
                   {isAr ? s.labelAr : s.labelEn}
