@@ -12,17 +12,20 @@ import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
 import UsageBar from '../components/UsageBar';
 import logoImage from '../assets/logo-transparent.png';
 
-/* ─── Dark theme tokens (scoped) ─────────────────────── */
-const BG = '#090d17';
-const PANEL = '#0f1626';
-const BORDER = '#1c2640';
-const TEXT = '#f2efe3';
-const MUTED = '#7d8499';
-const GOLD = '#d4af37';
-const GOLD_BG = 'rgba(212,175,55,0.12)';
-const GREEN = '#22c55e';
-const AMBER = '#f59e0b';
-const RED = '#ef4444';
+/* ─── Heritage light theme tokens (scoped) ─────────────── */
+const BG = '#faf6ef';            // cream beige (matches landing)
+const PANEL = '#ffffff';         // white cards
+const BORDER = 'rgba(197,165,90,0.35)'; // soft gold border
+const TEXT = '#1a2e1a';          // deep ink
+const MUTED = '#5a6b5a';         // greenish-gray secondary
+const GOLD = '#c5a55a';          // desert gold accent
+const GOLD_BG = 'rgba(197,165,90,0.14)';
+const GREEN = '#006c35';         // royal green primary
+const GREEN_SOFT = 'rgba(0,108,53,0.08)';
+const AMBER = '#d97706';
+const RED = '#dc2626';
+const CHIP_BG = '#faf6ef';       // inset chip background
+const ON_GOLD = '#1a2e1a';       // text on gold buttons
 
 const statusColor = (s) =>
   s === 'danger' ? RED : s === 'warning' ? AMBER : GREEN;
