@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
-  LogOut, Heart, Thermometer, MapPin, Plus, Cpu,
+  LogOut, Heart, Thermometer, MapPin, Plus, Cpu, PackageSearch,
 } from 'lucide-react';
+import { CamelIcon, HorseIcon, FalconIcon } from '../components/icons';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useNotifications } from '../hooks/useNotifications';
