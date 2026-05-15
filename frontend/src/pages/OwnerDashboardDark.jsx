@@ -121,8 +121,8 @@ export default function OwnerDashboardDark() {
                style={{ borderBottom: `1px solid ${BORDER}` }}>
             <img src={logoImage} alt="Right" className="h-8 w-auto" />
             <div>
-              <div className="text-sm font-bold" style={{ color: GOLD }}>Right</div>
-              <div className="text-[10px]" style={{ color: MUTED }}>InsurTech</div>
+              <div className="text-sm font-bold" style={{ color: GREEN }}>Right</div>
+              <div className="text-[10px] font-semibold" style={{ color: GOLD }}>InsurTech</div>
             </div>
           </div>
 
