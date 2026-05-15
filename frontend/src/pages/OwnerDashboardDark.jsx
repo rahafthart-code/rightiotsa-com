@@ -513,8 +513,10 @@ function EmptyState({ onAdd }) {
       className="rounded-2xl py-16 px-6 flex flex-col items-center text-center"
       style={{ background: PANEL, border: `1px dashed ${GOLD}66` }}
     >
-      <div className="text-6xl mb-3">•</div>
-      <h3 className="text-lg font-bold mb-2" style={{ color: GOLD }}>
+      <div className="mb-3" style={{ color: GREEN }}>
+        <PackageSearch size={56} strokeWidth={1.5} />
+      </div>
+      <h3 className="text-lg font-bold mb-2" style={{ color: GREEN }}>
         أضف أصلك الأول
       </h3>
       <p className="text-xs mb-5" style={{ color: MUTED }}>
