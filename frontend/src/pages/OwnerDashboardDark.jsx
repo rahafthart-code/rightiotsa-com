@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
-  LogOut, Heart, Thermometer, MapPin, Plus, Cpu,
+  LogOut, Heart, Thermometer, MapPin, Plus, Cpu, PackageSearch,
 } from 'lucide-react';
+import { CamelIcon, HorseIcon, FalconIcon } from '../components/icons';
 import { useAuth } from '../hooks/useAuth';
 import { useAssets } from '../hooks/useAssets';
 import { useNotifications } from '../hooks/useNotifications';
@@ -12,17 +13,20 @@ import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
 import UsageBar from '../components/UsageBar';
 import logoImage from '../assets/logo-transparent.png';
 
-/* ─── Dark theme tokens (scoped) ─────────────────────── */
-const BG = '#090d17';
-const PANEL = '#0f1626';
-const BORDER = '#1c2640';
-const TEXT = '#f2efe3';
-const MUTED = '#7d8499';
-const GOLD = '#d4af37';
-const GOLD_BG = 'rgba(212,175,55,0.12)';
-const GREEN = '#22c55e';
-const AMBER = '#f59e0b';
-const RED = '#ef4444';
+/* ─── Heritage light theme tokens (scoped) ─────────────── */
+const BG = '#faf6ef';            // cream beige (matches landing)
+const PANEL = '#ffffff';         // white cards
+const BORDER = 'rgba(197,165,90,0.35)'; // soft gold border
+const TEXT = '#1a2e1a';          // deep ink
+const MUTED = '#5a6b5a';         // greenish-gray secondary
+const GOLD = '#c5a55a';          // desert gold accent
+const GOLD_BG = 'rgba(197,165,90,0.14)';
+const GREEN = '#006c35';         // royal green primary
+const GREEN_SOFT = 'rgba(0,108,53,0.08)';
+const AMBER = '#d97706';
+const RED = '#dc2626';
+const CHIP_BG = '#faf6ef';       // inset chip background
+const ON_GOLD = '#1a2e1a';       // text on gold buttons
 
 const statusColor = (s) =>
   s === 'danger' ? RED : s === 'warning' ? AMBER : GREEN;
@@ -117,8 +121,8 @@ export default function OwnerDashboardDark() {
                style={{ borderBottom: `1px solid ${BORDER}` }}>
             <img src={logoImage} alt="Right" className="h-8 w-auto" />
             <div>
-              <div className="text-sm font-bold" style={{ color: GOLD }}>Right</div>
-              <div className="text-[10px]" style={{ color: MUTED }}>InsurTech</div>
+              <div className="text-sm font-bold" style={{ color: GREEN }}>Right</div>
+              <div className="text-[10px] font-semibold" style={{ color: GOLD }}>InsurTech</div>
             </div>
           </div>
 
@@ -134,7 +138,7 @@ export default function OwnerDashboardDark() {
           <button
             onClick={handleSignOut}
             className="m-3 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors"
-            style={{ color: MUTED, border: `1px solid ${BORDER}` }}
+            style={{ color: GREEN, border: `1px solid ${BORDER}`, background: '#fff' }}
           >
             <LogOut size={14} /> تسجيل الخروج
           </button>
@@ -152,13 +156,13 @@ export default function OwnerDashboardDark() {
               onClick={() => navigate('/notifications')}
               aria-label="الإشعارات"
               className="relative w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-              style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+              style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
             >
               <Bell size={18} style={{ color: GOLD }} />
               {unreadCount > 0 && (
                 <span
                   className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
-                  style={{ background: GOLD, color: '#1a1408' }}
+                  style={{ background: GOLD, color: ON_GOLD }}
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
@@ -219,11 +223,11 @@ export default function OwnerDashboardDark() {
             {/* Assets */}
             <section>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base font-bold" style={{ color: GOLD }}>أصولي</h2>
+                <h2 className="text-base font-bold" style={{ color: GREEN }}>أصولي</h2>
                 <button
                   onClick={() => { if (guardAddAsset()) navigate('/onboarding'); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                  style={{ background: GOLD, color: '#1a1408' }}
+                  style={{ background: GOLD, color: ON_GOLD }}
                 >
                   <Plus size={14} /> أصل جديد
                 </button>
@@ -268,9 +272,10 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
       end={end}
       className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors"
       style={({ isActive }) => ({
-        background: isActive ? GOLD_BG : 'transparent',
-        color: isActive ? GOLD : MUTED,
-        borderInlineStart: `2px solid ${isActive ? GOLD : 'transparent'}`,
+        background: isActive ? GREEN_SOFT : 'transparent',
+        color: isActive ? GREEN : '#3a4a3a',
+        fontWeight: isActive ? 800 : 600,
+        borderInlineStart: `3px solid ${isActive ? GOLD : 'transparent'}`,
       })}
     >
       <Icon size={16} />
@@ -278,7 +283,7 @@ function SideLink({ to, icon: Icon, label, badge, end }) {
       {typeof badge === 'number' && badge > 0 && (
         <span
           className="min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
-          style={{ background: GOLD, color: '#1a1408' }}
+          style={{ background: GOLD, color: ON_GOLD }}
         >
           {badge > 99 ? '99+' : badge}
         </span>
@@ -293,7 +298,7 @@ function QuickNav({ onClick, icon: Icon, label }) {
       type="button"
       onClick={onClick}
       className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-xl text-[11px] font-bold transition-all hover:scale-[1.03]"
-      style={{ background: '#0a1020', border: `1px solid ${BORDER}`, color: GOLD }}
+      style={{ background: CHIP_BG, border: `1px solid ${BORDER}`, color: GOLD }}
     >
       <Icon size={18} />
       <span style={{ color: TEXT }}>{label}</span>
@@ -360,8 +365,8 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
   const isWarning = asset.status === 'warning';
   const color = statusColor(asset.status);
   const pct = Math.round(Number(asset.stability_index ?? 100));
-  const speciesEmoji = asset.species === 'Horse' ? '•'
-    : asset.species === 'Falcon' ? '•' : '•';
+  const SpeciesIcon = asset.species === 'Horse' ? HorseIcon
+    : asset.species === 'Falcon' ? FalconIcon : CamelIcon;
   const speciesLabel = asset.species === 'Horse' ? 'خيل'
     : asset.species === 'Falcon' ? 'صقر' : 'إبل';
 
@@ -370,18 +375,19 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
       className={`rounded-2xl overflow-hidden flex flex-col ${isDanger ? 'od-pulse-red' : ''} ${flash ? 'od-flash' : ''}`}
       style={{
         background: PANEL,
-        border: `${isDanger ? 2 : 1}px solid ${color}`,
+        border: `${isDanger ? 2 : 1}px solid ${isDanger ? color : BORDER}`,
+        boxShadow: '0 2px 12px rgba(0,108,53,0.06)',
       }}
     >
       <div className="p-4 flex items-center gap-3">
         <div
-          className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0"
-          style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+          className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center shrink-0"
+          style={{ background: CHIP_BG, border: `1px solid ${BORDER}`, color: GREEN }}
         >
           {asset.image_url || asset.photo_url ? (
             <img src={asset.image_url || asset.photo_url} alt={asset.name}
                  className="w-full h-full object-cover" loading="lazy" />
-          ) : speciesEmoji}
+          ) : <SpeciesIcon size={36} />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold truncate" style={{ color: TEXT }}>
@@ -490,7 +496,7 @@ function ReadingChip({ icon, value, unit }) {
   return (
     <div
       className="rounded-lg px-2 py-1.5 flex items-center gap-1.5"
-      style={{ background: '#0a1020', border: `1px solid ${BORDER}` }}
+      style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
     >
       {icon}
       <div className="leading-tight">
@@ -507,8 +513,10 @@ function EmptyState({ onAdd }) {
       className="rounded-2xl py-16 px-6 flex flex-col items-center text-center"
       style={{ background: PANEL, border: `1px dashed ${GOLD}66` }}
     >
-      <div className="text-6xl mb-3">•</div>
-      <h3 className="text-lg font-bold mb-2" style={{ color: GOLD }}>
+      <div className="mb-3" style={{ color: GREEN }}>
+        <PackageSearch size={56} strokeWidth={1.5} />
+      </div>
+      <h3 className="text-lg font-bold mb-2" style={{ color: GREEN }}>
         أضف أصلك الأول
       </h3>
       <p className="text-xs mb-5" style={{ color: MUTED }}>
@@ -517,7 +525,7 @@ function EmptyState({ onAdd }) {
       <button
         onClick={onAdd}
         className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
-        style={{ background: GOLD, color: '#1a1408',
+        style={{ background: GOLD, color: ON_GOLD,
                  boxShadow: `0 4px 18px ${GOLD}55` }}
       >
         + أضف أصلاً

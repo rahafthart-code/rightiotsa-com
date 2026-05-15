@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ShieldCheck, MapPin, Activity, Bell, Package, FileText,
-  CheckCircle2, Mail, PlayCircle, Bird, Crown,
+  CheckCircle2, Mail, PlayCircle, Crown,
 } from "lucide-react";
 import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
@@ -12,18 +12,70 @@ import logoImage from "../assets/logo-transparent.png";
 import TermsModal from "../components/TermsModal";
 import OrderDeviceModal from "../components/OrderDeviceModal";
 
-// Inline camel/horse glyphs (not in lucide); kept minimal & monochrome.
-const CamelIcon = ({ size = 28, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M8 46c2-2 4-2 6 0 2 2 4 2 6 0V32c0-6 4-10 10-10 4 0 6 2 8 6 2-8 6-12 12-12 4 0 6 2 6 6 0 4-2 8-6 10v14c2 2 4 2 6 0" />
-    <circle cx="50" cy="20" r="1.5" fill={color} />
+// Cyber-Heritage line art glyphs — full-body silhouettes in royal green.
+const CamelIcon = ({ size = 28, color = "#006c35" }) => (
+  <svg width={size} height={size} viewBox="0 0 96 96" fill="none"
+       stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+       aria-label="Camel">
+    {/* legs */}
+    <path d="M28 78 V62 M40 78 V62 M58 78 V62 M70 78 V62" />
+    {/* body underline */}
+    <path d="M22 62 H76" />
+    {/* body + two humps */}
+    <path d="M22 62 C 22 50, 28 46, 34 46 C 38 36, 46 36, 50 46 C 54 36, 62 36, 66 46 C 72 46, 76 50, 76 56" />
+    {/* neck rising */}
+    <path d="M70 50 C 74 38, 78 28, 80 18" />
+    {/* head */}
+    <path d="M80 18 C 86 16, 90 20, 88 26 C 86 30, 82 30, 80 28 Z" />
+    {/* tail */}
+    <path d="M22 58 C 18 60, 16 64, 18 68" />
+    {/* eye */}
+    <circle cx="84" cy="22" r="0.9" fill={color} />
   </svg>
 );
-const HorseIcon = ({ size = 28, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 50V36c0-8 6-14 14-14h6l8-10v10c4 2 8 6 8 12v16" />
-    <path d="M22 50v-8M42 50v-8" />
-    <circle cx="44" cy="20" r="1.5" fill={color} />
+
+const HorseIcon = ({ size = 28, color = "#006c35" }) => (
+  <svg width={size} height={size} viewBox="0 0 96 96" fill="none"
+       stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+       aria-label="Horse">
+    {/* legs */}
+    <path d="M22 78 V60 M34 78 V60 M58 78 V60 M70 78 V60" />
+    {/* body */}
+    <path d="M20 60 C 20 50, 26 44, 36 44 H 60 C 68 44, 74 50, 74 60" />
+    {/* chest + neck arch */}
+    <path d="M74 50 C 80 44, 82 32, 78 22" />
+    {/* head */}
+    <path d="M78 22 C 84 18, 90 22, 90 28 C 90 34, 84 36, 80 34 L 76 38" />
+    {/* mane */}
+    <path d="M72 36 L 70 30 M68 40 L 64 34 M64 42 L 60 36" />
+    {/* tail */}
+    <path d="M20 56 C 14 58, 12 66, 16 72" />
+    {/* eye */}
+    <circle cx="86" cy="26" r="0.9" fill={color} />
+  </svg>
+);
+
+const FalconIcon = ({ size = 28, color = "#006c35" }) => (
+  <svg width={size} height={size} viewBox="0 0 96 96" fill="none"
+       stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
+       aria-label="Falcon">
+    {/* head */}
+    <path d="M52 24 C 60 22, 68 26, 68 34 C 68 38, 64 40, 62 40" />
+    {/* hooked beak */}
+    <path d="M68 32 L 76 32 L 72 36" />
+    {/* eye */}
+    <circle cx="62" cy="30" r="1.1" fill={color} />
+    {/* body */}
+    <path d="M50 40 C 42 44, 36 54, 38 64 C 40 72, 50 76, 58 72" />
+    {/* tucked wing with feather lines */}
+    <path d="M44 46 C 38 50, 30 60, 28 70" />
+    <path d="M48 50 L 32 64 M50 56 L 36 70 M52 62 L 42 72" />
+    {/* tail feathers */}
+    <path d="M58 72 L 70 80 M58 72 L 64 82 M58 72 L 56 84" />
+    {/* perched legs */}
+    <path d="M48 70 V 80 M54 70 V 80" />
+    {/* talons / perch */}
+    <path d="M44 80 H 58 M50 80 H 60" />
   </svg>
 );
 
@@ -220,11 +272,11 @@ export default function LandingPage() {
             {[
               { Icon: CamelIcon, labelAr: 'الإبل', labelEn: 'Camels' },
               { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
-              { Icon: Bird,      labelAr: 'الصقور', labelEn: 'Falcons' },
+              { Icon: FalconIcon, labelAr: 'الصقور', labelEn: 'Falcons' },
             ].map((s, i) => (
-              <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)' }}>
-                <div className="mb-3 flex items-center justify-center" style={{ color: 'var(--color-royal-green)' }}>
-                  <s.Icon size={48} color="currentColor" />
+              <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--color-bg-card)', border: '2px solid #c5a55a' }}>
+                <div className="mb-4 flex items-center justify-center" style={{ color: '#006c35' }}>
+                  <s.Icon size={88} color="#006c35" />
                 </div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: 'var(--color-royal-green)' }}>
                   {isAr ? s.labelAr : s.labelEn}
