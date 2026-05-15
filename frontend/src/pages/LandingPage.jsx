@@ -274,9 +274,9 @@ export default function LandingPage() {
               { Icon: HorseIcon, labelAr: 'الخيل', labelEn: 'Horses' },
               { Icon: FalconIcon, labelAr: 'الصقور', labelEn: 'Falcons' },
             ].map((s, i) => (
-              <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)' }}>
-                <div className="mb-3 flex items-center justify-center" style={{ color: 'var(--color-royal-green)' }}>
-                  <s.Icon size={48} color="currentColor" />
+              <div key={i} className="rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-lg hover:-translate-y-1" style={{ background: 'var(--color-bg-card)', border: '2px solid #c5a55a' }}>
+                <div className="mb-4 flex items-center justify-center" style={{ color: '#006c35' }}>
+                  <s.Icon size={88} color="#006c35" />
                 </div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: 'var(--color-royal-green)' }}>
                   {isAr ? s.labelAr : s.labelEn}
