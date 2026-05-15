@@ -365,8 +365,8 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
   const isWarning = asset.status === 'warning';
   const color = statusColor(asset.status);
   const pct = Math.round(Number(asset.stability_index ?? 100));
-  const speciesEmoji = asset.species === 'Horse' ? '•'
-    : asset.species === 'Falcon' ? '•' : '•';
+  const SpeciesIcon = asset.species === 'Horse' ? HorseIcon
+    : asset.species === 'Falcon' ? FalconIcon : CamelIcon;
   const speciesLabel = asset.species === 'Horse' ? 'خيل'
     : asset.species === 'Falcon' ? 'صقر' : 'إبل';
 
@@ -375,18 +375,19 @@ const AssetTile = React.memo(function AssetTile({ asset, flash, onPassport, onCl
       className={`rounded-2xl overflow-hidden flex flex-col ${isDanger ? 'od-pulse-red' : ''} ${flash ? 'od-flash' : ''}`}
       style={{
         background: PANEL,
-        border: `${isDanger ? 2 : 1}px solid ${color}`,
+        border: `${isDanger ? 2 : 1}px solid ${isDanger ? color : BORDER}`,
+        boxShadow: '0 2px 12px rgba(0,108,53,0.06)',
       }}
     >
       <div className="p-4 flex items-center gap-3">
         <div
-          className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0"
-          style={{ background: CHIP_BG, border: `1px solid ${BORDER}` }}
+          className="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center shrink-0"
+          style={{ background: CHIP_BG, border: `1px solid ${BORDER}`, color: GREEN }}
         >
           {asset.image_url || asset.photo_url ? (
             <img src={asset.image_url || asset.photo_url} alt={asset.name}
                  className="w-full h-full object-cover" loading="lazy" />
-          ) : speciesEmoji}
+          ) : <SpeciesIcon size={36} />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold truncate" style={{ color: TEXT }}>
