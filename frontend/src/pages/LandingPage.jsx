@@ -9,6 +9,9 @@ import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
 import { enableDemoMode } from "../utils/mockData";
 import logoImage from "../assets/logo-transparent.png";
+import speciesCamel from "../assets/species-camel.png";
+import speciesHorse from "../assets/species-horse.png";
+import speciesFalcon from "../assets/species-falcon.png";
 import TermsModal from "../components/TermsModal";
 import OrderDeviceModal from "../components/OrderDeviceModal";
 
