@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ShieldCheck, MapPin, Activity, Bell, Package, FileText,
-  CheckCircle2, Mail, PlayCircle, Bird, Crown,
+  CheckCircle2, Mail, PlayCircle, Crown,
 } from "lucide-react";
 import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
