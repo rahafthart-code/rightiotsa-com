@@ -138,7 +138,7 @@ export default function OwnerDashboardDark() {
           <button
             onClick={handleSignOut}
             className="m-3 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors"
-            style={{ color: MUTED, border: `1px solid ${BORDER}` }}
+            style={{ color: GREEN, border: `1px solid ${BORDER}`, background: '#fff' }}
           >
             <LogOut size={14} /> تسجيل الخروج
           </button>
