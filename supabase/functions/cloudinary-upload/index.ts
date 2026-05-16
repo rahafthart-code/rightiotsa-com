@@ -55,10 +55,27 @@ Deno.serve(async (req) => {
       });
     }
 
+    // SECURITY: allowlist safe raster image MIME types only. SVG/HTML can
+    // carry <script> payloads and would become stored-XSS if served raw.
+    const ALLOWED_TYPES = new Set([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ]);
+    if (!ALLOWED_TYPES.has(file.type)) {
+      return new Response(
+        JSON.stringify({ error: "File type not allowed. Use JPEG, PNG, WebP, or GIF." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const fwd = new FormData();
     fwd.append("file", file);
     fwd.append("upload_preset", UPLOAD_PRESET);
     fwd.append("folder", `right_insurtech/${user.id}`);
+    // Restrict server-side to image resource type as defense-in-depth.
+    fwd.append("resource_type", "image");
 
     const cloudRes = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
