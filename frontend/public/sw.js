@@ -3,7 +3,7 @@
  * - Stale-while-revalidate for navigations (so the desert still loads)
  * - Push notifications for low-stability alerts (< 70%)
  */
-const VERSION = 'right-sw-v3';
+const VERSION = 'right-sw-v4';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const SHELL_ASSETS = [
@@ -39,17 +39,27 @@ self.addEventListener('fetch', (event) => {
   // Skip cross-origin (Supabase, Mapbox, fonts) — let the network/cache headers handle it
   if (url.origin !== self.location.origin) return;
 
-  // Navigations: stale-while-revalidate index.html so the SPA always boots offline
+  // Navigations: network-first so the SPA never boots a stale index.html that
+  // references hashed chunks that no longer exist after a redeploy.
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       const cache = await caches.open(SHELL_CACHE);
-      const cached = await cache.match('/');
-      const fetchPromise = fetch(req).then((resp) => {
+      try {
+        const resp = await fetch(req);
         if (resp && resp.ok) cache.put('/', resp.clone());
         return resp;
-      }).catch(() => cached);
-      return cached || fetchPromise;
+      } catch {
+        const cached = await cache.match('/');
+        return cached || Response.error();
+      }
     })());
+    return;
+  }
+
+  // Never cache hashed JS/CSS chunks — always go to network so a stale
+  // cached HTML can never collide with missing chunk hashes.
+  if (/\/assets\/.+\.(js|css)$/.test(url.pathname)) {
+    event.respondWith(fetch(req).catch(() => caches.match(req)));
     return;
   }
 
