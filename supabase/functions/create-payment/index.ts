@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
     return jsonResp({ payment_url: moyasarData.url, invoice_id: moyasarData.id });
   } catch (err) {
     console.error("create-payment error:", err);
-    return jsonResp({ error: (err as Error).message }, 500);
+    return jsonResp({ error: "An internal error occurred. Please try again." }, 500);
   }
 });
 

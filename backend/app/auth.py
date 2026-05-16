@@ -69,12 +69,17 @@ def create_and_send_otp(db: Session, user: User, use_authentica: bool = True) ->
             send_otp_email(to_email=user.email, code=code, full_name=user.full_name)
     else:
         # Use original email-based OTP (for testing or fallback)
-        testing_otp = os.getenv("DEV_TESTING_OTP", "")
-        
+        # SECURITY: the master/testing OTP shortcut is ONLY allowed when the
+        # process is explicitly NOT in production. In production it is ignored
+        # even if the variable is somehow set, so a leaked dev value cannot
+        # become a master password.
+        is_production = os.getenv("PRODUCTION", "1").lower() in {"1", "true", "yes"}
+        testing_otp = "" if is_production else os.getenv("DEV_TESTING_OTP", "")
+
         if testing_otp:
-            # Use the fixed testing code (e.g., "1234")
+            # Use the fixed testing code (e.g., "1234") — dev only
             code = testing_otp
-            print(f"[DEV MODE] Using fixed testing OTP: {code} for {user.email}")
+            print(f"[DEV MODE] Using fixed testing OTP for {user.email}")
         else:
             # Generate random 4-digit code
             code = f"{random.randint(0, 9999):04d}"
@@ -126,7 +131,19 @@ def verify_otp_code(db: Session, user: User, code: str) -> bool:
 
 
 def get_jwt_settings() -> Tuple[str, str, int]:
-    secret_key = os.getenv("JWT_SECRET_KEY", "change_me")
+    secret_key = os.getenv("JWT_SECRET_KEY", "")
+    # SECURITY: never fall back to a placeholder. A weak or known secret allows
+    # an attacker to forge valid tokens and impersonate any user.
+    if not secret_key or len(secret_key) < 32 or secret_key.lower() in {
+        "change_me",
+        "change_me_to_a_strong_random_secret_key_32_chars",
+        "your-secret-key-change-in-production",
+    }:
+        raise RuntimeError(
+            "JWT_SECRET_KEY is missing, too short, or a known placeholder. "
+            "Set a cryptographically-random value (openssl rand -hex 32) in the "
+            "deployment environment before starting the server."
+        )
     algorithm = os.getenv("JWT_ALGORITHM", "HS256")
     expire_minutes = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
     return secret_key, algorithm, expire_minutes

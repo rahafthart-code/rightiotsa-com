@@ -71,25 +71,30 @@ def generate_payment_link(
 def verify_webhook_signature(payload: str, signature: str) -> bool:
     """
     Verify Payflowly webhook signature to ensure authenticity.
-    
-    Args:
-        payload: Raw webhook payload
-        signature: Signature from Payflowly headers
-        
-    Returns:
-        True if signature is valid
+
+    SECURITY: if PAYFLOWLY_SECRET_KEY is not configured we REJECT the webhook
+    (return False) rather than accept it. The previous behavior of returning
+    True on missing secret allowed an attacker to forge a payment-success
+    webhook and unlock free subscriptions.
     """
-    
     if not PAYFLOWLY_SECRET_KEY:
-        # For development/testing, accept all webhooks
-        return True
-    
+        import logging
+        logging.error(
+            "Payflowly webhook rejected: PAYFLOWLY_SECRET_KEY is not set. "
+            "Configure it in the deployment environment before enabling the "
+            "webhook endpoint."
+        )
+        return False
+
+    if not signature:
+        return False
+
     expected_signature = hmac.new(
         PAYFLOWLY_SECRET_KEY.encode(),
         payload.encode(),
         hashlib.sha256
     ).hexdigest()
-    
+
     return hmac.compare_digest(expected_signature, signature)
 
 

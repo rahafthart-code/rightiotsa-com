@@ -68,10 +68,15 @@ def get_admin_email() -> str:
 def dev_test_login_enabled() -> bool:
     """Check whether dev test login/bypass is enabled.
 
-    Default is enabled (\"1\") for local development, but can be turned off
-    by setting DEV_ENABLE_TEST_LOGIN=0.
+    SECURITY: defaults to DISABLED. Must be explicitly opted-in for local dev
+    by setting DEV_ENABLE_TEST_LOGIN=1 AND PRODUCTION!=1. In production the
+    flag is ignored even if set, so a stray env value cannot unlock the
+    auth bypass.
     """
-    value = os.getenv("DEV_ENABLE_TEST_LOGIN", "1")
+    is_production = os.getenv("PRODUCTION", "1").lower() in {"1", "true", "yes"}
+    if is_production:
+        return False
+    value = os.getenv("DEV_ENABLE_TEST_LOGIN", "0")
     return value.lower() in {"1", "true", "yes"}
 
 
@@ -232,8 +237,13 @@ def request_otp(payload: RequestOtpPayload, db: Session = Depends(get_db)) -> No
     try:
         auth.create_and_send_otp(db=db, user=user)
     except Exception as exc:  # noqa: BLE001
+        # SECURITY: do not leak internal exception details (SMTP errors,
+        # library messages, secret names) to unauthenticated callers.
+        import logging
+        logging.error("OTP send failed for user %s: %s", getattr(user, "id", "?"), exc)
         raise HTTPException(
-            status_code=500, detail=f"Failed to send OTP email: {exc}"
+            status_code=500,
+            detail="Failed to send verification code. Please try again.",
         ) from exc
 
 
@@ -324,11 +334,15 @@ def ingest_iot_data(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    expected_secret = os.getenv("IOT_WEBHOOK_SECRET")
-    if expected_secret:
-        provided_secret = request.headers.get("X-Webhook-Secret")
-        if not provided_secret or provided_secret != expected_secret:
-            raise HTTPException(status_code=401, detail="Invalid webhook secret")
+    # SECURITY: the webhook secret is REQUIRED. If unset we refuse the request
+    # rather than fall through to an open endpoint that can be used to inject
+    # arbitrary telemetry for any known device IMEI.
+    expected_secret = os.getenv("IOT_WEBHOOK_SECRET", "").strip()
+    if not expected_secret or len(expected_secret) < 16:
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+    provided_secret = request.headers.get("X-Webhook-Secret")
+    if not provided_secret or not hmac_compare(provided_secret, expected_secret):
+        raise HTTPException(status_code=401, detail="Invalid webhook secret")
 
     animal = db.query(Animal).filter(Animal.device_imei == telemetry_in.device_imei).first()
     if not animal:
@@ -648,8 +662,17 @@ def create_subscription(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> SubscriptionResponse:
-    """Create a subscription for the current user (mock payment)"""
-    
+    """Create a subscription for the current user (DEV/MOCK ONLY).
+
+    SECURITY: this endpoint marks the subscription active with a fake
+    MOCK_PAYMENT record and performs no real payment. It is gated behind the
+    dev-only flag so it cannot be abused in production to obtain a free
+    subscription. Production activation must go through the verified
+    Moyasar / Payflowly webhook path.
+    """
+    if not dev_test_login_enabled():
+        raise HTTPException(status_code=404, detail="Not found")
+
     # Validate plan_id
     valid_plans = {"CAMEL_ANNUAL": 495.0, "HORSE_ANNUAL": 695.0, "FALCON_ANNUAL": 995.0}
     if request.plan_id not in valid_plans:
@@ -747,8 +770,19 @@ def get_latest_health(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get latest health data for a device"""
+    """Get latest health data for a device — only for the device's owner."""
     from sqlalchemy import text
+
+    # SECURITY: enforce object ownership. Without this check any authenticated
+    # user could read another owner's device telemetry by guessing/iterating
+    # IMEIs.
+    animal = db.query(Animal).filter(
+        Animal.device_imei == imei,
+        Animal.owner_id == current_user.id,
+    ).first()
+    if not animal:
+        raise HTTPException(status_code=404, detail="Device not found")
+
     result = db.execute(
         text("""
         SELECT heart_rate, temperature, recorded_at
