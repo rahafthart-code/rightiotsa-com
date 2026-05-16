@@ -1,6 +1,15 @@
+import hmac
 import os
 from datetime import datetime, timedelta
 from typing import List
+
+
+def hmac_compare(a: str, b: str) -> bool:
+    """Constant-time string comparison wrapper."""
+    try:
+        return hmac.compare_digest(str(a or ""), str(b or ""))
+    except Exception:
+        return False
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
