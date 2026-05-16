@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     return jsonResp({ ok: true, plan: planId });
   } catch (err) {
     console.error("verify-payment error:", err);
-    return jsonResp({ ok: false, error: (err as Error).message }, 500);
+    return jsonResp({ ok: false, error: "An internal error occurred. Please try again." }, 500);
   }
 });
 

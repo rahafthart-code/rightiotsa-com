@@ -109,6 +109,12 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // SECURITY: cron-only. Reject anonymous callers.
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  if (!cronSecret || req.headers.get('x-cron-secret') !== cronSecret) {
+    return new Response('Forbidden', { status: 403, headers: corsHeaders });
+  }
+
   const startedAt = new Date();
   const weekAgo = new Date(startedAt.getTime() - 7 * 24 * 3600 * 1000);
   const range = { from: fmtDate(weekAgo), to: fmtDate(startedAt) };
