@@ -1,6 +1,6 @@
 import hashlib
 import os
-import random
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
@@ -19,7 +19,9 @@ except ImportError:
 
 
 def generate_otp_code() -> str:
-    return f"{random.randint(0, 999999):06d}"
+    # SECURITY: use a CSPRNG (secrets) rather than the Mersenne Twister
+    # `random` module so OTP codes cannot be predicted from observed values.
+    return f"{secrets.randbelow(1_000_000):06d}"
 
 
 def hash_code(code: str) -> str:
@@ -38,7 +40,7 @@ def create_and_send_otp(db: Session, user: User, use_authentica: bool = True) ->
     # Check if we're using Authentica API
     if use_authentica and AUTHENTICA_AVAILABLE and not authentica_testing_mode():
         # Use Authentica API for OTP
-        code = f"{random.randint(0, 9999):04d}"  # 4-digit OTP
+        code = f"{secrets.randbelow(1_000_000):06d}"  # 6-digit CSPRNG OTP
         code_hash = hash_code(code)
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         
@@ -81,8 +83,8 @@ def create_and_send_otp(db: Session, user: User, use_authentica: bool = True) ->
             code = testing_otp
             print(f"[DEV MODE] Using fixed testing OTP for {user.email}")
         else:
-            # Generate random 4-digit code
-            code = f"{random.randint(0, 9999):04d}"
+            # Generate cryptographically secure 6-digit code
+            code = f"{secrets.randbelow(1_000_000):06d}"
         
         code_hash = hash_code(code)
         expires_at = datetime.utcnow() + timedelta(minutes=5)
