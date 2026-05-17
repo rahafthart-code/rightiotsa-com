@@ -35,6 +35,7 @@ const statusColor = (s) =>
 
 export default function OwnerDashboardDark() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut } = useAuth();
 
   let ownerId = user?.id ?? '';
