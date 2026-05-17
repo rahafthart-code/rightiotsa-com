@@ -37,7 +37,8 @@ export default function SystemHealthPanel() {
       devicesOffline: devOffline.count ?? 0,
       activeUsers24h: activeUsers.count ?? 0,
       notificationsToday: notifs.count ?? 0,
-      criticalErrorsHour: errs.count ?? 0,
+      criticalErrorsHour: (errs.count ?? 0) + (sysErrs.count ?? 0),
+      paymentsToday: payments.count ?? 0,
     });
     setLoading(false);
   };
@@ -94,8 +95,8 @@ export default function SystemHealthPanel() {
     },
     {
       label: "بوابة الدفع",
-      value: "قيد الربط",
-      sub: "Edfapay — قريباً",
+      value: stats.paymentsToday ?? 0,
+      sub: "دفعات اليوم — Edfapay/ClickPay",
       color: "#c5a55a",
       icon: CreditCard,
     },
