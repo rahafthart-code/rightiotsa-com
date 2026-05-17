@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase } from '../lib/supabaseClient';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
   LogOut, Heart, Thermometer, MapPin, Plus, Cpu, PackageSearch,

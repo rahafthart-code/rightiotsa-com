@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     const cartId = crypto.randomUUID();
 
     const origin = req.headers.get("origin") || "https://rightiotsa.com";
-    const callbackUrl = `${origin}/payment/success`;
+    const callbackUrl = `${origin}/dashboard?payment=success&cart_id=${cartId}`;
 
     // Create Moyasar Invoice (hosted payment page)
     const moyasarRes = await fetch("https://api.moyasar.com/v1/invoices", {
