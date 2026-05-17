@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase } from '../lib/supabaseClient';
 import {
   LayoutDashboard, Layers, FileText, Bell, User as UserIcon,
   LogOut, Heart, Thermometer, MapPin, Plus, Cpu, PackageSearch,
@@ -33,6 +35,7 @@ const statusColor = (s) =>
 
 export default function OwnerDashboardDark() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut } = useAuth();
 
   let ownerId = user?.id ?? '';
@@ -43,7 +46,73 @@ export default function OwnerDashboardDark() {
   const { assets, loading, portfolioIndex, dangerCount, warningCount, stableCount } =
     useAssets(ownerId);
   const { unreadCount } = useNotifications(ownerId);
-  const { usage, guardAddAsset } = useSubscriptionGuard(ownerId);
+  const { usage, guardAddAsset, refetch: refetchUsage } = useSubscriptionGuard(ownerId);
+
+  // ─── Edfapay return: /dashboard?payment=success ─────────────────
+  // Verifies the payment server-side, refreshes the subscription guard,
+  // then shows an elegant Cyber-Heritage toast (no emojis).
+  useEffect(() => {
+    if (searchParams.get('payment') !== 'success') return;
+    const cartId = searchParams.get('cart_id') || searchParams.get('id');
+
+    let cancelled = false;
+    const verifyAndCelebrate = async () => {
+      try {
+        if (cartId) {
+          await supabase.functions.invoke('verify-payment', { body: { payment_id: cartId } });
+        }
+      } catch {}
+      if (cancelled) return;
+
+      // Refresh local subscription/usage data
+      try { await refetchUsage?.(); } catch {}
+
+      toast.success('تم تفعيل اشتراكك بنجاح', {
+        description: 'الباقة محدّثة فوراً — يمكنك إضافة المزيد من الأصول الآن.',
+        duration: 6000,
+        style: {
+          background: 'linear-gradient(135deg, #ffffff 0%, #faf6ef 100%)',
+          color: '#1a2e1a',
+          border: '1px solid rgba(197,165,90,0.55)',
+          borderInlineStart: '4px solid #006c35',
+          boxShadow: '0 10px 30px -10px rgba(0,108,53,0.25)',
+          fontFamily: 'Cairo, Tajawal, sans-serif',
+          fontWeight: 600,
+          letterSpacing: '0.2px',
+        },
+        className: 'cyber-heritage-toast',
+      });
+
+      // Realtime listener: also confirm when the subscriptions row flips to active
+      let channel = null;
+      if (ownerId) {
+        channel = supabase
+          .channel(`sub-activation-${ownerId}`)
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'subscriptions', filter: `owner_id=eq.${ownerId}` },
+            ({ new: row }) => {
+              if (row?.status === 'active') {
+                refetchUsage?.();
+              }
+            },
+          )
+          .subscribe();
+        setTimeout(() => { if (channel) supabase.removeChannel(channel); }, 30000);
+      }
+
+      // Clean the URL so refresh doesn't re-fire the toast
+      const next = new URLSearchParams(searchParams);
+      next.delete('payment');
+      next.delete('cart_id');
+      next.delete('id');
+      setSearchParams(next, { replace: true });
+    };
+
+    verifyAndCelebrate();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, ownerId]);
 
   // Track which asset ids just changed → trigger flash animation
   const [flashIds, setFlashIds] = useState(new Set());
