@@ -12,6 +12,7 @@ export default function SystemHealthPanel() {
     activeUsers24h: 0,
     notificationsToday: 0,
     criticalErrorsHour: 0,
+    paymentsToday: 0,
   });
   const [loading, setLoading] = useState(true);
 
