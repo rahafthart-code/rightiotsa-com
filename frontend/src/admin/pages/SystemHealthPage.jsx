@@ -20,13 +20,15 @@ export default function SystemHealthPanel() {
     const hourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
     const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
 
-    const [devTotal, devOnline, devOffline, activeUsers, notifs, errs] = await Promise.all([
+    const [devTotal, devOnline, devOffline, activeUsers, notifs, errs, sysErrs, payments] = await Promise.all([
       supabase.from("sensor_devices").select("id", { count: "exact", head: true }),
       supabase.from("sensor_devices").select("id", { count: "exact", head: true }).eq("status", "online"),
       supabase.from("sensor_devices").select("id", { count: "exact", head: true }).eq("status", "offline"),
       supabase.from("profiles").select("user_id", { count: "exact", head: true }).gte("last_seen_at", dayAgo),
       supabase.from("notifications").select("id", { count: "exact", head: true }).gte("created_at", startOfDay.toISOString()),
       supabase.from("edge_function_errors").select("id", { count: "exact", head: true }).gte("created_at", hourAgo),
+      supabase.from("error_log").select("id", { count: "exact", head: true }).eq("resolved", false).gte("created_at", hourAgo),
+      supabase.from("payments_log").select("id", { count: "exact", head: true }).gte("paid_at", startOfDay.toISOString()),
     ]);
 
     setStats({

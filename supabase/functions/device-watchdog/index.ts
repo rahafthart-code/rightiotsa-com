@@ -75,6 +75,13 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Record check in system_health_log for the admin panel
+    await supabase.from("system_health_log").insert({
+      check_type: "watchdog",
+      devices_offline: flipped,
+      details: { scanned: stale?.length ?? 0, notified },
+    });
+
     return new Response(
       JSON.stringify({ ok: true, scanned: stale?.length ?? 0, flipped, notified }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
