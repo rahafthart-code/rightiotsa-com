@@ -279,6 +279,45 @@ export type Database = {
         }
         Relationships: []
       }
+      error_log: {
+        Row: {
+          asset_id: string | null
+          created_at: string
+          device_id: string | null
+          error_code: string | null
+          error_msg: string | null
+          id: string
+          owner_id: string | null
+          payload: Json | null
+          resolved: boolean
+          source: string
+        }
+        Insert: {
+          asset_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          error_code?: string | null
+          error_msg?: string | null
+          id?: string
+          owner_id?: string | null
+          payload?: Json | null
+          resolved?: boolean
+          source: string
+        }
+        Update: {
+          asset_id?: string | null
+          created_at?: string
+          device_id?: string | null
+          error_code?: string | null
+          error_msg?: string | null
+          id?: string
+          owner_id?: string | null
+          payload?: Json | null
+          resolved?: boolean
+          source?: string
+        }
+        Relationships: []
+      }
       iot_webhook_events: {
         Row: {
           asset_id: string | null
@@ -429,6 +468,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payments_log: {
+        Row: {
+          amount_sar: number | null
+          gateway: string | null
+          id: string
+          owner_id: string
+          paid_at: string
+          payment_id: string
+          plan: string | null
+          raw_payload: Json | null
+          status: string | null
+        }
+        Insert: {
+          amount_sar?: number | null
+          gateway?: string | null
+          id?: string
+          owner_id: string
+          paid_at?: string
+          payment_id: string
+          plan?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+        }
+        Update: {
+          amount_sar?: number | null
+          gateway?: string | null
+          id?: string
+          owner_id?: string
+          paid_at?: string
+          payment_id?: string
+          plan?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -854,6 +929,36 @@ export type Database = {
         }
         Relationships: []
       }
+      system_health_log: {
+        Row: {
+          check_type: string
+          checked_at: string
+          details: Json | null
+          devices_offline: number | null
+          error_count: number | null
+          id: string
+          low_battery: number | null
+        }
+        Insert: {
+          check_type: string
+          checked_at?: string
+          details?: Json | null
+          devices_offline?: number | null
+          error_count?: number | null
+          id?: string
+          low_battery?: number | null
+        }
+        Update: {
+          check_type?: string
+          checked_at?: string
+          details?: Json | null
+          devices_offline?: number | null
+          error_count?: number | null
+          id?: string
+          low_battery?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1007,6 +1112,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_usage: {
+        Row: {
+          current_period_end: string | null
+          max_assets: number | null
+          max_devices: number | null
+          max_stables: number | null
+          owner_id: string | null
+          plan: string | null
+          status: string | null
+          used_assets: number | null
+          used_devices: number | null
+          used_stables: number | null
+        }
+        Insert: {
+          current_period_end?: string | null
+          max_assets?: number | null
+          max_devices?: number | null
+          max_stables?: number | null
+          owner_id?: string | null
+          plan?: string | null
+          status?: string | null
+          used_assets?: never
+          used_devices?: never
+          used_stables?: never
+        }
+        Update: {
+          current_period_end?: string | null
+          max_assets?: number | null
+          max_devices?: number | null
+          max_stables?: number | null
+          owner_id?: string | null
+          plan?: string | null
+          status?: string | null
+          used_assets?: never
+          used_devices?: never
+          used_stables?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_stability: {
@@ -1056,6 +1200,7 @@ export type Database = {
           vital_pct: number
         }[]
       }
+      detect_error_burst: { Args: never; Returns: Json }
       get_public_asset_verify: {
         Args: { _asset_id: string }
         Returns: {
