@@ -26,7 +26,6 @@ const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const AdminPortal = lazy(() => import("./pages/AdminPortal"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const TermsConditionsPage = lazy(() => import("./pages/TermsConditionsPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
@@ -71,11 +70,6 @@ function useLocalAuth() {
   } catch {
     return { isAuthenticated: false, isAdmin: false, user: null };
   }
-}
-
-// AdminRoute: thin wrapper around AuthGuard requiring the 'admin' role.
-function AdminRoute({ children }) {
-  return <AuthGuard allowedRoles={["admin"]}>{children}</AuthGuard>;
 }
 
 function AppShell({ children }) {
@@ -176,8 +170,6 @@ export default function App() {
               }
             />
           </Route>
-
-          <Route path="/admin-portal" element={<AdminRoute><AppShell><AdminPortal /></AppShell></AdminRoute>} />
 
           {/* Admin Panel — only accessible to users with the 'admin' role */}
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { Activity, Cpu, AlertTriangle, Bell, CreditCard, Users } from "lucide-react";
+import SimulationControl from "../../components/SimulationControl";
 
 // Real-time admin dashboard tile group: device status, daily notifications,
 // recent critical errors, payment-gateway readiness, active users.
@@ -144,6 +145,10 @@ export default function SystemHealthPanel() {
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-6">
+        <SimulationControl />
       </div>
     </div>
   );
