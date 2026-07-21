@@ -1,192 +1,103 @@
-# Right - Livestock Telemetry & Health Platform
+# Right - Livestock Telemetry & Insurance Platform
 
-A comprehensive platform for monitoring and managing livestock (Camels, Horses, Falcons) with real-time telemetry, health tracking, and multi-language support.
+An IoT-based tracking, health-monitoring, and insurance platform for livestock and falconry assets (camels, horses, falcons) in Saudi Arabia — GPS geofencing, vital-sign monitoring, subscription plans, and Payflowly/Moyasar-based payments.
 
-## Features
+## Architecture
 
-### Backend (FastAPI)
-- ✅ Email-based OTP authentication via Resend
-- ✅ PostgreSQL/Supabase database support
-- ✅ IoT device telemetry ingestion
-- ✅ Multi-species animal management (Camels, Horses, Falcons)
-- ✅ Admin portal APIs
-- ✅ JWT-based authentication
-- ✅ Connectivity status monitoring
+There is no custom backend server. **Supabase is the single backend**: Postgres (with Row Level Security) for data, Supabase Auth for identity, and Edge Functions for anything that needs privileged/service-role logic. The frontend talks to Supabase directly.
 
-### Frontend (React + Vite + Tailwind)
-- ✅ Multi-language support (English/Arabic) with i18next
-- ✅ Separate dashboards for each species
-- ✅ Real-time Mapbox map integration
-- ✅ Connectivity status indicators (Online/Offline/Removed)
-- ✅ Responsive design with Tailwind CSS
-- ✅ Admin portal for user and device management
+```
+├── frontend/                # React + Vite + Tailwind app
+│   └── src/
+│       ├── pages/           # Route-level pages (dashboards, checkout, onboarding, ...)
+│       ├── admin/           # Admin panel (/admin/*) — customers, devices, subscriptions,
+│       │                    #   system health, reports, settings — gated by AdminGuard
+│       ├── components/      # Shared components
+│       ├── lib/
+│       │   └── supabaseClient.js   # The only Supabase client instance
+│       ├── constants/       # Static data (e.g. subscription plans)
+│       ├── hooks/, utils/   # Hooks and helpers
+│       └── i18n.js          # English/Arabic translations (RTL supported)
+│
+├── supabase/
+│   ├── migrations/          # Postgres schema: profiles, stables, assets, devices,
+│   │                        #   sensor_readings, subscriptions, user_roles, RLS policies
+│   └── functions/           # Edge Functions (Deno) — see below
+│
+├── iot-device/
+│   └── volt_api.py          # Standalone script for physical IoT hardware (Raspberry Pi).
+│                             #   Reads sensors and posts readings directly to the
+│                             #   iot-ingest / volt-webhook edge functions. Independent
+│                             #   of the web app — does not run as part of it.
+│
+└── docs/archive/            # Historical build logs from earlier development, kept for
+                              #   reference only; not current documentation.
+```
+
+## Edge Functions (`supabase/functions/`)
+
+| Function | Purpose |
+|---|---|
+| `secure-otp` | Email/phone OTP request + verify (login/signup) |
+| `iot-ingest`, `volt-webhook` | Device telemetry ingestion (API-key authenticated, no user JWT) |
+| `simulate-movement` | Admin-only live-demo mode: jitters GPS/vitals for active devices through the same stability-calculation path real telemetry uses |
+| `register-device`, `admin-activate-device` | Device lifecycle (linking a device to an owner/asset) |
+| `device-watchdog` | Marks devices offline when telemetry goes stale |
+| `create-payment`, `verify-payment`, `payment-webhook` | Subscription payments (Moyasar) |
+| `cloudinary-upload` | Image uploads |
+| `re-engagement`, `weekly-report`, `uptime-monitor`, `log-error` | Notifications, reporting, and monitoring |
+
+Functions that must be callable by devices without a user session (`iot-ingest`, `volt-webhook`, `payment-webhook`, `weekly-report`) have `verify_jwt = false` in `supabase/config.toml` and authenticate via a device/API key or webhook signature instead.
 
 ## Quick Start
 
-### 1. Backend Setup
-
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-# Create .env file with your credentials
-cp .env.example .env
-# Edit .env with your:
-# - Resend API key
-# - Supabase connection string  
-# - Mapbox token
-# - Admin email
-
-# Run server
-uvicorn app.main:app --reload
-```
-
-Backend will be available at `http://localhost:8000`
-
-### 2. Frontend Setup
+### 1. Frontend
 
 ```bash
 cd frontend
 npm install
-
-# Create .env file
-cp .env.example .env
-# Add your Mapbox token to .env
-
-# Run dev server
+cp .env.example .env   # fill in the values below
 npm run dev
 ```
 
-Frontend will be available at `http://localhost:5173`
+Runs at `http://localhost:5173` (or run `npm run dev` from the repo root, which wraps the same command on port 8080).
+
+### 2. Supabase
+
+The project already has a hosted Supabase instance (`project_id` in `supabase/config.toml`). To work on migrations or functions locally, install the [Supabase CLI](https://supabase.com/docs/guides/cli) and:
+
+```bash
+supabase link --project-ref <project-ref>
+supabase db push              # apply migrations
+supabase functions deploy     # deploy edge functions
+```
 
 ## Environment Configuration
 
-### Backend (.env)
+### `frontend/.env`
 
 ```env
-# Resend (Email/OTP)
-RESEND_API_KEY=re_xxxxx
-RESEND_FROM_EMAIL=no-reply@yourdomain.com
+# Supabase
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<anon/publishable key from Supabase dashboard>
+VITE_SUPABASE_PROJECT_ID=<project-ref>
 
-# Supabase (Database)
-DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
-
-# JWT
-JWT_SECRET_KEY=your-secret-key-here
-JWT_ALGORITHM=HS256
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-# Admin
-ADMIN_EMAIL=your-admin@email.com
-
-# Optional: IoT Webhook Security
-IOT_WEBHOOK_SECRET=your-webhook-secret
-```
-
-### Frontend (.env)
-
-```env
-VITE_API_BASE_URL=http://localhost:8000
+# Mapbox (https://account.mapbox.com/access-tokens/)
 VITE_MAPBOX_ACCESS_TOKEN=pk.xxxxx
 ```
 
-## Service Provider Setup
+### Edge Function secrets (set via `supabase secrets set`, never committed)
 
-### 1. Resend Setup (Email/OTP)
-1. Go to https://resend.com/
-2. Create an account and verify your domain
-3. Generate an API key
-4. Add to backend `.env`: `RESEND_API_KEY=re_xxxxx`
-
-### 2. Supabase Setup (Database)
-1. Go to https://supabase.com/
-2. Create a new project
-3. Go to Settings > Database
-4. Copy the connection string (URI format)
-5. Add to backend `.env`: `DATABASE_URL=postgresql://...`
-
-### 3. Mapbox Setup (Maps)
-1. Go to https://account.mapbox.com/
-2. Create an account
-3. Generate an access token
-4. Add to frontend `.env`: `VITE_MAPBOX_ACCESS_TOKEN=pk.xxxxx`
-
-## Default Credentials
-
-For local development, use the "Dev: Log in as test user" button on the login page.
-
-- Email: `test@example.com`
-- No password required (dev mode only)
-
-## Project Structure
-
-```
-right-mvp/
-├── backend/               # FastAPI backend
-│   ├── app/
-│   │   ├── main.py       # Main FastAPI app
-│   │   ├── auth.py       # Authentication logic
-│   │   ├── models.py     # SQLAlchemy models
-│   │   ├── schemas.py    # Pydantic schemas
-│   │   ├── database.py   # Database configuration
-│   │   ├── email_utils.py # Resend email integration
-│   │   └── seed_data.py  # Database seeding
-│   ├── requirements.txt
-│   └── .env.example
-│
-└── frontend/             # React frontend
-    ├── src/
-    │   ├── pages/        # Page components
-    │   ├── components/   # Reusable components
-    │   ├── utils/        # Utility functions
-    │   ├── i18n.js       # i18next configuration
-    │   ├── api.js        # API client
-    │   └── App.jsx       # Main app component
-    ├── package.json
-    └── .env.example
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /request-otp` - Request OTP code
-- `POST /verify-otp` - Verify OTP and get JWT
-- `POST /dev/test-login` - Dev mode login (local only)
-
-### User Endpoints
-- `GET /me` - Get current user
-- `GET /animals` - List user's animals
-- `GET /animals/{id}/latest-telemetry` - Latest telemetry for animal
-- `GET /animals/{id}/telemetry` - Telemetry history
-
-### Admin Endpoints
-- `POST /admin/users` - Create user
-- `POST /admin/animals` - Register animal/device
-- `GET /admin/devices` - List all devices with status
-
-### IoT Webhook
-- `POST /webhook/iot-data` - Receive telemetry from IoT devices
+Resend (OTP email), Mapbox, and Moyasar/Payflowly keys used by the edge functions are configured as Supabase project secrets, not in any `.env` file in this repo.
 
 ## Multi-Language Support
 
-The platform supports English and Arabic:
-- Click the language toggle in the navbar (EN/ع)
-- Translations stored in `frontend/src/i18n.js`
-- RTL support for Arabic
+English and Arabic, toggled from the navbar. Translations live in `frontend/src/i18n.js`; Arabic renders RTL.
 
-## Connectivity Status
+## Admin Panel
 
-Devices are automatically marked as:
-- **Online**: Telemetry received within last 30 minutes
-- **Offline**: No telemetry for 30+ minutes
-- **Removed**: No telemetry data available
+`/admin/*` (guarded by `AdminGuard`, requires the `admin` role in `user_roles`): customers, devices, subscriptions, system health (including the live-demo simulation control), reports, and settings.
 
 ## License
 
 Proprietary - All Rights Reserved
-
-## Support
-
-For issues or questions, contact: your-email@example.com
