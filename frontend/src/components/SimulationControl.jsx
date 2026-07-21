@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import * as api from "../api";
+import { supabase } from "../lib/supabaseClient";
 
 export default function SimulationControl() {
   const { t, i18n } = useTranslation();
@@ -8,20 +8,28 @@ export default function SimulationControl() {
   const [intervalId, setIntervalId] = useState(null);
   const [updateCount, setUpdateCount] = useState(0);
 
+  const invokeSimulateMovement = async () => {
+    const { data, error } = await supabase.functions.invoke("simulate-movement", {
+      body: {},
+    });
+    if (error) throw error;
+    return data;
+  };
+
   const startSimulation = async () => {
     try {
-      // Notify backend
-      await api.startSimulation();
-      
+      // Verify admin access + run the first tick immediately.
+      await invokeSimulateMovement();
+
       setIsSimulating(true);
       setUpdateCount(0);
-      
+
       // Update location every 10 seconds
       const id = setInterval(async () => {
         try {
-          const result = await api.simulateMovement();
+          const result = await invokeSimulateMovement();
           setUpdateCount(prev => prev + 1);
-          
+
           // Show notification
           if (Notification.permission === "granted" && result.animals) {
             result.animals.forEach(animal => {
@@ -35,7 +43,7 @@ export default function SimulationControl() {
           console.error("Simulation update error:", err);
         }
       }, 10000);
-      
+
       setIntervalId(id);
     } catch (err) {
       console.error("Failed to start simulation:", err);

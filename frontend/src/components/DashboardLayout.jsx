@@ -1,14 +1,70 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import mapboxgl from "mapbox-gl";
-import {
-  fetchAnimals,
-  fetchLatestTelemetry,
-  fetchTelemetryHistory,
-} from "../api";
+import { supabase } from "../lib/supabaseClient";
 import { getConnectivityStatus, getConnectivityColors } from "../utils/connectivity";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "";
+
+// Direct Supabase reads scoped to the signed-in owner, replacing the old
+// FastAPI-backed api.js calls. Field names (device_imei, lat/lng, battery,
+// timestamp) are kept as this component already expects them; they're
+// mapped from the real `assets` / `sensor_readings` columns below.
+async function fetchOwnerAnimals(speciesFilter) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return [];
+  const { data, error } = await supabase
+    .from("assets")
+    .select("id, name, species, sensor_readings ( recorded_at )")
+    .eq("owner_id", session.user.id)
+    .eq("is_active", true)
+    .order("recorded_at", { foreignTable: "sensor_readings", ascending: false })
+    .limit(1, { foreignTable: "sensor_readings" });
+  if (error) throw error;
+  let list = (data || []).map((a) => ({
+    id: a.id,
+    name: a.name,
+    species: a.species ? a.species.charAt(0).toUpperCase() + a.species.slice(1) : a.species,
+    device_imei: a.id, // the real schema has no separate IMEI; the asset id doubles as the identifier
+    last_seen_at: a.sensor_readings?.[0]?.recorded_at || null,
+  }));
+  if (speciesFilter) list = list.filter((a) => a.species === speciesFilter);
+  return list;
+}
+
+function mapReading(r) {
+  return {
+    id: r.id,
+    lat: r.latitude,
+    lng: r.longitude,
+    battery: r.battery_level,
+    status: r.is_in_zone === false ? "out_of_range" : "normal",
+    timestamp: r.recorded_at,
+  };
+}
+
+async function fetchLatestAssetReading(assetId) {
+  const { data, error } = await supabase
+    .from("sensor_readings")
+    .select("id, latitude, longitude, battery_level, is_in_zone, recorded_at")
+    .eq("asset_id", assetId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapReading(data) : null;
+}
+
+async function fetchAssetReadingHistory(assetId, limit = 10) {
+  const { data, error } = await supabase
+    .from("sensor_readings")
+    .select("id, latitude, longitude, battery_level, is_in_zone, recorded_at")
+    .eq("asset_id", assetId)
+    .order("recorded_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []).map(mapReading);
+}
 
 export default function DashboardLayout({ speciesFilter, title }) {
   const { t } = useTranslation();
@@ -29,20 +85,13 @@ export default function DashboardLayout({ speciesFilter, title }) {
       setLoading(true);
       setError("");
       try {
-        const animalsRes = await fetchAnimals();
-        let list = animalsRes.data || [];
-        
-        // Filter by species if specified
-        if (speciesFilter) {
-          list = list.filter(a => a.species === speciesFilter);
-        }
-        
+        const list = await fetchOwnerAnimals(speciesFilter);
         setAnimals(list);
         if (list.length > 0) {
           setSelectedAnimalId(list[0].id);
         }
       } catch (err) {
-        setError(err.response?.data?.detail || t('failedToLoad'));
+        setError(err.message || t('failedToLoad'));
       } finally {
         setLoading(false);
       }
@@ -54,14 +103,14 @@ export default function DashboardLayout({ speciesFilter, title }) {
     async function loadTelemetry() {
       if (!selectedAnimalId) return;
       try {
-        const [latestRes, historyRes] = await Promise.all([
-          fetchLatestTelemetry(selectedAnimalId),
-          fetchTelemetryHistory(selectedAnimalId, 10),
+        const [latest, historyRows] = await Promise.all([
+          fetchLatestAssetReading(selectedAnimalId),
+          fetchAssetReadingHistory(selectedAnimalId, 10),
         ]);
-        setLatestTelemetry(latestRes.data);
-        setHistory(historyRes.data || []);
+        setLatestTelemetry(latest);
+        setHistory(historyRows || []);
       } catch (err) {
-        setError(err.response?.data?.detail || t('failedToLoad'));
+        setError(err.message || t('failedToLoad'));
       }
     }
     loadTelemetry();

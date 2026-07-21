@@ -1,8 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { requestOtp, verifyOtp } from "../api";
+import { supabase } from "../lib/supabaseClient";
 import logoImage from "../assets/logo-transparent.png";
+
+// Calls the `secure-otp` edge function — the same rate-limited/validated OTP
+// wrapper used by LoginPage. Registration additionally forwards profile
+// metadata on the "request" step so the handle_new_user DB trigger can
+// populate profiles.full_name / national_id / phone on first login.
+async function callSecureOtp(body) {
+  const { data, error: invokeError } = await supabase.functions.invoke("secure-otp", { body });
+  if (invokeError) {
+    let msg = invokeError.message || "Network error";
+    try {
+      const ctx = invokeError.context;
+      if (ctx && typeof ctx.json === "function") {
+        const j = await ctx.json();
+        if (j?.error) msg = typeof j.error === "string" ? j.error : JSON.stringify(j.error);
+      }
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+  return data;
+}
 
 export default function RegisterPage() {
   const { t, i18n } = useTranslation();
@@ -36,10 +56,11 @@ export default function RegisterPage() {
   
   // Check if already logged in
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      navigate('/dashboard');
-    }
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!cancelled && session) navigate('/dashboard');
+    });
+    return () => { cancelled = true; };
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -98,21 +119,20 @@ export default function RegisterPage() {
     
     setLoading(true);
     try {
-      await requestOtp({
-        email: formData.email,
+      await callSecureOtp({
+        action: "request",
+        identifier: formData.email,
         full_name: formData.fullName,
         national_id: formData.nationalId,
-        mobile: formData.mobile,
-        city: formData.city,
-        asset_type: formData.assetType
+        phone: formData.mobile,
       });
       setStep("verify");
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || '';
+      const errorMsg = err.message || '';
       // Check if user already exists
       if (errorMsg.toLowerCase().includes('already') || errorMsg.toLowerCase().includes('exists')) {
-        setError(i18n.language === 'ar' 
-          ? 'هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول.' 
+        setError(i18n.language === 'ar'
+          ? 'هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول.'
           : 'This email is already registered. Please login.');
       } else {
         setError(errorMsg || (i18n.language === 'ar' ? 'فشل إرسال الرمز' : 'Failed to send code'));
@@ -125,17 +145,32 @@ export default function RegisterPage() {
   const handleVerifyOtp = async (e) => {
     if (e) e.preventDefault();
     setError("");
-    
-    if (!code || code.length < 4) {
+
+    if (!code || code.length < 6) {
       setError(i18n.language === 'ar' ? 'يرجى إدخال رمز التحقق' : 'Please enter verification code');
       return;
     }
-    
+
     setLoading(true);
     try {
-      await verifyOtp(formData.email, code);
+      const data = await callSecureOtp({
+        action: "verify",
+        identifier: formData.email,
+        code,
+      });
+      const session = data?.session;
+      if (!session?.access_token || !session?.refresh_token) {
+        throw new Error(i18n.language === 'ar' ? 'استجابة غير صالحة' : 'Invalid response');
+      }
+      const { error: setErr } = await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      });
+      if (setErr) throw setErr;
+
       localStorage.setItem("dataAgreementAccepted", "true");
-      // Store user registration data for profile
+      // Store extra registration fields not covered by the profiles table
+      // (city/asset_type) so ProfilePage can still display them.
       localStorage.setItem("userProfile", JSON.stringify({
         fullName: formData.fullName,
         nationalId: formData.nationalId,
@@ -144,26 +179,26 @@ export default function RegisterPage() {
         city: formData.city,
         assetType: formData.assetType
       }));
-      
+
       // Show welcome message, then navigate to dashboard
       setStep("welcome");
-      
+
       // Auto-navigate to dashboard after 4 seconds
       setTimeout(() => {
         navigate(from, { replace: true });
       }, 4000);
     } catch (err) {
-      setError(err.response?.data?.detail || (i18n.language === 'ar' ? 'رمز خاطئ أو منتهي الصلاحية' : 'Invalid or expired code'));
+      setError(err.message || (i18n.language === 'ar' ? 'رمز خاطئ أو منتهي الصلاحية' : 'Invalid or expired code'));
     } finally {
       setLoading(false);
     }
   };
-  
-  // Auto-submit when 4 digits entered
+
+  // Auto-submit when 6 digits entered
   const handleCodeChange = (value) => {
     setCode(value);
-    if (value.length === 4 && !loading) {
-      // Auto-submit after 4 digits
+    if (value.length === 6 && !loading) {
+      // Auto-submit after 6 digits
       setTimeout(() => {
         handleVerifyOtp(null);
       }, 300);
@@ -499,15 +534,9 @@ export default function RegisterPage() {
               {/* Code Sent Message */}
               <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 mb-6">
                 <p className="text-sm text-emerald-300 text-center">
-                  {i18n.language === 'ar' 
-                    ? `تم إرسال رمز التحقق إلى ${emailOrMobile}`
-                    : `Verification code sent to ${emailOrMobile}`
-                  }
-                </p>
-                <p className="text-xs text-slate-400 text-center mt-2">
-                  {i18n.language === 'ar' 
-                    ? 'للاختبار، استخدم الرمز: 1234'
-                    : 'For testing, use code: 1234'
+                  {i18n.language === 'ar'
+                    ? `تم إرسال رمز التحقق إلى ${formData.email}`
+                    : `Verification code sent to ${formData.email}`
                   }
                 </p>
               </div>
@@ -515,20 +544,20 @@ export default function RegisterPage() {
               {/* OTP Input with Auto-Submit */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  {i18n.language === 'ar' ? 'رمز التحقق (4 أرقام)' : 'Verification Code (4 digits)'}
+                  {i18n.language === 'ar' ? 'رمز التحقق (6 أرقام)' : 'Verification Code (6 digits)'}
                 </label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => handleCodeChange(e.target.value.replace(/\D/g, ''))}
-                  maxLength={4}
+                  maxLength={6}
                   required
                   disabled={loading}
                   className="w-full tracking-[0.8em] text-center rounded-lg border border-slate-700 bg-slate-950 px-4 py-4 text-3xl font-bold text-slate-50 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:opacity-60"
-                  placeholder="••••"
+                  placeholder="••••••"
                   autoFocus
                 />
-                {code.length === 4 && !loading && (
+                {code.length === 6 && !loading && (
                   <p className="mt-2 text-xs text-emerald-400 text-center animate-pulse">
                     {i18n.language === 'ar' ? '✓ جاري التحقق...' : '✓ Verifying...'}
                   </p>

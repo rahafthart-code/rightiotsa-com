@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  adminCreateUser,
-  adminListDevices,
-  adminRegisterAnimal,
-} from "../api";
+import { supabase } from "../lib/supabaseClient";
 import { getConnectivityStatus, getConnectivityColors } from "../utils/connectivity";
 import SimulationControl from "../components/SimulationControl";
 
+// NOTE: This page pre-dates the real `/admin/*` panel (see
+// frontend/src/admin/pages/*), which already covers customers, devices and
+// subscriptions against the live schema. "Create user" and "register device"
+// below used to call a FastAPI backend that no longer exists and that had no
+// live deployment; there is currently no edge function that mints or looks up
+// a Supabase auth user by email (that requires the service-role Admin API).
+// Rather than guess at that design, both actions are disabled with an
+// explicit message — see the open question raised for adminCreateUser /
+// adminRegisterAnimal in the FastAPI-retirement task.
 export default function AdminPortal() {
   const { t } = useTranslation();
   const [userForm, setUserForm] = useState({
@@ -34,10 +39,36 @@ export default function AdminPortal() {
     setLoadingDevices(true);
     setError("");
     try {
-      const res = await adminListDevices();
-      setDevices(res.data || []);
+      const { data: rows, error: err } = await supabase
+        .from("sensor_devices")
+        .select("id, device_id, owner_id, asset_id, device_type, status, battery_pct, signal_strength, last_seen_at")
+        .order("updated_at", { ascending: false });
+      if (err) throw err;
+
+      const assetIds = [...new Set((rows || []).map((r) => r.asset_id))].filter(Boolean);
+      const ownerIds = [...new Set((rows || []).map((r) => r.owner_id))].filter(Boolean);
+      const [{ data: assetRows }, { data: profileRows }] = await Promise.all([
+        assetIds.length
+          ? supabase.from("assets").select("id, name, species").in("id", assetIds)
+          : Promise.resolve({ data: [] }),
+        ownerIds.length
+          ? supabase.from("profiles").select("user_id, full_name").in("user_id", ownerIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const assetMap = new Map((assetRows || []).map((a) => [a.id, a]));
+      const profileMap = new Map((profileRows || []).map((p) => [p.user_id, p]));
+
+      setDevices(
+        (rows || []).map((d) => ({
+          ...d,
+          animal_name: assetMap.get(d.asset_id)?.name || "—",
+          species: assetMap.get(d.asset_id)?.species || null,
+          owner_name: profileMap.get(d.owner_id)?.full_name || "—",
+          last_status: d.status,
+        }))
+      );
     } catch (err) {
-      setError(err.response?.data?.detail || t('failedToLoad'));
+      setError(err.message || t('failedToLoad'));
     } finally {
       setLoadingDevices(false);
     }
@@ -48,34 +79,14 @@ export default function AdminPortal() {
     setTimeout(() => setToast(""), 2800);
   }
 
-  async function handleCreateUser(e) {
+  function handleCreateUser(e) {
     e.preventDefault();
-    setError("");
-    try {
-      await adminCreateUser(userForm);
-      showToast(t('userCreated'));
-      setUserForm({ full_name: "", email: "", is_active: true });
-    } catch (err) {
-      setError(err.response?.data?.detail || t('failedToCreate'));
-    }
+    setError(t('featureNotAvailable') || "Not available yet — no admin account-creation API is wired up.");
   }
 
-  async function handleRegisterDevice(e) {
+  function handleRegisterDevice(e) {
     e.preventDefault();
-    setError("");
-    try {
-      await adminRegisterAnimal(deviceForm);
-      showToast(t('deviceRegistered'));
-      setDeviceForm({
-        owner_email: "",
-        name: "",
-        species: "Camel",
-        device_imei: "",
-      });
-      await loadDevices();
-    } catch (err) {
-      setError(err.response?.data?.detail || t('failedToRegister'));
-    }
+    setError(t('featureNotAvailable') || "Not available yet — use the Admin panel's Devices/Customers pages instead.");
   }
 
   return (
@@ -254,7 +265,7 @@ export default function AdminPortal() {
           <table className="min-w-full text-xs">
             <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400">
               <tr>
-                <th className="px-4 py-2 text-left font-medium">{t('imei')}</th>
+                <th className="px-4 py-2 text-left font-medium">{t('deviceId') || t('imei')}</th>
                 <th className="px-4 py-2 text-left font-medium">{t('animal')}</th>
                 <th className="px-4 py-2 text-left font-medium">{t('owner')}</th>
                 <th className="px-4 py-2 text-left font-medium">{t('species')}</th>
@@ -280,13 +291,13 @@ export default function AdminPortal() {
                   
                   return (
                     <tr
-                      key={d.device_imei}
+                      key={d.id}
                       className="border-t border-slate-800/80 hover:bg-slate-900/60"
                     >
-                      <td className="px-4 py-2 text-slate-100">{d.device_imei}</td>
+                      <td className="px-4 py-2 text-slate-100 font-mono">{d.device_id}</td>
                       <td className="px-4 py-2 text-slate-100">{d.animal_name}</td>
-                      <td className="px-4 py-2 text-slate-200">{d.owner_email}</td>
-                      <td className="px-4 py-2 text-slate-200">{t(d.species.toLowerCase())}</td>
+                      <td className="px-4 py-2 text-slate-200">{d.owner_name}</td>
+                      <td className="px-4 py-2 text-slate-200">{d.species ? (t(d.species.toLowerCase()) || d.species) : "—"}</td>
                       <td className="px-4 py-2">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium border ${statusColors}`}>
                           {t(connectivity)}

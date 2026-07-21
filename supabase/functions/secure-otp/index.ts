@@ -15,6 +15,7 @@ import {
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import {
   safeJson,
+  sanitizeText,
   validateContactIdentifier,
   validateOtpCode,
 } from "../_shared/validators.ts";
@@ -28,6 +29,12 @@ interface RequestBody {
   action?: "request" | "verify";
   identifier?: unknown;
   code?: unknown;
+  // Optional signup metadata (request action only) — forwarded to
+  // auth.signInWithOtp so the `handle_new_user` trigger can populate
+  // profiles.full_name / profiles.national_id / profiles.phone on first login.
+  full_name?: unknown;
+  national_id?: unknown;
+  phone?: unknown;
 }
 
 Deno.serve(async (req) => {
@@ -79,15 +86,35 @@ Deno.serve(async (req) => {
       return limited;
     }
 
+    // Optional signup metadata — only meaningful the first time a user signs
+    // in (handle_new_user trigger reads it from raw_user_meta_data). Ignored
+    // silently for returning users since the trigger only fires on INSERT.
+    const metadata: Record<string, string> = {};
+    try {
+      if (typeof body.full_name === "string" && body.full_name.trim()) {
+        metadata.full_name = sanitizeText(body.full_name, 200);
+      }
+      if (typeof body.national_id === "string" && body.national_id.trim()) {
+        metadata.national_id = sanitizeText(body.national_id, 20);
+      }
+      if (typeof body.phone === "string" && body.phone.trim()) {
+        metadata.phone = sanitizeText(body.phone, 20);
+      }
+    } catch { /* best-effort — never block OTP send over optional metadata */ }
+    const signUpOptions = {
+      shouldCreateUser: true,
+      ...(Object.keys(metadata).length ? { data: metadata } : {}),
+    };
+
     const { error } =
       identity.kind === "email"
         ? await service.auth.signInWithOtp({
             email: identity.value,
-            options: { shouldCreateUser: true },
+            options: signUpOptions,
           })
         : await service.auth.signInWithOtp({
             phone: identity.value,
-            options: { shouldCreateUser: true },
+            options: signUpOptions,
           });
 
     if (error) {

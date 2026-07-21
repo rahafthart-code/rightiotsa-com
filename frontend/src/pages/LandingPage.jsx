@@ -5,9 +5,9 @@ import {
   ShieldCheck, MapPin, Activity, Bell, Package, FileText,
   CheckCircle2, Mail, PlayCircle, Crown,
 } from "lucide-react";
-import * as api from "../api";
 import { supabase } from "../lib/supabaseClient";
 import { enableDemoMode } from "../utils/mockData";
+import { PLANS } from "../constants/plans";
 import logoImage from "../assets/logo-transparent.png";
 import speciesCamel from "../assets/species-camel.png";
 import speciesHorse from "../assets/species-horse.png";
@@ -87,8 +87,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const plans = PLANS;
   const [subscribing, setSubscribing] = useState(null);
   const [showTerms, setShowTerms] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -118,22 +117,6 @@ export default function LandingPage() {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        setLoading(true);
-        const data = await api.getSubscriptionPlans();
-        setPlans(Array.isArray(data) ? data : (data?.plans || data?.data || []));
-      } catch (err) {
-        console.error("Error fetching plans:", err);
-        setPlans([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPlans();
-  }, []);
 
   const handleSubscribe = (plan) => {
     setSelectedPlan(plan);
@@ -314,14 +297,7 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {loading && (
-            <div className="text-center py-12 rounded-2xl" style={{ background: '#F5F5DC', border: '1px dashed #8B0000', fontFamily: 'Cairo, Tajawal, sans-serif' }}>
-              <div className="animate-spin rounded-full h-12 w-12 mx-auto mb-4" style={{ borderBottom: '3px solid #8B0000', borderRight: '3px solid #006c35' }}></div>
-              <p className="font-bold" style={{ color: '#8B0000' }}>{isAr ? 'جارٍ تحميل الباقات...' : 'Loading plans...'}</p>
-            </div>
-          )}
-
-          {!loading && (!Array.isArray(plans) || plans.length === 0) && (
+          {plans.length === 0 && (
             <div className="text-center py-12 rounded-2xl" style={{ background: '#F5F5DC', color: '#8B0000', border: '1px dashed #8B0000', fontFamily: 'Cairo, Tajawal, sans-serif' }}>
               <p className="font-bold">{isAr ? 'لا توجد باقات متاحة حالياً' : 'No plans available at the moment'}</p>
             </div>
@@ -329,13 +305,13 @@ export default function LandingPage() {
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {(plans || [])?.map?.((plan) => (
-              <div key={plan.plan_id} className="rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div key={plan.id} className="rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]" style={{ background: 'var(--color-bg-card)', border: '2px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
                 <div className="p-6 sm:p-8">
                   <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                     {isAr ? plan.name_ar : plan.name_en}
                   </h3>
                   <div className="text-3xl sm:text-4xl font-bold mb-6" style={{ color: 'var(--color-royal-green)' }}>
-                    {plan.price_sar} <span className="text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>{isAr ? 'ر.س/سنة' : 'SAR/year'}</span>
+                    {plan.price} <span className="text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>{isAr ? 'ر.س/سنة' : 'SAR/year'}</span>
                   </div>
                   <ul className="space-y-3 mb-8">
                     {((isAr ? plan.features_ar : plan.features_en) || plan.features || []).map((feature, idx) => (
@@ -345,8 +321,8 @@ export default function LandingPage() {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => handleSubscribe(plan)} disabled={subscribing === plan.plan_id} className="w-full py-3 rounded-xl font-bold transition-all text-white disabled:opacity-50" style={{ background: 'var(--color-royal-green)' }}>
-                    {subscribing === plan.plan_id ? (isAr ? 'جاري الاشتراك...' : 'Subscribing...') : (isAr ? 'اشترك الآن' : 'Subscribe Now')}
+                  <button onClick={() => handleSubscribe(plan)} disabled={subscribing === plan.id} className="w-full py-3 rounded-xl font-bold transition-all text-white disabled:opacity-50" style={{ background: 'var(--color-royal-green)' }}>
+                    {subscribing === plan.id ? (isAr ? 'جاري الاشتراك...' : 'Subscribing...') : (isAr ? 'اشترك الآن' : 'Subscribe Now')}
                   </button>
                 </div>
               </div>

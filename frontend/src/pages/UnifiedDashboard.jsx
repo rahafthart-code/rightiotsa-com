@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import mapboxgl from "mapbox-gl";
-import * as api from "../api";
+import { supabase } from "../lib/supabaseClient";
 import { getConnectivityStatus, getConnectivityColors } from "../utils/connectivity";
 import { timeAgo } from "../utils/timeAgo";
 import SensorCard from "../components/SensorCard";
@@ -37,6 +37,67 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 }
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
+// Direct Supabase reads scoped to the signed-in owner, replacing the old
+// FastAPI-backed api.js calls. Field names this component already expects
+// (device_imei, lat/lng, timestamp, battery, status, temperature) are kept
+// and mapped from the real `assets` / `sensor_readings` columns below.
+async function fetchOwnerAnimalsUD() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return [];
+  const { data, error } = await supabase
+    .from("assets")
+    .select("id, name, species, sensor_readings ( recorded_at )")
+    .eq("owner_id", session.user.id)
+    .eq("is_active", true)
+    .order("recorded_at", { foreignTable: "sensor_readings", ascending: false })
+    .limit(1, { foreignTable: "sensor_readings" });
+  if (error) throw error;
+  return (data || []).map((a) => ({
+    id: a.id,
+    name: a.name,
+    species: a.species ? a.species.charAt(0).toUpperCase() + a.species.slice(1) : a.species,
+    device_imei: a.id, // the real schema has no separate IMEI; the asset id doubles as the identifier
+    last_seen_at: a.sensor_readings?.[0]?.recorded_at || null,
+  }));
+}
+
+async function fetchAssetReadingsUD(assetId, limit = 50) {
+  const { data, error } = await supabase
+    .from("sensor_readings")
+    .select("id, latitude, longitude, battery_level, is_in_zone, recorded_at")
+    .eq("asset_id", assetId)
+    .order("recorded_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []).map((r) => ({
+    id: r.id,
+    lat: r.latitude,
+    lng: r.longitude,
+    battery: r.battery_level,
+    status: r.is_in_zone === false ? "out_of_range" : "normal",
+    alert_status: r.is_in_zone === false ? "out_of_range" : null,
+    timestamp: r.recorded_at,
+  }));
+}
+
+async function fetchAssetHealthUD(assetId) {
+  const { data, error } = await supabase
+    .from("sensor_readings")
+    .select("heart_rate, temperature, recorded_at")
+    .eq("asset_id", assetId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    heart_rate: data.heart_rate,
+    temperature: data.temperature,
+    recorded_at: data.recorded_at,
+    status: data.heart_rate != null && data.heart_rate > 100 ? "high_stress" : "excellent",
+  };
+}
 
 export default function UnifiedDashboard() {
   const navigate = useNavigate();
@@ -95,16 +156,12 @@ export default function UnifiedDashboard() {
     const fetchAnimals = async () => {
       try {
         setLoading(true);
-        const data = await api.listMyAnimals();
+        const data = await fetchOwnerAnimalsUD();
         setAllAnimals(data);
         setError(null);
       } catch (err) {
-        if (err.response?.status === 401) {
-          localStorage.clear();
-          navigate("/login");
-        } else {
-          setError(t("loadingAnimals"));
-        }
+        console.error(err);
+        setError(t("loadingAnimals"));
       } finally {
         setLoading(false);
       }
@@ -178,12 +235,12 @@ export default function UnifiedDashboard() {
     }
     const fetch = async () => {
       try {
-        const data = await api.getTelemetryByIMEI(selectedAnimal.device_imei);
+        const data = await fetchAssetReadingsUD(selectedAnimal.device_imei);
         setTelemetryRecords(data);
         setLatestTelemetry(data.length > 0 ? data[0] : null);
       } catch (err) { console.error(err); }
       try {
-        const data = await api.getLatestHealth(selectedAnimal.device_imei);
+        const data = await fetchAssetHealthUD(selectedAnimal.device_imei);
         setHealthData(data);
       } catch (err) { console.error(err); }
     };
@@ -201,7 +258,7 @@ export default function UnifiedDashboard() {
       await Promise.all(
         filteredAnimals.map(async (a) => {
           try {
-            const h = await api.getLatestHealth(a.device_imei);
+            const h = await fetchAssetHealthUD(a.device_imei);
             if (h) out[a.device_imei] = h;
           } catch { /* ignore */ }
         }),

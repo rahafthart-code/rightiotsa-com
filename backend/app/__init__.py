@@ -1,2 +1,0 @@
-"""SmartHerd backend package."""
-
