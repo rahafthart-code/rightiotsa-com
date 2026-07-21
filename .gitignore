@@ -3,3 +3,14 @@
 .env.local
 .env.production
 .env.*.local
+
+# Dependencies and build output
+node_modules/
+dist/
+*.zip
+
+# Local dev database
+*.db
+
+# OS
+.DS_Store
