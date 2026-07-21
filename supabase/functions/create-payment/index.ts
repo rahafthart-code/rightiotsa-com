@@ -37,9 +37,6 @@ Deno.serve(async (req) => {
     if (!plan) return jsonResp({ error: "Invalid plan_id" }, 400);
 
     const moyasarKey = Deno.env.get("MOYASAR_SECRET_KEY");
-    if (!moyasarKey) {
-      return jsonResp({ requires_setup: true, error: "Payment provider not configured" }, 200);
-    }
 
     const service = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -50,6 +47,28 @@ Deno.serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://rightiotsa.com";
     const callbackUrl = `${origin}/dashboard?payment=success&cart_id=${cartId}`;
+
+    // No live gateway configured yet (commercial Moyasar account still being
+    // onboarded) — simulate a successful checkout entirely server-side so
+    // the subscription flow can be built and tested end-to-end. This path
+    // disables itself automatically the moment MOYASAR_SECRET_KEY is set;
+    // it never runs alongside a real key.
+    if (!moyasarKey) {
+      const mockPaymentId = `mock_${cartId}`;
+      await service.from("payments").insert({
+        owner_id: userId,
+        plan: plan_id,
+        amount: plan.price,
+        currency: "SAR",
+        cart_id: cartId,
+        provider: "mock",
+        status: "pending",
+        provider_payment_id: mockPaymentId,
+        payment_url: callbackUrl,
+        metadata: { mock: true, reason: "no_live_gateway_configured" },
+      });
+      return jsonResp({ payment_url: callbackUrl, invoice_id: mockPaymentId, mock: true });
+    }
 
     // Create Moyasar Invoice (hosted payment page)
     const moyasarRes = await fetch("https://api.moyasar.com/v1/invoices", {

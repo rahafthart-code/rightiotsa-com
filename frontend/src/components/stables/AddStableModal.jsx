@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import UpgradeModal from '../UpgradeModal';
 
 const ICONS = [
   { id: 'stable', emoji: '🌴', labelAr: 'عزبة', labelEn: 'Stable' },
@@ -20,6 +21,7 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
   const [radius, setRadius] = useState(5);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [upgradeInfo, setUpgradeInfo] = useState(null); // { current, max, plan } | null
 
   if (!open) return null;
 
@@ -51,7 +53,7 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
         const [subRes, countRes] = await Promise.all([
           supabase
             .from('subscriptions')
-            .select('max_stables')
+            .select('plan,max_stables')
             .eq('owner_id', ownerId)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -66,11 +68,7 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
         const current = countRes.count ?? 0;
         if (current >= max) {
           setSaving(false);
-          setError(
-            isAr
-              ? 'لقد وصلت للحد الأقصى المسموح به في باقتك، يرجى الترقية لإضافة المزيد'
-              : 'You have reached your plan limit. Please upgrade to add more.'
-          );
+          setUpgradeInfo({ current, max, plan: subRes.data?.plan });
           return;
         }
       }
@@ -114,6 +112,7 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
   }
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)' }}
@@ -272,6 +271,15 @@ export default function AddStableModal({ open, onClose, ownerId, onCreated, onSu
         </div>
       </div>
     </div>
+    <UpgradeModal
+      open={!!upgradeInfo}
+      onClose={() => setUpgradeInfo(null)}
+      reason="stable"
+      current={upgradeInfo?.current ?? 0}
+      max={upgradeInfo?.max ?? 1}
+      plan={upgradeInfo?.plan}
+    />
+    </>
   );
 }
 

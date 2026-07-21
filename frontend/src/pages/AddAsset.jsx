@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { usePlanLimits, LIMIT_MESSAGE_AR, LIMIT_MESSAGE_EN } from '../hooks/usePlanLimits';
 import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
+import UpgradeModal from '../components/UpgradeModal';
 
 const STEPS = 4;
 
@@ -35,7 +36,7 @@ export default function AddAsset() {
     try { ownerId = JSON.parse(localStorage.getItem('user') || '{}').id ?? ''; } catch {}
   }
 
-  const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets } = usePlanLimits(ownerId);
+  const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets, subscription } = usePlanLimits(ownerId);
   const { handleInsertError } = useSubscriptionGuard(ownerId);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -196,41 +197,17 @@ export default function AddAsset() {
 
   if (!limitsLoading && !canAddAsset) {
     return (
-      <div className="px-4 sm:px-6 py-12 max-w-xl mx-auto" dir={isAr ? 'rtl' : 'ltr'}>
-        <div
-          className="rounded-2xl p-6 text-center shadow-md"
-          style={{ background: '#fff', border: '1px solid rgba(197,165,90,0.4)' }}
-        >
-          <div className="text-5xl mb-3"></div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: '#006c35' }}>
-            {isAr ? 'وصلت للحد الأقصى' : 'Plan limit reached'}
-          </h2>
-          <p className="text-sm mb-4" style={{ color: '#6b6b6b' }}>
-            {isAr ? LIMIT_MESSAGE_AR : LIMIT_MESSAGE_EN}
-          </p>
-          <p className="text-xs mb-5" style={{ color: '#8a6d2a' }}>
-            {isAr
-              ? `الأصول الحالية: ${assetsCount} / ${maxAssets}`
-              : `Current assets: ${assetsCount} / ${maxAssets}`}
-          </p>
-          <div className="flex items-center justify-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="px-4 py-2 rounded-lg text-sm font-bold"
-              style={{ background: 'rgba(0,108,53,0.08)', color: '#006c35' }}
-            >
-              {isAr ? 'رجوع' : 'Back'}
-            </button>
-            <button
-              onClick={() => navigate('/subscribe')}
-              className="px-5 py-2 rounded-lg text-sm font-bold text-white"
-              style={{ background: '#006c35' }}
-            >
-              {isAr ? 'ترقية الباقة' : 'Upgrade Plan'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <>
+        <div className="px-4 sm:px-6 py-12 max-w-xl mx-auto" dir={isAr ? 'rtl' : 'ltr'} />
+        <UpgradeModal
+          open
+          onClose={() => navigate(-1)}
+          reason="asset"
+          current={assetsCount}
+          max={maxAssets}
+          plan={subscription?.plan}
+        />
+      </>
     );
   }
 

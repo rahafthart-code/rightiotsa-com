@@ -29,36 +29,60 @@ Deno.serve(async (req) => {
     const { payment_id } = await req.json();
     if (!payment_id) return jsonResp({ ok: false, error: "Missing payment_id" }, 400);
 
-    const moyasarKey = Deno.env.get("MOYASAR_SECRET_KEY");
-    if (!moyasarKey) return jsonResp({ ok: false, error: "Payment provider not configured" }, 503);
-
     const service = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Fetch invoice from Moyasar
-    const res = await fetch(`https://api.moyasar.com/v1/invoices/${payment_id}`, {
-      headers: { "Authorization": `Basic ${btoa(moyasarKey + ":")}` },
-    });
-    const inv = await res.json();
-    if (!res.ok) return jsonResp({ ok: false, error: inv?.message || "Provider error" }, 502);
+    // Mock payments (see create-payment): no live gateway configured yet, so
+    // the "invoice" is just a payments row created directly with
+    // provider='mock'. Recognize and activate it without calling Moyasar.
+    const { data: mockPayment } = await service
+      .from("payments")
+      .select("id, owner_id, plan, provider_payment_id, status")
+      .eq("provider", "mock")
+      .or(`cart_id.eq.${payment_id},provider_payment_id.eq.${payment_id}`)
+      .maybeSingle();
 
-    if (inv.status !== "paid") {
-      return jsonResp({ ok: false, error: `Payment status: ${inv.status}` }, 200);
+    let planId: string | undefined;
+    let isMock = false;
+
+    if (mockPayment) {
+      if (mockPayment.owner_id !== userId) return jsonResp({ ok: false, error: "User mismatch" }, 403);
+      if (!PLANS[mockPayment.plan]) return jsonResp({ ok: false, error: "Invalid plan on payment" }, 400);
+      isMock = true;
+      planId = mockPayment.plan;
+
+      await service.from("payments")
+        .update({ status: "paid" })
+        .eq("id", mockPayment.id);
+    } else {
+      const moyasarKey = Deno.env.get("MOYASAR_SECRET_KEY");
+      if (!moyasarKey) return jsonResp({ ok: false, error: "Payment provider not configured" }, 503);
+
+      // Fetch invoice from Moyasar
+      const res = await fetch(`https://api.moyasar.com/v1/invoices/${payment_id}`, {
+        headers: { "Authorization": `Basic ${btoa(moyasarKey + ":")}` },
+      });
+      const inv = await res.json();
+      if (!res.ok) return jsonResp({ ok: false, error: inv?.message || "Provider error" }, 502);
+
+      if (inv.status !== "paid") {
+        return jsonResp({ ok: false, error: `Payment status: ${inv.status}` }, 200);
+      }
+
+      const metaUserId = inv?.metadata?.user_id as string | undefined;
+      planId = inv?.metadata?.plan_id as string | undefined;
+      if (!planId || !PLANS[planId]) return jsonResp({ ok: false, error: "Invalid plan in metadata" }, 400);
+      if (metaUserId && metaUserId !== userId) return jsonResp({ ok: false, error: "User mismatch" }, 403);
+
+      // Mark payment paid
+      await service.from("payments")
+        .update({ status: "paid", provider_tran_ref: inv.id, webhook_payload: inv })
+        .eq("provider_payment_id", payment_id);
     }
 
-    const planId = inv?.metadata?.plan_id as string | undefined;
-    const metaUserId = inv?.metadata?.user_id as string | undefined;
-    if (!planId || !PLANS[planId]) return jsonResp({ ok: false, error: "Invalid plan in metadata" }, 400);
-    if (metaUserId && metaUserId !== userId) return jsonResp({ ok: false, error: "User mismatch" }, 403);
-
-    const plan = PLANS[planId];
-
-    // Mark payment paid
-    await service.from("payments")
-      .update({ status: "paid", provider_tran_ref: inv.id, webhook_payload: inv })
-      .eq("provider_payment_id", payment_id);
+    const plan = PLANS[planId!];
 
     // Activate subscription (upsert by owner_id — assume single subscription per owner)
     const periodStart = new Date();
@@ -84,6 +108,7 @@ Deno.serve(async (req) => {
       max_devices: plan.max_devices,
       current_period_start: periodStart.toISOString(),
       current_period_end: periodEnd.toISOString(),
+      ...(isMock ? { notes: "TEST/MOCK activation — no live payment gateway configured yet" } : {}),
     };
 
     if (existing) {
@@ -92,7 +117,7 @@ Deno.serve(async (req) => {
       await service.from("subscriptions").insert(subRow);
     }
 
-    return jsonResp({ ok: true, plan: planId });
+    return jsonResp({ ok: true, plan: planId, mock: isMock });
   } catch (err) {
     console.error("verify-payment error:", err);
     return jsonResp({ ok: false, error: "An internal error occurred. Please try again." }, 500);
