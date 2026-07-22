@@ -94,6 +94,37 @@ Two tables that look like duplicates but aren't quite:
   schema-design pass — they currently serve genuinely different roles
   (auth/ingestion vs. UI read-model), just with a confusingly similar name.
 
+## Alerting: the notifications pipeline is real, the delivery UI wasn't wired
+
+- `sensor_readings` insert triggers (`sync_asset_stability` and friends)
+  already create throttled (30-min) `notifications` rows for
+  `danger_alert`/`warning_alert`/`zone_breach` — this part is live and does
+  not need to be rebuilt.
+- `GlobalDangerOverlay` (mounted at the true app root in `App.jsx`, alongside
+  `GeofenceBreachToast`) subscribes to Realtime INSERTs on `notifications`
+  and shows `DangerOverlay` (full-screen red modal, vet-call button) for
+  `danger_alert`/`zone_breach`. It used to live only inside `ProtectedLayout`,
+  which the actual primary `/dashboard` route (`OwnerDashboardDark`) doesn't
+  use — so it never reached real users. Fixed by moving it to the root.
+- `GeofenceBreachToast` (softer toast, also root-mounted) handles the same
+  event types plus `warning_alert` — this is intentional layering (toast for
+  everything, full-screen modal for the two most severe types), not
+  duplication. Don't remove one thinking it supersedes the other.
+- A completely dead 4th variant (`components/global/DangerAlertOverlay.jsx`
+  + 3 other unreferenced files in that directory) was deleted — if you find
+  yourself wanting a `<Something>Overlay.jsx` for this, check `DangerOverlay.jsx`
+  first, it almost certainly already does what you need.
+- `device-watchdog` (offline + low-battery detection, throttled notifications)
+  existed but was **never actually scheduled** — a separate raw-SQL cron
+  (`mark-offline-devices`, 1h threshold, silent) was the only thing running.
+  Fixed via migration `20260722120000_iot_watchdog_scheduling.sql`: removed
+  the old cron, extended `notifications.type` to allow `device_offline`/
+  `low_battery` (the CHECK constraint didn't have them — the old code's insert
+  was silently failing), and scheduled the real function via `pg_cron` +
+  `pg_net` + a Vault-stored secret. Applying this migration and setting the
+  `CRON_SECRET` edge function secret is a manual one-time step — see the
+  migration file's header comment.
+
 ## Security
 
 - Never commit `.env` files with real values — they're gitignored. This repo's

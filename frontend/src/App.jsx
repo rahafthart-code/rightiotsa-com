@@ -18,6 +18,7 @@ import MfaEnrollPage from "./pages/MfaEnrollPage";
 import MfaRequired from "./pages/MfaRequired";
 import AuthGuard from "./components/AuthGuard";
 import GeofenceBreachToast from "./components/GeofenceBreachToast";
+import GlobalDangerOverlay from "./components/GlobalDangerOverlay";
 import SubscribePage from "./pages/SubscribePage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
@@ -188,6 +189,7 @@ export default function App() {
       <WhatsAppWidget />
       <PushOptInBanner />
       <GeofenceBreachToast />
+      <GlobalDangerOverlay />
     </RootErrorBoundary>
   );
 }
