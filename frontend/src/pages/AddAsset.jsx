@@ -8,8 +8,7 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
-import { usePlanLimits, LIMIT_MESSAGE_AR, LIMIT_MESSAGE_EN } from '../hooks/usePlanLimits';
-import { useSubscriptionGuard } from '../hooks/useSubscriptionGuard';
+import { useSubscriptionGuard, LIMIT_MESSAGE_AR, LIMIT_MESSAGE_EN } from '../hooks/useSubscriptionGuard';
 import UpgradeModal from '../components/UpgradeModal';
 
 const STEPS = 4;
@@ -36,8 +35,8 @@ export default function AddAsset() {
     try { ownerId = JSON.parse(localStorage.getItem('user') || '{}').id ?? ''; } catch {}
   }
 
-  const { loading: limitsLoading, canAddAsset, assetsCount, maxAssets, subscription } = usePlanLimits(ownerId);
-  const { handleInsertError } = useSubscriptionGuard(ownerId);
+  const { usage, loading: limitsLoading, handleInsertError } = useSubscriptionGuard(ownerId);
+  const canAddAsset = usage?.canAddAsset ?? true;
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -203,9 +202,9 @@ export default function AddAsset() {
           open
           onClose={() => navigate(-1)}
           reason="asset"
-          current={assetsCount}
-          max={maxAssets}
-          plan={subscription?.plan}
+          current={usage?.usedAssets ?? 0}
+          max={usage?.maxAssets ?? 5}
+          plan={usage?.plan}
         />
       </>
     );

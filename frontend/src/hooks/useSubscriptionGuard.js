@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 
+export const LIMIT_MESSAGE_AR = 'لقد وصلت للحد الأقصى المسموح به في باقتك، يرجى الترقية لإضافة المزيد';
+export const LIMIT_MESSAGE_EN = 'You have reached your plan limit. Please upgrade to add more.';
+
 /**
  * Subscription guard — reads plan limits from `subscriptions` and live counts from
  * `assets` / `stables` / `devices`, exposes can-add booleans + upgrade redirect.
@@ -29,8 +32,13 @@ export function useSubscriptionGuard(ownerId) {
         .eq('owner_id', ownerId).eq('is_active', true),
       supabase.from('stables').select('id', { count: 'exact', head: true })
         .eq('owner_id', ownerId).eq('is_active', true),
-      supabase.from('devices').select('id', { count: 'exact', head: true })
-        .eq('owner_id', ownerId).eq('is_active', true),
+      // sensor_devices (not devices) is the live-synced device-status table —
+      // it's upserted on every sensor_readings insert regardless of whether
+      // the device was self-registered (register-device -> devices) or
+      // admin-activated (admin-activate-device -> sensor_devices directly),
+      // so it's the accurate count of devices actually in use.
+      supabase.from('sensor_devices').select('id', { count: 'exact', head: true })
+        .eq('owner_id', ownerId),
     ]);
 
     const sub = subRes.data || {};

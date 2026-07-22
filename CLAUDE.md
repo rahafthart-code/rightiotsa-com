@@ -55,6 +55,27 @@ Auth, Edge Functions) — there is no separate application backend server. See
   `edge_function_errors` tables) — but never log secrets, full payloads
   containing PII, or payment details.
 
+## Known architecture gotcha: `devices` vs `sensor_devices`
+
+Two tables that look like duplicates but aren't quite:
+- `devices` — the IoT auth/ingestion table (`api_key_hash`), written by
+  `register-device` (self-service) and read by `iot-ingest`/`volt-webhook`.
+  `sensor_readings.device_id` FKs here.
+- `sensor_devices` — a denormalized, human-facing device-status table kept in
+  sync by a trigger (`update_device_on_reading`) on every `sensor_readings`
+  insert, keyed by the string `assets.sensor_device_id`. Also written
+  directly by `admin-activate-device` (admin-side activation never touches
+  `devices` at all). This is what nearly all UI (dashboards, admin panel,
+  `AssetPassport`, health hooks) actually reads.
+- `useSubscriptionGuard`'s device count reads `sensor_devices` (fixed — it
+  used to read `devices`, which undercounts admin-activated devices). There
+  is also no DB-level trigger enforcing `max_devices` (unlike
+  `enforce_asset_limit`/`enforce_stable_limit`) — device-limit enforcement is
+  client-side only for now.
+- Don't assume these two tables should be merged into one without a real
+  schema-design pass — they currently serve genuinely different roles
+  (auth/ingestion vs. UI read-model), just with a confusingly similar name.
+
 ## Security
 
 - Never commit `.env` files with real values — they're gitignored. This repo's
