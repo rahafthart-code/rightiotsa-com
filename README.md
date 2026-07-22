@@ -62,6 +62,8 @@ npm run dev
 
 Runs at `http://localhost:5173` (or run `npm run dev` from the repo root, which wraps the same command on port 8080).
 
+Run `npm test` (Vitest) to run the frontend test suite, or `npm run test:watch` while iterating.
+
 ### 2. Supabase
 
 The project already has a hosted Supabase instance (`project_id` in `supabase/config.toml`). To work on migrations or functions locally, install the [Supabase CLI](https://supabase.com/docs/guides/cli) and:

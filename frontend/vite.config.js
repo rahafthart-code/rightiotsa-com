@@ -18,4 +18,10 @@ export default defineConfig({
   preview: {
     headers: securityHeaders,
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.js"],
+    css: false,
+  },
 });

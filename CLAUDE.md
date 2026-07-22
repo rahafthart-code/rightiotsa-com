@@ -36,6 +36,24 @@ Auth, Edge Functions) — there is no separate application backend server. See
   instance) — never introduce a second client or a competing HTTP backend
   (a parallel FastAPI backend was already retired for exactly this reason).
 
+## Testing (`frontend/`)
+
+- `npm test` (Vitest, jsdom) — run before considering frontend work on hooks
+  or components done. `npm run test:watch` while iterating.
+- Mock `../lib/supabaseClient` per-test with the chainable helper in
+  `src/test/supabaseMock.js` (`mockSupabaseFrom({ table: response })`) rather
+  than hand-rolling a new query-builder mock each time.
+- Mock `react-router-dom`'s `useNavigate` and `react-i18next`'s
+  `useTranslation` inline per test file (see `useSubscriptionGuard.test.jsx`,
+  `UpgradeModal.test.jsx` for the pattern) instead of a real Router/i18next
+  instance — cheaper and the components only ever touch `navigate()` and
+  `i18n.language`.
+- Edge functions (`supabase/functions/*`, Deno) are **not** covered by Vitest
+  — there's no Deno test runner wired up in this repo yet. Business logic
+  that can reasonably move to the frontend layer (or a shared, Node-testable
+  module) should be tested there; Deno-only logic is currently unverified by
+  automated tests, so review those changes extra carefully.
+
 ## Backend / Edge Functions (`supabase/functions/`)
 
 - All privileged / service-role logic belongs in an edge function, written in
