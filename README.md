@@ -43,11 +43,11 @@ There is no custom backend server. **Supabase is the single backend**: Postgres 
 | `simulate-movement` | Admin-only live-demo mode: jitters GPS/vitals for active devices through the same stability-calculation path real telemetry uses |
 | `register-device`, `admin-activate-device` | Device lifecycle (linking a device to an owner/asset) |
 | `device-watchdog` | Marks devices offline when telemetry goes stale |
-| `create-payment`, `verify-payment`, `payment-webhook` | Subscription payments (Moyasar) |
+| `create-payment`, `verify-payment` | Subscription payments (Moyasar; falls back to a server-side mock activation when no gateway key is configured yet) |
 | `cloudinary-upload` | Image uploads |
 | `re-engagement`, `weekly-report`, `uptime-monitor`, `log-error` | Notifications, reporting, and monitoring |
 
-Functions that must be callable by devices without a user session (`iot-ingest`, `volt-webhook`, `payment-webhook`, `weekly-report`) have `verify_jwt = false` in `supabase/config.toml` and authenticate via a device/API key or webhook signature instead.
+Functions that must be callable by devices without a user session (`iot-ingest`, `volt-webhook`, `weekly-report`) have `verify_jwt = false` in `supabase/config.toml` and authenticate via a device/API key instead.
 
 ## Quick Start
 

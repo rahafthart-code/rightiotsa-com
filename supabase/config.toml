@@ -8,6 +8,3 @@ verify_jwt = false
 
 [functions.iot-ingest]
 verify_jwt = false
-
-[functions.payment-webhook]
-verify_jwt = false
