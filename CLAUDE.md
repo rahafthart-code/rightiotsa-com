@@ -128,6 +128,20 @@ Two tables that look like duplicates but aren't quite:
   and hardcoded into the watchdog cron's `net.http_post` URL — if the project
   ever changes again, both places need updating, plus a new migration to
   reschedule the cron since already-applied migrations aren't re-run).
+- Same bug, three more functions: `uptime-monitor`, `re-engagement`, and
+  `weekly-report` were each fully built with a header comment claiming a
+  cron schedule ("Triggered by pg_cron every 5 min", etc.) that never
+  actually existed anywhere in the migrations. Fixed in
+  `20260724100000_schedule_dormant_cron_functions.sql`, reusing the same
+  `device_watchdog_cron_secret` Vault secret (`CRON_SECRET` is one
+  project-wide edge function secret, not per-function — no new manual step
+  needed beyond what device-watchdog already required). Before adding a
+  *new* cron-triggered function, check `supabase/migrations/` for an actual
+  `cron.schedule(...)` call, not just a comment claiming one — this codebase
+  has a track record of the two drifting apart.
+- `re-engagement` fires for any owner with `profiles.daily_digest_enabled`
+  (default `true`, opt-out) absent ≥3 days — scheduling it means real users
+  start getting daily notifications the next morning, not a no-op.
 
 ## Admin panel (`/admin/*`)
 
