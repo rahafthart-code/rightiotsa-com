@@ -14,3 +14,7 @@ dist/
 
 # OS
 .DS_Store
+
+# Supabase CLI local state (machine-specific, not project config)
+supabase/.temp/
+supabase/.branches/
