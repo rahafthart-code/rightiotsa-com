@@ -1,63 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import { Activity, Cpu, AlertTriangle, Bell, CreditCard, Users } from "lucide-react";
+import React from "react";
+import { Activity, Cpu, AlertTriangle, Bell, CreditCard, Users, BatteryLow, Radio } from "lucide-react";
 import SimulationControl from "../../components/SimulationControl";
+import { useSystemHealth } from "../hooks/useSystemHealth";
 
-// Real-time admin dashboard tile group: device status, daily notifications,
-// recent critical errors, payment-gateway readiness, active users.
+const REALTIME_LABEL = {
+  connecting: { text: "جارِ الاتصال", color: "#94a3b8" },
+  connected: { text: "متصل", color: "#22c55e" },
+  closed: { text: "منقطع", color: "#94a3b8" },
+  error: { text: "خطأ اتصال", color: "#ef4444" },
+};
+
+// Real-time admin dashboard tile group: device status/battery/response
+// rate, daily notifications, recent critical errors, edge function health,
+// payment-gateway readiness, active users.
 export default function SystemHealthPanel() {
-  const [stats, setStats] = useState({
-    devicesOnline: 0,
-    devicesOffline: 0,
-    devicesTotal: 0,
-    activeUsers24h: 0,
-    notificationsToday: 0,
-    criticalErrorsHour: 0,
-    paymentsToday: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    const dayAgo = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-    const hourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
-    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
-
-    const [devTotal, devOnline, devOffline, activeUsers, notifs, errs, sysErrs, payments] = await Promise.all([
-      supabase.from("sensor_devices").select("id", { count: "exact", head: true }),
-      supabase.from("sensor_devices").select("id", { count: "exact", head: true }).eq("status", "online"),
-      supabase.from("sensor_devices").select("id", { count: "exact", head: true }).eq("status", "offline"),
-      supabase.from("profiles").select("user_id", { count: "exact", head: true }).gte("last_seen_at", dayAgo),
-      supabase.from("notifications").select("id", { count: "exact", head: true }).gte("created_at", startOfDay.toISOString()),
-      supabase.from("edge_function_errors").select("id", { count: "exact", head: true }).gte("created_at", hourAgo),
-      supabase.from("error_log").select("id", { count: "exact", head: true }).eq("resolved", false).gte("created_at", hourAgo),
-      supabase.from("payments_log").select("id", { count: "exact", head: true }).gte("paid_at", startOfDay.toISOString()),
-    ]);
-
-    setStats({
-      devicesTotal: devTotal.count ?? 0,
-      devicesOnline: devOnline.count ?? 0,
-      devicesOffline: devOffline.count ?? 0,
-      activeUsers24h: activeUsers.count ?? 0,
-      notificationsToday: notifs.count ?? 0,
-      criticalErrorsHour: (errs.count ?? 0) + (sysErrs.count ?? 0),
-      paymentsToday: payments.count ?? 0,
-    });
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    refresh();
-    // Poll every 30s + realtime on sensor_devices
-    const interval = setInterval(refresh, 30000);
-    const ch = supabase
-      .channel("admin-system-health")
-      .on("postgres_changes", { event: "*", schema: "public", table: "sensor_devices" }, refresh)
-      .subscribe();
-    return () => {
-      clearInterval(interval);
-      supabase.removeChannel(ch);
-    };
-  }, []);
+  const { stats, loading, realtimeStatus } = useSystemHealth();
+  const rt = REALTIME_LABEL[realtimeStatus] ?? REALTIME_LABEL.connecting;
 
   const tiles = [
     {
@@ -73,6 +31,20 @@ export default function SystemHealthPanel() {
       sub: stats.devicesOffline > 0 ? "تحتاج مراجعة" : "كل الأجهزة تعمل",
       color: stats.devicesOffline > 0 ? "#ef4444" : "#94a3b8",
       icon: Cpu,
+    },
+    {
+      label: "بطارية منخفضة",
+      value: stats.devicesLowBattery,
+      sub: stats.devicesLowBattery > 0 ? "أقل من 20%" : "كل البطاريات جيدة",
+      color: stats.devicesLowBattery > 0 ? "#f59e0b" : "#94a3b8",
+      icon: BatteryLow,
+    },
+    {
+      label: "معدل استجابة IoT",
+      value: `${stats.responseRatePct}%`,
+      sub: `${stats.devicesResponding} جهاز خلال 30 دقيقة`,
+      color: stats.responseRatePct >= 80 ? "#22c55e" : stats.responseRatePct >= 50 ? "#f59e0b" : "#ef4444",
+      icon: Radio,
     },
     {
       label: "مستخدمون نشطون (24س)",
@@ -98,7 +70,7 @@ export default function SystemHealthPanel() {
     {
       label: "بوابة الدفع",
       value: stats.paymentsToday ?? 0,
-      sub: "دفعات اليوم — Edfapay/ClickPay",
+      sub: "دفعات ناجحة اليوم — Moyasar",
       color: "#c5a55a",
       icon: CreditCard,
     },
@@ -113,17 +85,16 @@ export default function SystemHealthPanel() {
             مراقبة حية للأجهزة، الإشعارات، الأخطاء وبوابة الدفع
           </p>
         </div>
-        {loading ? (
-          <span className="text-xs text-slate-400">…تحميل</span>
-        ) : (
-          <span className="text-xs text-emerald-400 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            متصل
+        <div className="flex items-center gap-3">
+          <span className="text-xs flex items-center gap-1.5" style={{ color: rt.color }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: rt.color }} />
+            Realtime: {rt.text}
           </span>
-        )}
+          {loading && <span className="text-xs text-slate-400">…تحديث</span>}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {tiles.map((t) => {
           const Icon = t.icon;
           return (
@@ -145,6 +116,24 @@ export default function SystemHealthPanel() {
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-6 rounded-xl p-5" style={{ background: "#1c2333", border: "1px solid #2a3346" }}>
+        <div className="text-sm font-bold text-white mb-3">حالة Edge Functions (آخر 24 ساعة)</div>
+        {stats.edgeFunctionErrors.length === 0 ? (
+          <div className="text-xs" style={{ color: "#22c55e" }}>لا توجد أخطاء مسجّلة — كل الدوال تعمل بسلاسة</div>
+        ) : (
+          <div className="space-y-2">
+            {stats.edgeFunctionErrors.map((f) => (
+              <div key={f.function_name} className="flex items-center justify-between text-xs">
+                <span className="font-mono text-slate-300">{f.function_name}</span>
+                <span className="px-2 py-0.5 rounded-full font-bold" style={{ background: "rgba(239,68,68,0.14)", color: "#ef4444" }}>
+                  {f.count} خطأ
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mt-6">

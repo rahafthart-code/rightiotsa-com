@@ -124,6 +124,25 @@ Two tables that look like duplicates but aren't quite:
   `pg_net` + a Vault-stored secret. Applying this migration and setting the
   `CRON_SECRET` edge function secret is a manual one-time step — see the
   migration file's header comment.
+- Live Supabase project ref is `letmkvhragnvdtlkraua` (in `supabase/config.toml`
+  and hardcoded into the watchdog cron's `net.http_post` URL — if the project
+  ever changes again, both places need updating, plus a new migration to
+  reschedule the cron since already-applied migrations aren't re-run).
+
+## Admin panel (`/admin/*`)
+
+- `/admin/system` (`SystemHealthPage.jsx` + `useSystemHealth` hook): live
+  tiles for device online/offline/low-battery counts, IoT response rate
+  (% of devices with a signal in the last 30 min), active users, today's
+  notifications, critical errors, an Edge Function error breakdown (last
+  24h), and a Realtime connectivity self-check badge. Payment stat reads
+  the `payments` table (Moyasar/mock) — **not** `payments_log`, which
+  belonged to the retired ClickPay/Edfapay webhook and is never written to.
+- `/admin/audit` (`AuditLogPage.jsx` + `useAuditLog`/`useFilteredAuditLog`
+  hooks): unified, filterable, sortable, CSV-exportable view over
+  `notifications` + `error_log` + `edge_function_errors` (last 200 rows
+  each, normalized into one shape). Admin RLS already allowed reading all
+  three tables — this was purely a missing frontend, no new policies needed.
 
 ## Security
 

@@ -56,6 +56,7 @@ const AdminDevicesPage = lazy(() => import("./admin/pages/DevicesPage"));
 const AdminSubscriptionsPage = lazy(() => import("./admin/pages/SubscriptionsPage"));
 const AdminPlaceholderPage = lazy(() => import("./admin/pages/PlaceholderPage"));
 const AdminSystemHealthPage = lazy(() => import("./admin/pages/SystemHealthPage"));
+const AdminAuditLogPage = lazy(() => import("./admin/pages/AuditLogPage"));
 const VerifyAssetPage = lazy(() => import("./pages/VerifyAssetPage"));
 
 // Preview/demo mode: seed a mock session so the dashboard remains accessible
@@ -179,6 +180,7 @@ export default function App() {
             <Route path="devices" element={<AdminDevicesPage />} />
             <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
             <Route path="system" element={<AdminSystemHealthPage />} />
+            <Route path="audit" element={<AdminAuditLogPage />} />
             <Route path="reports" element={<AdminPlaceholderPage title="التقارير" subtitle="تقارير تفصيلية للعملاء والاشتراكات والأجهزة." />} />
             <Route path="settings" element={<AdminPlaceholderPage title="الإعدادات" subtitle="إعدادات لوحة الإدارة." />} />
           </Route>

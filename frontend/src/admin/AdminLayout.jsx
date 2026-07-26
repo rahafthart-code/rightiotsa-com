@@ -13,6 +13,7 @@ const NAV = [
   { to: '/admin/devices', label: 'الأجهزة', icon: Cpu },
   { to: '/admin/subscriptions', label: 'الاشتراكات', icon: CreditCard },
   { to: '/admin/system', label: 'حالة النظام', icon: Activity },
+  { to: '/admin/audit', label: 'السجلات والتنبيهات', icon: ShieldAlert },
   { to: '/admin/reports', label: 'التقارير', icon: BarChart3 },
   { to: '/admin/settings', label: 'الإعدادات', icon: Settings },
 ];
